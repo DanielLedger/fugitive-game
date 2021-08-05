@@ -6,11 +6,14 @@ const mapbox_token = config.get("Mapbox.Token");
 const express = require('express');
 const app = express();
 
+//Import additional routes defined in other files.
+require('./maproutes').init(mapbox_token, app);
+
 //Test server
 app.get("/", (req, resp) => {
 	resp.send(mapbox_token);
 });
 
 app.listen(port, () => {
-	console.log("Application started.");
+	console.log("Application started on port " + port + ".");
 });
