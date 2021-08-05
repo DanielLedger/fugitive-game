@@ -41,15 +41,17 @@ function init(mapbox_token, app){
 	}
 	
 	app.get("/tile", (req, res) => {
-		params = req.query;
+		var params = req.query;
 		//Prevents minor directory traversal (by setting one of x,y,z to a path relative to the cache directory) and also error handling.
-		x = Number(params.x);
-		y = Number(params.y);
-		z = Number(params.z);
-		fpath = file_path.replace('{x}', x).replace('{y}', y).replace('{z}', z);
+		var x = Number(params.x);
+		var y = Number(params.y);
+		var z = Number(params.z);
+		console.debug("Getting tile " + x + "," + y + "," + z);
+		var fpath = file_path.replace('{x}', x).replace('{y}', y).replace('{z}', z);
 		fs.promises.open(fpath).then((f) => {
 			//Image is cached
 			f.readFile().then((img) => {
+				console.debug("Serving tile " + x + "," + y + "," + z + " from file location " + fpath)
 				res.type('.jpeg');
 				res.send(img);
 				f.close();
@@ -60,6 +62,7 @@ function init(mapbox_token, app){
 				res.type('.jpeg');
 				res.send(img);
 				//Now, cache the file.
+				console.debug("Caching tile " + x + "," + y + "," + z + " at file location " + fpath);
 				cacheTile(fpath, img);
 			},
 			(err) => {
