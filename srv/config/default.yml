@@ -1,0 +1,5 @@
+Server:
+  Port: 3000
+  
+Mapbox:
+  Token: "YOUR-TOKEN-HERE"
