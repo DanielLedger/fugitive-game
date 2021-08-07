@@ -1,6 +1,6 @@
 var serverIP = window.sessionStorage.getItem('GameIP');
 
-if (srvIp === null) {
+if (serverIP === null) {
 	//No connected server, redirect to the main page.
 	document.location = "index.html"
 }
