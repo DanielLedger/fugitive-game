@@ -35,15 +35,21 @@
         <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
         <meta name="color-scheme" content="light dark">
         <link rel="stylesheet" href="css/index.css">
-        <title>Hello World</title>
+		<!-- Bootstrap -->
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+		<script src="js/bootstrap.bundle.min.js"></script>
+		<!-- /Bootstrap -->
+        <title>Fugitive - Join or start a game</title>
     </head>
     <body>
         <div class="app">
-            <h1>Apache Cordova</h1>
-            <div id="deviceready" class="blink">
-                <p class="event listening">Connecting to Device</p>
-                <p class="event received">Device is Ready</p>
-            </div>
+			<label for="serverip">Server IP</label>
+            <input id="serverip" type="text" class="form-control form-control-lg" placeholder="Server IP">
+			<label for="gamecode">Game passcode</label>
+			<input id="gamecode" type="text" class="form-control" placeholder="Game passcode (optional)" disabled> <!--Not currently used-->
+			<button id="makegame" class="btn btn-lg btn-primary">Start game</button><br>
+			<button id="makegame" class="btn btn-secondary">Join game</button>
+			
         </div>
         <script src="cordova.js"></script>
         <script src="js/index.js"></script>
