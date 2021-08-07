@@ -51,8 +51,10 @@ function postGameStart() {
 //Two functions, will likely end up fairly similar.
 function onStartGame() {
 	console.log("Starting game: contacting server...");
+	postGameStart();
 }
 
 function onJoinGame() {
 	console.log("Joining game: contacting server...");
+	postGameStart();
 }
