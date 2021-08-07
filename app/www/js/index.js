@@ -45,6 +45,7 @@ function preGameStart(callNext) {
 
 function postGameStart() {
 	//Will likely redirect to an options page or something (depending on whether we started or joined the game).
+	document.location = "game.html";
 }
 
 //Two functions, will likely end up fairly similar.
