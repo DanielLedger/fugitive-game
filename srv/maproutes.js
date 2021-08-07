@@ -2,22 +2,20 @@ const got = require('got');
 
 const fs = require('fs');
 
-//TODO: Move to config
-const tileset = 'mapbox.mapbox-streets-v8';
-
-var req_url = `https://api.mapbox.com/v4/${tileset}/{z}/{x}/{y}@2x.jpg90`; //The URL we're sending the request to. TODO make this configurable.
-
-var cache_dir = `./cache/tiles/${tileset}`;
-
-fs.mkdirSync(cache_dir, {recursive: true}); //Creates the cache (needed before requests can be handled, so may as well be sync).
-
-var file_path = `${cache_dir}/{z}_{x}_{y}.jpeg`;
-
-function init(mapbox_token, app){
+function init(config, app){
+	var mapbox_token = config.get("Mapbox.Token");
 	if (mapbox_token === 'YOUR_TOKEN_HERE'){
 		console.error('Please create a copy of the config and add an actual mapbox token to the file!');
 		process.exit(1); //End immediately.
 	}
+	
+	var tileset = config.get("Mapbox.Tileset");
+	
+	var req_url = `https://api.mapbox.com/v4/${tileset}/{z}/{x}/{y}@2x.jpg90`; //The URL we're sending the request to. TODO make this configurable.
+	var cache_dir = `./cache/tiles/${tileset}`;
+	var file_path = `${cache_dir}/{z}_{x}_{y}.jpeg`;
+	
+	fs.mkdirSync(cache_dir, {recursive: true}); //Creates the cache (needed before requests can be handled, so may as well be sync).
 	
 	async function getMapboxTile(x, y, z){
 		//Gets a mapbox tile from mapbox (unsurprisingly). Annoyingly, this needs to be done by hand, since there's no obvious way to use the API.

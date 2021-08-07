@@ -3,3 +3,4 @@ Server:
   
 Mapbox:
   Token: "YOUR-TOKEN-HERE"
+  Tileset: "mapbox.mapbox-streets-v8"
