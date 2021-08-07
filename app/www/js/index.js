@@ -25,5 +25,33 @@ function onDeviceReady() {
     // Cordova is now initialized. Have fun!
 
     console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
-    document.getElementById('deviceready').classList.add('ready');
+
+	//Add functionality to the join game and start game buttons.
+	document.getElementById('makegame').onclick = () => {
+		preGameStart(onStartGame);
+	};
+	
+	document.getElementById('joingame').onclick = () => {
+		preGameStart(onJoinGame);
+	};
+}
+
+function preGameStart(callNext) {
+	//Save the entered IP address to session storage.
+	window.sessionStorage.setItem("GameIP", document.getElementById('serverip').value);
+	//Call our "callback" function.
+	callNext();
+}
+
+function postGameStart() {
+	//Will likely redirect to an options page or something (depending on whether we started or joined the game).
+}
+
+//Two functions, will likely end up fairly similar.
+function onStartGame() {
+	console.log("Starting game: contacting server...");
+}
+
+function onJoinGame() {
+	console.log("Joining game: contacting server...");
 }
