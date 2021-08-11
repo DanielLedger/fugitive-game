@@ -1,5 +1,9 @@
 Server:
   Port: 3000
+  SSL:
+    Enabled: false #SSL currently broken, use nginx or similar if required.
+    Key: "sslkey.key"
+    Cert: "sslcert.crt" 
   
 Mapbox:
   Token: "YOUR-TOKEN-HERE"
