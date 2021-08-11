@@ -4,7 +4,7 @@ var accuracyCircle;
 
 function setupMap() {
 	map = L.map('map');
-	L.tileLayer("http://" + serverIP + "/tile?x={x}&y={y}&z={z}", {
+	L.tileLayer("https://" + serverIP + "/tile?x={x}&y={y}&z={z}", {
 		//Standard settings for mapbox (which we're using for the forseeable future).
 		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
     	maxZoom: 18,
@@ -12,12 +12,9 @@ function setupMap() {
 		zoomOffset: -1
 	}).addTo(map);
 	map.on('locationfound', onLocationFound);
-	window.setInterval(updateLoc, 2000);
+	map.locate({watch: true, setView: true, maxZoom: 16});
 }
 
-function updateLoc(){
-	map.locate({setView: true, maxZoom: 16});
-}
 
 //Copy-pasted from Leaflet example code, then modified to suit me.
 function onLocationFound(e) {
