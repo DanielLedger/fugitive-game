@@ -28,10 +28,15 @@ class Game {
 			//Player's current session is now the new one.
 			this.players[playerID] = newSession;
 			this.sessionRevLookup[newSession] = playerID;
+			var currentGame = this; //Required due to scope problems.
 			//Set up the new session with a handler.
 			newSession.onmessage = (msg) => {
-				this.handleWSMessage(playerID, msg);
+				currentGame.handleWSMessage(playerID, msg);
 			};
+			//Also set it up with a close handler.
+			newSession.onclose = () => {
+				currentGame.closeSession(this); //This is why we need a 'currentGame' reference: 'this' refers to the websocket.
+			}
 		}
 	}
 	
