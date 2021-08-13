@@ -6,8 +6,65 @@ const port = config.get("Server.Port");
 const express = require('express');
 const app = express();
 
-//Load and setup ExpressWS
+//Load and setup ExpressWS. This currently won't work with HTTPS.
 const expressWS = require('express-ws')(app);
+
+//Load game class.
+const Game = require('./game').Game;
+
+//All currently running games
+var games = {};
+
+//Define a game start, game join and game WS route.
+app.post("/game/start", (req, resp) => {
+	//Unsurprisingly, a game start route. Creates and initialises a game.
+	var code = req.query.code;
+	if (code === undefined){
+		resp.sendStatus(400); //Can't send no code at all.
+	}
+	else if (games[code] !== undefined){
+		//Can't duplicate a code (yes I'm aware of enumeration, fix is TODO)
+		resp.sendStatus(409);
+	}
+	else {
+		//Create a game with this code, and reply with the user's access UUID.
+		var game = new Game();
+		var playerUUID = game.initSession();
+		games[code] = game;
+		resp.json(playerUUID);
+	}
+});
+
+//Join game route, so the code must be correct.
+app.post("/game/join", (req, resp) => {
+	//Similar to start game, but check is inverted: code must exist for this to work.
+	var code = req.query.code;
+	if (code === undefined){
+		resp.sendStatus(400); //Can't send no code at all.
+	}
+	else if (games[code] === undefined){
+		resp.sendStatus(404);
+	}
+	else {
+		var sess = games[code].initSession();
+		resp.json(sess);
+	}
+});
+
+//Websocket route: create a game socket.
+app.ws('/game', (ws, req) => {
+	//Verify code and UUID, and if so, make this session the current one.
+	var code = req.query.code;
+	var uuid = req.query.uuid;
+	if (games[code] !== undefined && games[code].transferSession(uuid, ws)){
+		//Valid uuid and code, so session has been transferred.
+		ws.send("OK");
+	}
+	else {
+		ws.send("INVALID");
+		ws.close();
+	}
+})
 
 //Import additional routes defined in other files.
 require('./maproutes').init(config, app);
