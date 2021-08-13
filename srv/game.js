@@ -51,7 +51,7 @@ class Game {
 		console.log("WS message from " + sess + ": " + msg);
 		//Echo it to all connected clients (except the one that sent it, they don't care).
 		var msg = this.publicIDS[this.sessionRevLookup[sess]] + ":" + msg;
-		for (var ws of this.players){
+		for (var ws of this.players.values()){
 			if (ws !== sess){
 				ws.send(msg);
 			}
