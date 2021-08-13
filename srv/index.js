@@ -6,8 +6,12 @@ const port = config.get("Server.Port");
 const express = require('express');
 const app = express();
 
+//Load and setup ExpressWS
+const expressWS = require('express-ws')(app);
+
 //Import additional routes defined in other files.
 require('./maproutes').init(config, app);
+
 
 if (!config.get('Server.SSL.Enabled')){
 	app.listen(port, () => {
