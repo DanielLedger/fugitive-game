@@ -31,7 +31,7 @@ class Game {
 			var currentGame = this; //Required due to scope problems.
 			//Set up the new session with a handler.
 			newSession.onmessage = (msg) => {
-				currentGame.handleWSMessage(playerID, msg);
+				currentGame.handleWSMessage(playerID, msg, currentGame);
 			};
 			//Also set it up with a close handler.
 			newSession.onclose = () => {
@@ -47,11 +47,11 @@ class Game {
 	}
 	
 	//The big method which powers a lot of the core functionailty of the game: this method controls the handling of the incoming websocket messages.
-	handleWSMessage(sess, msg){
+	handleWSMessage(sess, msg, game){
 		console.log("WS message from " + sess + ": " + msg);
 		//Echo it to all connected clients (except the one that sent it, they don't care).
-		var msg = this.publicIDS[this.sessionRevLookup[sess]] + ":" + msg;
-		for (var ws of this.players.values()){
+		var msg = game.publicIDS[game.sessionRevLookup[sess]] + ":" + msg;
+		for (var ws of game.players){
 			if (ws !== sess){
 				ws.send(msg);
 			}
