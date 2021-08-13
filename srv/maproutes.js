@@ -40,7 +40,7 @@ function init(config, app){
 	
 	app.get("/tile", (req, res) => {
 		var params = req.query;
-		//Prevents minor directory traversal (by setting one of x,y,z to a path relative to the cache directory) and also error handling.
+		//Prevents minor directory traversal (by setting one of x,y,z to a path relative to the cache directory) and also error handling. Also prevents a scope issue.
 		var x = Number(params.x);
 		var y = Number(params.y);
 		var z = Number(params.z);
