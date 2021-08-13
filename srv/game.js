@@ -37,6 +37,7 @@ class Game {
 			newSession.onclose = () => {
 				currentGame.closeSession(this); //This is why we need a 'currentGame' reference: 'this' refers to the websocket.
 			}
+			return true;
 		}
 	}
 	
