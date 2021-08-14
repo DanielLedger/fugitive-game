@@ -28,17 +28,17 @@ function onDeviceReady() {
 
 	//Add functionality to the join game and start game buttons.
 	document.getElementById('makegame').onclick = () => {
-		preGameStart(onStartGame);
+		onStartGame();
 	};
 	
 	document.getElementById('joingame').onclick = () => {
-		preGameStart(onJoinGame);
+		onJoinGame();
 	};
 }
 
 function preGameStart(callNext) {
 	//Save the entered IP address to session storage.
-	window.sessionStorage.setItem("GameIP", document.getElementById('serverip').value);
+	window.sessionStorage.setItem("GameIP", );
 	//Call our "callback" function.
 	callNext();
 }
@@ -51,6 +51,21 @@ function postGameStart() {
 //Two functions, will likely end up fairly similar.
 function onStartGame() {
 	console.log("Starting game: contacting server...");
+	var ip = document.getElementById('serverip').value;
+	var code = document.getElementById('gamecode').value;
+	fetch(ip + "/game/start?code=" + code, {method: "POST"}).then((resp) => {
+		//Expecting either 409 (shouldn't get this really) or 200.
+		if (resp.status === 200){
+			//Success!
+			//Now have a UUID, so save everything to sessionstorage
+			window.sessionStorage.setItem("GameIP", ip);
+			window.sessionStorage.setItem("GameCode", code);
+			resp.json().then((dat) => {
+				window.sessionStorage.setItem("ID", dat);
+			})
+			
+		}
+	})
 	postGameStart();
 }
 
