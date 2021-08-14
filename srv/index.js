@@ -6,6 +6,10 @@ const port = config.get("Server.Port");
 const express = require('express');
 const app = express();
 
+//Set up CORS on all requests (since the server can be called from an arbitrary page).
+const cors = require('cors');
+app.use(cors());
+
 //Load and setup ExpressWS. This currently won't work with HTTPS.
 const expressWS = require('express-ws')(app);
 
