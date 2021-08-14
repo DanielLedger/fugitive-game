@@ -56,20 +56,35 @@ function onStartGame() {
 	fetch(ip + "/game/start?code=" + code, {method: "POST"}).then((resp) => {
 		//Expecting either 409 (shouldn't get this really) or 200.
 		if (resp.status === 200){
+			console.log("Got okay from server, saving data and redirecting...");
 			//Success!
 			//Now have a UUID, so save everything to sessionstorage
 			window.sessionStorage.setItem("GameIP", ip);
 			window.sessionStorage.setItem("GameCode", code);
 			resp.json().then((dat) => {
 				window.sessionStorage.setItem("ID", dat);
+				postGameStart();
 			})
-			
 		}
 	})
-	postGameStart();
 }
 
 function onJoinGame() {
 	console.log("Joining game: contacting server...");
-	postGameStart();
+	var ip = document.getElementById('serverip').value;
+	var code = document.getElementById('gamecode').value;
+	fetch(ip + "/game/join?code=" + code, {method: "POST"}).then((resp) => {
+		//Expecting either 404 or 200.
+		if (resp.status === 200){
+			console.log("Got okay from server, saving data and redirecting...");
+			//Success!
+			//Now have a UUID, so save everything to sessionstorage
+			window.sessionStorage.setItem("GameIP", ip);
+			window.sessionStorage.setItem("GameCode", code);
+			resp.json().then((dat) => {
+				window.sessionStorage.setItem("ID", dat);
+				postGameStart();
+			})
+		}
+	})
 }
