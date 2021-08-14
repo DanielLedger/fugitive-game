@@ -48,10 +48,13 @@ class Game {
 	
 	//The big method which powers a lot of the core functionailty of the game: this method controls the handling of the incoming websocket messages.
 	handleWSMessage(sess, msg, game){
-		console.log("WS message from " + game.sessionRevLookup[this] + ": " + msg.data);
+		console.log("WS message from " + game.sessionRevLookup[sess] + ": " + msg.data);
 		//Echo it to all connected clients (except the one that sent it, they don't care).
-		var msg = game.publicIDS[game.sessionRevLookup[this]] + ":" + msg.data;
+		var msg = game.publicIDS[game.sessionRevLookup[sess]] + ":" + msg.data;
 		for (var ws of Object.values(game.players)){
+			if (ws === null){
+				continue; //Race condition kinda.
+			}
 			if (ws !== sess){
 				ws.send(msg);
 			}
