@@ -12,7 +12,18 @@ function setupMap() {
 		zoomOffset: -1
 	}).addTo(map);
 	map.on('locationfound', onLocationFound);
-	map.locate({watch: true, setView: true, maxZoom: 16});
+	map.locate({watch: true, setView: false, maxZoom: 16});
+	//Set the gameSocket to render players on the map (this will need changing since other control methods can also be sent).
+	gameSocket.onmessage = (m) => {
+		var raw = m.data;
+		//The protocol is now officially: 'user:lat,lng,acc'
+		var splitDat = raw.split(":");
+		var user = splitDat[0];
+		var infoSplit = splitDat[1].split(",");
+		onLocationObtained(user, Number(infoSplit[0]), Number(infoSplit[1]), Number(infoSplit[2]));
+	}
+	//Set a view once so the map loads.
+	map.locate({watch: false, setView: true, maxZoom: 16});
 }
 
 //Called when any player's location is obtained.
