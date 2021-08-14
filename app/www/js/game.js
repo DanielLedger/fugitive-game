@@ -57,6 +57,8 @@ function onLocationFound(e) {
     var radius = e.accuracy;
 	//Call our on location found method thing.
 	onLocationObtained('self', e.latlng.lat, e.latlng.lng, radius);
+	//Send this location to all other instances via the websocket.
+	gameSocket.send(`${e.latlng.lat},${e.latlng.lng},${radius}`);
 }
 
 window.setTimeout(setupMap, 200); //Set a small timeout to allow everything to load.
