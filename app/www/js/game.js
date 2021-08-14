@@ -22,8 +22,6 @@ function setupMap() {
 		var infoSplit = splitDat[1].split(",");
 		onLocationObtained(user, Number(infoSplit[0]), Number(infoSplit[1]), Number(infoSplit[2]));
 	}
-	//Set a view once so the map loads.
-	map.locate({watch: false, setView: true, maxZoom: 16});
 }
 
 //Called when any player's location is obtained.
@@ -48,6 +46,10 @@ function onLocationObtained(who, lat, lng, accuracy){
 		data.ll = [lat, lng];
 		data.acc = accuracy;
 		playerLocations[who] = data; //Set this data in our list.
+		if (who === 'self'){
+			//This is us, and we don't currently have a location, so set an initial view.
+			map.setView([lat, lng], 16);
+		}
 	}
 }
 
