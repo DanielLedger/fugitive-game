@@ -19,8 +19,32 @@ const Game = require('./game').Game;
 //All currently running games
 var games = {};
 
+//Ratelimit things: ratelimit is fixed at 1 request to restricted areas every two seconds.
+var ipLimits = {};
+
+//Checks if an IP hits against a ratelimit. If allowed, sets the cooldown and returns "true". Otherwise, resets the cooldown and returns false.
+function testRatelimit(ip){
+	var timeNow = Date.now();
+	if ((ipLimits[ip] || 0) < timeNow){
+		//Allowed
+		ipLimits[ip] = timeNow + 2000;
+		return true;
+	} 
+	
+	else {
+		//Not allowed, however still reset the timer.
+		ipLimits[ip] = timeNow + 2000;
+		return false;
+	}
+}
+
 //Define a game start, game join and game WS route.
 app.post("/game/start", (req, resp) => {
+	if (!testRatelimit(req.ip)){
+		//This IP is ratelimited. Note that this will immediately break if you put the thing behind a reverse proxy.
+		resp.sendStatus(429);
+		return;
+	}
 	//Unsurprisingly, a game start route. Creates and initialises a game.
 	var code = req.query.code;
 	if (code === undefined){
@@ -41,6 +65,11 @@ app.post("/game/start", (req, resp) => {
 
 //Join game route, so the code must be correct.
 app.post("/game/join", (req, resp) => {
+	if (!testRatelimit(req.ip)){
+		//This IP is ratelimited. Note that this will immediately break if you put the thing behind a reverse proxy.
+		resp.sendStatus(429);
+		return;
+	}
 	//Similar to start game, but check is inverted: code must exist for this to work.
 	var code = req.query.code;
 	if (code === undefined){
