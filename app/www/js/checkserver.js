@@ -15,7 +15,7 @@ if (code === null || uuid === null){
 }
 
 //Try and make a websocket connection.
-var wsIP = serverIP.replace(/https?/, "wss"); //Replace http or https with ws (because it's a wesocket).
+var wsIP = serverIP.replace(/https?/, "ws"); //Replace http or https with ws (because it's a wesocket).
 const gameSocket = new WebSocket(`${wsIP}/game?code=${code}&uuid=${uuid}`);
 gameSocket.onclose = () => {
 	//If closed by not us, that probably means our credentials are wrong.
