@@ -34,6 +34,15 @@ function onDeviceReady() {
 	document.getElementById('joingame').onclick = () => {
 		onJoinGame();
 	};
+	
+	//Add functionality to the button that generates a random code.
+	document.getElementById('coderegen').onclick = () => {
+		var data = new Uint8Array(9); //Using 9 bytes because that encodes into base64 without padding.
+		window.crypto.getRandomValues(data);
+		var str = "";
+		data.forEach((i) => {str += String.fromCharCode(i)});
+		document.getElementById('gamecode').value = btoa(str);
+	};
 }
 
 function preGameStart(callNext) {
