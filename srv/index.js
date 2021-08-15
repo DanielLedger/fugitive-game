@@ -11,7 +11,7 @@ const cors = require('cors');
 app.use(cors());
 
 //Load and setup ExpressWS. This currently won't work with HTTPS.
-const expressWS = require('express-ws')(app);
+require('express-ws')(app);
 
 //Load game class.
 const Game = require('./game').Game;
