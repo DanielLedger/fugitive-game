@@ -63,7 +63,7 @@ function onStartGame() {
 	var ip = document.getElementById('serverip').value;
 	var code = document.getElementById('gamecode').value;
 	fetch(ip + "/game/start?code=" + code, {method: "POST"}).then((resp) => {
-		//Expecting either 409 (shouldn't get this really) or 200.
+		//Expecting either 409 (shouldn't get this really), 429 or 200.
 		if (resp.status === 200){
 			console.log("Got okay from server, saving data and redirecting...");
 			//Success!
@@ -75,6 +75,15 @@ function onStartGame() {
 				postGameStart();
 			})
 		}
+		else if (resp.status === 429) {
+			displayAlert(document.getElementById('alerts'), "danger", "Try again in a few seconds!");
+		}
+		else if (resp.status === 409) {
+			displayAlert(document.getElementById('alerts'), "danger", "Press 'Join a game' or try a different code.");
+		}
+		else {
+			displayAlert(document.getElementById('alerts'), "danger", `Unknown error (${resp.status}: ${resp.statusText}).`);
+		}
 	})
 }
 
@@ -83,7 +92,7 @@ function onJoinGame() {
 	var ip = document.getElementById('serverip').value;
 	var code = document.getElementById('gamecode').value;
 	fetch(ip + "/game/join?code=" + code, {method: "POST"}).then((resp) => {
-		//Expecting either 404 or 200.
+		//Expecting either 404, 429 or 200.
 		if (resp.status === 200){
 			console.log("Got okay from server, saving data and redirecting...");
 			//Success!
@@ -94,6 +103,15 @@ function onJoinGame() {
 				window.sessionStorage.setItem("ID", dat);
 				postGameStart();
 			})
+		}
+		else if (resp.status === 429) {
+			displayAlert(document.getElementById('alerts'), "danger", "Try again in a few seconds!");
+		}
+		else if (resp.status === 404) {
+			displayAlert(document.getElementById('alerts'), "danger", "Press 'start a game' or try a different code.");
+		}
+		else {
+			displayAlert(document.getElementById('alerts'), "danger", `Unknown error (${resp.status}: ${resp.statusText}).`);
 		}
 	})
 }
