@@ -38,7 +38,7 @@ function setupMap() {
 		zoomOffset: -1
 	}).addTo(map);
 	map.on('locationfound', onLocationFound);
-	map.locate({watch: true, setView: false, maxZoom: 16});
+	map.locate({watch: true, setView: false, maxZoom: 16, enableHighAccuracy: true});
 	setupWS();
 }
 
