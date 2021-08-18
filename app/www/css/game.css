@@ -4,3 +4,14 @@
 	top: 5vh;
 	left: 5%;
 }
+
+#alerts {
+	width: 80%;
+	top: 80%;
+	max-width: 500px;
+	left: 10%;
+	padding: 16px;
+	margin: 16px;
+	text-align: left;
+	position: fixed;
+}
