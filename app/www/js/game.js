@@ -4,19 +4,27 @@ var playerLocations = {}; //A dict of player public IDs -> {location, accuracy, 
 
 function setupWS() {
 	//Set the gameSocket to render players on the map (this will need changing since other control methods can also be sent).
-	gameSocket.onmessage = (m) => {
+	gameSocket.addEventListener('message', (m) => {
 		var raw = m.data;
 		//The protocol is now officially: 'user:lat,lng,acc'
 		var splitDat = raw.split(":");
 		var user = splitDat[0];
 		var infoSplit = splitDat[1].split(",");
 		onLocationObtained(user, Number(infoSplit[0]), Number(infoSplit[1]), Number(infoSplit[2]));
+	});
+	
+	//Set up a message for if we drop connection.
+	gameSocket.onclose = () => {
+		var alertBox = document.getElementById('alerts');
+		alertBox.innerHTML = "";
+		displayAlert(alertBox, 'warning', "Connection lost! Attempting to reconnect...");
 	};
 	
-	//Set up a fallback, so that if we drop connection, we attempt to reconnect.
-	gameSocket.onclose = () => {
-		displayAlert(document.getElementById('alerts'), 'warning', "Connection lost! Attempting to reconnect...");
-		refreshWS();
+	//Set up another message for when we regain connection.
+	gameSocket.onopen = () => {
+		var alertBox = document.getElementById('alerts');
+		alertBox.innerHTML = "";
+		displayAlert(alertBox, 'success', "Connected.");
 	};
 }
 
