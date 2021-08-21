@@ -1,10 +1,15 @@
 const uuid = require('uuid');
 
+const fs = require('fs');
+
 class Game {
 	
-	constructor(){
+	constructor(config){
 		this.players = {}; //Maintains a list of unique ids -> websocket sessions.
-		this.publicIDS = {} //A list of unique IDs -> public IDs that we send to the end clients (given that the ids here are also connection secrets).
+		this.publicIDS = {}; //A list of unique IDs -> public IDs that we send to the end clients (given that the ids here are also connection secrets).
+		this.roles = {}; //The roles people have.
+		this.requestedRoles = {}; //The roles people are requesting.
+		this.roleLimits = config.get('RoleLimits');
 	}
 	
 	initSession(){

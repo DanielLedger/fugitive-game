@@ -58,7 +58,7 @@ app.post("/game/start", (req, resp) => {
 	}
 	else {
 		//Create a game with this code, and reply with the user's access UUID.
-		var game = new Game();
+		var game = new Game(config);
 		var playerUUID = game.initSession();
 		games[code] = game;
 		resp.json(playerUUID);
