@@ -10,6 +10,7 @@ class Game {
 		this.roles = {}; //The roles people have.
 		this.requestedRoles = {}; //The roles people are requesting.
 		this.roleLimits = config.get('RoleLimits');
+		this.host = undefined; //Only the host can do important things like setting the boundary or starting the game.
 	}
 	
 	initSession(){
@@ -43,7 +44,10 @@ class Game {
 			newSession.onclose = () => {
 				currentGame.closeSession(ws); //This is why we need a 'currentGame' reference: 'this' refers to the websocket.
 			};
-			
+			//If host is undefined, this player is now the host.
+			if (this.host === undefined) {
+				this.host = playerID;
+			}
 			console.log("After players: " + JSON.stringify(this.players));
 			return true;
 		}
@@ -78,6 +82,14 @@ class Game {
 				//If we get to here, got a valid role sent to us.
 				sess.send("ROLE_OK");
 				return;
+			}
+			else if (msg.data === "GAMEINFO"){
+				//Client is expecting JSON of gameinfo.
+				var gi = {};
+				gi.players = Object.keys(this.players).length; //Doesn't appear to be a better way of doing this.
+				gi.host = (sess.playerID === this.host);
+				gi.border = {ll: [53.348661,-1.5133166], rad: 500}; //Temporary.
+				sess.send("INFO " + JSON.stringify(gi));
 			}
 			//Echo it to all connected clients (except the one that sent it, they don't care).
 			var msg = game.publicIDS[sess.playerID] + ":" + msg.data;
