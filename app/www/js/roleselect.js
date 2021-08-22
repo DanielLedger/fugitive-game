@@ -10,7 +10,7 @@ document.getElementById('spectatesel').onclick = () => {reportRoleChoice('specta
 
 gameSocket.addEventListener('message', (m) => {
 	if (m.data === "ROLE_OK"){
-		//Role was valid, redirect to waiting room (which is TODO).
+		//Role was valid, redirect to waiting room.
 		document.location = "waiting.html";
 	}
 });
