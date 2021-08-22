@@ -57,15 +57,41 @@ class Game {
 	//The big method which powers a lot of the core functionailty of the game: this method controls the handling of the incoming websocket messages.
 	handleWSMessage(sess, msg, game){
 		console.log("WS message from " + sess.playerID + ": " + msg.data);
-		//Echo it to all connected clients (except the one that sent it, they don't care).
-		var msg = game.publicIDS[sess.playerID] + ":" + msg.data;
-		for (var ws of Object.values(game.players)){
-			if (ws === null){
-				continue; //Race condition kinda.
+		try {
+			if (msg.data.startsWith('SELECT')){
+				//Role select message
+				var role = msg.data.split(" ")[1];
+				switch (role) {
+					case "spectator":
+						//Add this user directly to the roles object (since spectators can't be allocated a non-spectator role).
+						this.roles[sess.playerID] = "spectator";
+						break;
+					case "fugitive":
+					case "either":
+					case "hunter":
+						this.requestedRoles[sess.playerID] = role;
+						break;
+					default:
+						sess.send("INVALID_ROLE");
+						return;
+				}
+				//If we get to here, got a valid role sent to us.
+				sess.send("ROLE_OK");
+				return;
 			}
-			if (ws !== sess){
-				ws.send(msg);
+			//Echo it to all connected clients (except the one that sent it, they don't care).
+			var msg = game.publicIDS[sess.playerID] + ":" + msg.data;
+			for (var ws of Object.values(game.players)){
+				if (ws === null){
+					continue; //Race condition kinda.
+				}
+				if (ws !== sess){
+					ws.send(msg);
+				}
 			}
+		}
+		catch (e){
+			console.error("Message caused error: " + e);
 		}
 	}
 }
