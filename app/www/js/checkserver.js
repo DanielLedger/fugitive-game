@@ -21,6 +21,7 @@ function getWS(){
 	var wsIP = serverIP.replace(/https?/, "ws"); //Replace http or https with ws (because it's a wesocket).
 	gameSocket = new ReconnectingWebSocket(`${wsIP}/game?code=${code}&uuid=${uuid}`);
 	gameSocket.addEventListener('message', (e) => {
+		console.debug("Got WS message: " + e.data);
 		if (e.data === "INVALID"){
 			//Something is wrong
 			document.location = "index.html";
