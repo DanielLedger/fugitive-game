@@ -7,3 +7,10 @@ document.getElementById('fugitivesel').onclick = () => {reportRoleChoice('fugiti
 document.getElementById('eithersel').onclick = () => {reportRoleChoice('either')};
 document.getElementById('huntersel').onclick = () => {reportRoleChoice('hunter')};
 document.getElementById('spectatesel').onclick = () => {reportRoleChoice('spectator')};
+
+gameSocket.addEventListener('message', (m) => {
+	if (m.data === "ROLE_OK"){
+		//Role was valid, redirect to waiting room (which is TODO).
+		document.location = "waiting.html";
+	}
+});
