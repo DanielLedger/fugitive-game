@@ -90,6 +90,7 @@ class Game {
 				gi.host = (sess.playerID === this.host);
 				gi.border = {ll: [53.348661,-1.5133166], rad: 500}; //Temporary.
 				sess.send("INFO " + JSON.stringify(gi));
+				return;
 			}
 			//Echo it to all connected clients (except the one that sent it, they don't care).
 			var msg = game.publicIDS[sess.playerID] + ":" + msg.data;
