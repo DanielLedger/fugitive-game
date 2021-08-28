@@ -1,7 +1,5 @@
 const uuid = require('uuid');
 
-const fs = require('fs');
-
 class Game {
 	
 	constructor(config){
