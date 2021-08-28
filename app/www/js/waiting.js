@@ -9,7 +9,8 @@ function showGameStatus(json){
 		document.getElementById("ishost").innerHTML = `<span class='h4'>Host: </span><a class='btn btn-danger'>No</a>`;
 	}
 	document.getElementById("players").innerHTML = `<span class='h4'>Players: </span><span class='h5'>${giObj.players}</span>`;
-	document.getElementById("code").innerHTML = `<span class='h4'>Game Code: </span><span>${window.sessionStorage.getItem('GameCode')}</span>`;
+	//TODO: Render this in a CASE-SENSITIVE font.
+	document.getElementById("code").innerHTML = `<span>Game Code: </span><span>${window.sessionStorage.getItem('GameCode')}</span>`;
 }
 
 gameSocket.addEventListener('message', (m) => {
