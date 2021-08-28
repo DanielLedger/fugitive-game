@@ -1,6 +1,6 @@
 #map {
 	width: 90%;
-	height: 90vh; /*Can't be a percentage because otherwise it decides 90% of screen height is 0 and breaks */
+	height: 90vh; /*Can't be a percentage because otherwise it decides 90% of screen height is 0 and breaks on mobile*/
 	top: 5vh;
 	left: 5%;
 }
