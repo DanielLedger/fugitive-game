@@ -23,7 +23,6 @@ class Game {
 	
 	transferSession(playerID, newSession){
 		//Deletes this player's old session and makes the 'newSession' their current one.
-		console.log("Before players: " + JSON.stringify(this.players));
 		if (this.players[playerID] === undefined){
 			//Player is not registered, do not transfer them a session and return false.
 			return false;
@@ -46,7 +45,6 @@ class Game {
 			if (this.host === undefined) {
 				this.host = playerID;
 			}
-			console.log("After players: " + JSON.stringify(this.players));
 			return true;
 		}
 	}
