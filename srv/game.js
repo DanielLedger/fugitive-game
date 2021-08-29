@@ -118,20 +118,20 @@ class Game {
 				console.log(this.roleLimits)
 				//Put fugitive requesters on the fugitive pile.
 				while (fugitiveReq.length > 0){
-					var f = fugitiveReq.pop();
 					if (fugitives.length >= this.roleLimits.Fugitive){
 						//Will this work? No clue, hopefully. If the limit is undefined, this will be false.
 						break;
 					}
+					var f = fugitiveReq.pop();
 					fugitives.push(f);
 				}
 				//Same code for the hunters.
 				while (hunterReq.length > 0){
-					var f = hunterReq.pop();
 					if (hunters.length >= this.roleLimits.Hunter){
 						//Will this work? No clue, hopefully. If the limit is undefined, this will be false.
 						break;
 					}
+					var f = hunterReq.pop();
 					hunters.push(f);
 				}
 				//Merge the two other lists into the "don't care" pile, which is technically wrong (they expressed an opinion) but works.
