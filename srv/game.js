@@ -7,6 +7,7 @@ class Game {
 		this.publicIDS = {}; //A list of unique IDs -> public IDs that we send to the end clients (given that the ids here are also connection secrets).
 		this.roles = {}; //The roles people have.
 		this.requestedRoles = {}; //The roles people are requesting.
+		this.gameOpen = true;
 		this.roleLimits = config.get('RoleLimits');
 		this.host = undefined; //Only the host can do important things like setting the boundary or starting the game.
 	}
@@ -88,6 +89,77 @@ class Game {
 				gi.requestedRole = this.requestedRoles[sess.playerID];
 				gi.role = this.roles[sess.playerID];
 				sess.send("INFO " + JSON.stringify(gi));
+				return;
+			}
+			else if (msg.data === "ROLE_ASSIGN"){
+				//Assigns everyone a role, chosen based on their preference.
+				//Host only, and closes the game once run.
+				if (sess.playerID !== this.host || !this.gameOpen){
+					return; //Can't use this.
+				}
+				var fugitiveReq = [];
+				var hunterReq = [];
+				var dontCare = [];
+				for (var pair of Object.entries(this.requestedRoles)){
+					if (pair[1] === 'fugitive'){
+						fugitiveReq.push(pair[0]);
+					}
+					else if (pair[1] === 'hunter'){
+						hunterReq.push(pair[0]);
+					}
+					else {
+						dontCare.push(pair[0]);
+					}
+				}
+				//Since objects are hashmaps internally, the order will be determined by the random private IDs, so we don't need to shuffle
+				//If there's bias, this'll be why.
+				var fugitives = [];
+				var hunters = [];
+				console.log(this.roleLimits)
+				//Put fugitive requesters on the fugitive pile.
+				while (fugitiveReq.length > 0){
+					var f = fugitiveReq.pop();
+					if (fugitives.length >= this.roleLimits.Fugitive){
+						//Will this work? No clue, hopefully. If the limit is undefined, this will be false.
+						break;
+					}
+					fugitives.push(f);
+				}
+				//Same code for the hunters.
+				while (hunterReq.length > 0){
+					var f = hunterReq.pop();
+					if (hunters.length >= this.roleLimits.Hunter){
+						//Will this work? No clue, hopefully. If the limit is undefined, this will be false.
+						break;
+					}
+					hunters.push(f);
+				}
+				//Merge the two other lists into the "don't care" pile, which is technically wrong (they expressed an opinion) but works.
+				dontCare.push(fugitiveReq);
+				dontCare.push(hunterReq);
+				for (var person of dontCare){
+					if (!(fugitives.length >= this.roleLimits.Fugitive)){
+						//Add this person as a fugitive
+						fugitives.push(person);
+					}
+					else if (!(hunters.length >= this.roleLimits.Hunter)){
+						//Add this person as a hunter
+						hunters.push(person);
+					}
+					else {
+						//Game is full, add them as spectator.
+						this.roles[person] = 'spectator';
+					}
+				}
+				//Finally, add the fugitive list and hunter list of roles to the 'roles' object.
+				for (var fugitive of fugitives){
+					this.roles[fugitive] = 'fugitive';
+				}
+				for (var hunter of hunters){
+					this.roles[hunter] = 'hunter';
+				}
+				//Close game off.
+				this.gameOpen = false;
 				return;
 			}
 			//Echo it to all connected clients (except the one that sent it, they don't care).
