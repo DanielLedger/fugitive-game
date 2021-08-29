@@ -135,11 +135,8 @@ class Game {
 					hunters.push(f);
 				}
 				//Merge the two other lists into the "don't care" pile, which is technically wrong (they expressed an opinion) but works.
-				console.log(hunterReq);
-				console.log(fugitiveReq);
 				dontCare.push(...fugitiveReq);
 				dontCare.push(...hunterReq);
-				console.log(dontCare);
 				for (var person of dontCare){
 					if (!(fugitives.length >= this.roleLimits.Fugitive)){
 						//Add this person as a fugitive
