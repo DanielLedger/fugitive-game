@@ -14,6 +14,17 @@ function showGameStatus(json){
 	document.getElementById("players").innerHTML = `<span class='h4'>Players: </span><span class='h5'>${giObj.players}</span>`;
 	//TODO: Render this in a CASE-SENSITIVE font.
 	document.getElementById("code").innerHTML = `<span>Game Code: </span><span>${window.sessionStorage.getItem('GameCode')}</span>`;
+	//Show player role
+	if (giObj.role !== undefined){
+		document.getElementById("role").innerHTML = `<span>Role: </span><span>${giObj.role}</span>`;
+		//Disable the role allocation button.
+		document.getElementById('lockroleselection').disabled = true;
+	}
+	else {
+		document.getElementById("role").innerHTML = `<span>Requested role: </span><span>${giObj.requestedRole}</span>`;
+		//Ensable the role allocation button.
+		document.getElementById('lockroleselection').disabled = false;
+	}
 }
 
 gameSocket.addEventListener('message', (m) => {
