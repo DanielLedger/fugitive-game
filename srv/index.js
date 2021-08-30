@@ -60,6 +60,9 @@ app.post("/game/start", (req, resp) => {
 		//Create a game with this code, and reply with the user's access UUID.
 		var game = new Game(config);
 		var playerUUID = game.initSession();
+		if (playerUUID === null) { //Really shouldn't happen here, but putting this just in case.
+			resp.sendStatus(423);
+		}
 		games[code] = game;
 		resp.json(playerUUID);
 	}
@@ -82,6 +85,9 @@ app.post("/game/join", (req, resp) => {
 	}
 	else {
 		var sess = games[code].initSession();
+		if (sess === null) { //Really shouldn't happen here, but putting this just in case.
+			resp.sendStatus(423);
+		}
 		resp.json(sess);
 	}
 });

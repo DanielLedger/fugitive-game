@@ -78,6 +78,9 @@ function onStartGame() {
 		else if (resp.status === 429) {
 			displayAlert(document.getElementById('alerts'), "danger", "Try again in a few seconds!");
 		}
+		else if (resp.status === 423) {
+			displayAlert(document.getElementById('alerts'), "danger", "Game has already started!");
+		}
 		else if (resp.status === 409) {
 			displayAlert(document.getElementById('alerts'), "danger", "Press 'Join a game' or try a different code.");
 		}
@@ -109,6 +112,9 @@ function onJoinGame() {
 		}
 		else if (resp.status === 404) {
 			displayAlert(document.getElementById('alerts'), "danger", "Press 'start a game' or try a different code.");
+		}
+		else if (resp.status === 423) {
+			displayAlert(document.getElementById('alerts'), "danger", "Game has already started!");
 		}
 		else {
 			displayAlert(document.getElementById('alerts'), "danger", `Unknown error (${resp.status}: ${resp.statusText}).`);

@@ -13,6 +13,10 @@ class Game {
 	}
 	
 	initSession(){
+		if (!this.gameOpen){
+			//Roles have already been assigned, so don't let the person in.
+			return null;
+		}
 		//Creates a session for a new player. Returns them a unique ID for their session.
 		var newID = uuid.v4();
 		//Since they don't currently have a socket, add them as 'null' (NOT undefined, since that means "session isn't valid")
