@@ -17,8 +17,10 @@ function showGameStatus(json){
 	//Show player role
 	if (giObj.role !== undefined){
 		document.getElementById("role").innerHTML = `<span>Role: </span><span>${giObj.role}</span>`;
-		//Disable the role allocation button.
-		document.getElementById('lockroleselection').disabled = true;
+		//Disable the role allocation button if we aren't a spectator (since spectators are allocated immediately).
+		if (giObj.role !== 'spectator'){
+			document.getElementById('lockroleselection').disabled = true;
+		}
 	}
 	else {
 		document.getElementById("role").innerHTML = `<span>Requested role: </span><span>${giObj.requestedRole}</span>`;
