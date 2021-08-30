@@ -5,11 +5,11 @@ function showGameStatus(json){
 	if (giObj.host){
 		document.getElementById("ishost").innerHTML = `<span class='h4'>Host: </span><a class='btn btn-success'>Yes</a>`;
 		//Show the 'allocate roles' button
-		document.getElementById('lockrolesselection').style = "display: block;";
+		document.getElementById('lockroleselection').style = "display: block;";
 	}
 	else {
 		document.getElementById("ishost").innerHTML = `<span class='h4'>Host: </span><a class='btn btn-danger'>No</a>`;
-		document.getElementById('lockrolesselection').style = "display: none;";
+		document.getElementById('lockroleselection').style = "display: none;";
 	}
 	document.getElementById("players").innerHTML = `<span class='h4'>Players: </span><span class='h5'>${giObj.players}</span>`;
 	//TODO: Render this in a CASE-SENSITIVE font.
@@ -27,9 +27,9 @@ window.setInterval(() => {
 	gameSocket.send("GAMEINFO");
 }, 2000);
 
-document.getElementById('lockrolesselection').onclick = () => {
+document.getElementById('lockroleselection').onclick = () => {
 	//Disable the button (so it can't be clicked again
-	document.getElementById('lockrolesselection').disabled = true;
+	document.getElementById('lockroleselection').disabled = true;
 	//Send the assign roles message.
 	gameSocket.send("ROLE_ASSIGN");
 };
