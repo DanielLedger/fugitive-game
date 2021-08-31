@@ -6,10 +6,14 @@ function showGameStatus(json){
 		document.getElementById("ishost").innerHTML = `<span class='h4'>Host: </span><a class='btn btn-success'>Yes</a>`;
 		//Show the 'allocate roles' button
 		document.getElementById('lockroleselection').style = "display: block;";
+		//Undisable the "start game" button.
+		document.getElementById('startgame').disabled = false;
 	}
 	else {
 		document.getElementById("ishost").innerHTML = `<span class='h4'>Host: </span><a class='btn btn-danger'>No</a>`;
 		document.getElementById('lockroleselection').style = "display: none;";
+		//Disable the "start game" button.
+		document.getElementById('startgame').disabled = true;
 	}
 	document.getElementById("players").innerHTML = `<span class='h4'>Players: </span><span class='h5'>${giObj.players}</span>`;
 	//TODO: Render this in a CASE-SENSITIVE font.
@@ -36,6 +40,10 @@ gameSocket.addEventListener('message', (m) => {
 		var json = m.data.split(' ')[1];
 		showGameStatus(json);
 	}
+	else if (m.data === "START"){
+		//We're starting. Good luck!
+		document.location = "game.html";
+	}
 });
 
 window.setInterval(() => {
@@ -47,4 +55,9 @@ document.getElementById('lockroleselection').onclick = () => {
 	document.getElementById('lockroleselection').disabled = true;
 	//Send the assign roles message.
 	gameSocket.send("ROLE_ASSIGN");
+};
+
+document.getElementById('startgame').onclick = () => {
+	//Send the assign roles message.
+	gameSocket.send("START");
 };

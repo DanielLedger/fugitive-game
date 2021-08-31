@@ -10,6 +10,7 @@ class Game {
 		this.gameOpen = true;
 		this.roleLimits = config.get('RoleLimits');
 		this.host = undefined; //Only the host can do important things like setting the boundary or starting the game.
+		this.playing = false; //We need to know if we're playing or not.
 		//If it's a time, it's in seconds.
 		this.options = {
 			timer: 300, 
@@ -172,6 +173,19 @@ class Game {
 				//Close game off.
 				this.gameOpen = false;
 				return;
+			}
+			else if (msg.data === "START"){
+				//Only the host can start the game, and the roles must've been assigned (so the game must be closed)
+				if (sess.playerID !== this.host || this.gameOpen){
+					return; //Can't use this.
+				}
+				this.playing = true; //We're now officially starting.
+				for (var ws of Object.values(game.players)){
+					if (ws === null){
+						continue; //Race condition kinda.
+					}
+					ws.send("START");
+				}
 			}
 			else {
 				//Echo it to all connected clients (except the one that sent it, they don't care).
