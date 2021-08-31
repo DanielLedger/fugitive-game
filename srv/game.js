@@ -194,12 +194,13 @@ class Game {
 				var now = Date.now();
 				var lastSent = this.lastSentLoc[sess.playerID] || 0;
 				var nextSend = lastSent;
+				//Multiply by 1000 because delays are in seconds, but last sent is ms.
 				if (this.roles[sess.playerID] === "hunter"){
-					nextSend += this.options.hunterLocDelay;
+					nextSend += (this.options.hunterLocDelay * 1000);
 				}
 				else {
 					//Only other role capable of sending location is fugitive.
-					nextSend += this.options.fugitiveLocDelay;
+					nextSend += (this.options.fugitiveLocDelay * 1000);
 				}
 				var broadcast = nextSend <= now;
 				if (broadcast){
@@ -213,6 +214,7 @@ class Game {
 					}
 					else if (session === sess.playerID){
 						//Don't send to us.
+						continue;
 					}
 					switch (this.roles[session]){
 						case 'spectator':
