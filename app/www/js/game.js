@@ -69,8 +69,8 @@ function onLocationObtained(who, lat, lng, accuracy){
 		data.ll = [lat, lng];
 		data.acc = accuracy;
 		playerLocations[who] = data; //Set this data in our list.
-		if (who === 'self'){
-			//This is us, and we don't currently have a location, so set an initial view.
+		if (who === 'self' || window.sessionStorage.getItem("role") !== 'spectator'){
+			//This is us or we're a spectator, and we don't currently have a location, so set an initial view.
 			map.setView([lat, lng], 16);
 		}
 	}
