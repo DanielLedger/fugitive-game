@@ -173,14 +173,16 @@ class Game {
 				this.gameOpen = false;
 				return;
 			}
-			//Echo it to all connected clients (except the one that sent it, they don't care).
-			var msg = game.publicIDS[sess.playerID] + ":" + msg.data;
-			for (var ws of Object.values(game.players)){
-				if (ws === null){
-					continue; //Race condition kinda.
-				}
-				if (ws !== sess){
-					ws.send(msg);
+			else {
+				//Echo it to all connected clients (except the one that sent it, they don't care).
+				var msg = game.publicIDS[sess.playerID] + ":" + msg.data;
+				for (var ws of Object.values(game.players)){
+					if (ws === null){
+						continue; //Race condition kinda.
+					}
+					if (ws !== sess){
+						ws.send(msg);
+					}
 				}
 			}
 		}
