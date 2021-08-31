@@ -10,9 +10,12 @@ class Game {
 		this.gameOpen = true;
 		this.roleLimits = config.get('RoleLimits');
 		this.host = undefined; //Only the host can do important things like setting the boundary or starting the game.
-		this.timer = 300; //5 minutes (default time). Will be editable.
-		this.hunterLocDelay = 3; //Seconds.
-		this.fugitiveLocDelay = 30; //Also seconds.
+		//If it's a time, it's in seconds.
+		this.options = {
+			timer: 300, 
+			hunterLocDelay: 3, 
+			fugitiveLocDelay: 30
+		};
 	}
 	
 	initSession(){
