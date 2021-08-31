@@ -17,6 +17,8 @@ function showGameStatus(json){
 	//Show player role
 	if (giObj.role !== undefined){
 		document.getElementById("role").innerHTML = `<span>Role: </span><span>${giObj.role}</span>`;
+		//Write our role to session storage
+		window.sessionStorage.setItem("role", giObj.role);
 		//Disable the role allocation button if we aren't a spectator (since spectators are allocated immediately).
 		if (giObj.role !== 'spectator'){
 			document.getElementById('lockroleselection').disabled = true;
