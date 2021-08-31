@@ -13,10 +13,11 @@ class Game {
 		this.playing = false; //We need to know if we're playing or not.
 		//If it's a time, it's in seconds.
 		this.options = {
-			timer: 300, 
+			timer: 600, 
 			hunterLocDelay: 3, 
 			fugitiveLocDelay: 30
 		};
+		this.lastSentLoc = {}; //When everyone's location was last broadcast.
 	}
 	
 	initSession(){
@@ -190,12 +191,39 @@ class Game {
 			else {
 				//This is the location feed, send it to everyone else.
 				var msg = game.publicIDS[sess.playerID] + ":" + msg.data;
-				for (var ws of Object.values(game.players)){
+				var now = Date.now();
+				var lastSent = this.lastSentLoc[sess.playerID] || 0;
+				var nextSend = lastSent;
+				if (this.roles[sess.playerID] === "hunter"){
+					nextSend += this.options.hunterLocDelay;
+				}
+				else {
+					//Only other role capable of sending location is fugitive.
+					nextSend += this.options.fugitiveLocDelay;
+				}
+				var broadcast = nextSend <= now;
+				if (broadcast){
+					//Update the last send time to be now.
+					this.lastSentLoc[sess.playerID] = now;
+				}
+				for (var session of Object.keys(game.players)){
+					var ws = game.players[session];
 					if (ws === null){
-						continue; //Race condition kinda.
+						continue; //Race condition kinda. Don't think this is relevant anymore though.
 					}
-					if (ws !== sess){
-						ws.send(msg);
+					else if (session === sess.playerID){
+						//Don't send to us.
+					}
+					switch (this.roles[session]){
+						case 'spectator':
+							//Send regardless.
+							ws.send(msg);
+							break;
+						default:
+							//Anything else, only send if we're "broadcasting".
+							if (broadcast) {
+								ws.send(msg);
+							} 
 					}
 				}
 			}
