@@ -10,6 +10,9 @@ class Game {
 		this.gameOpen = true;
 		this.roleLimits = config.get('RoleLimits');
 		this.host = undefined; //Only the host can do important things like setting the boundary or starting the game.
+		this.timer = 300; //5 minutes (default time). Will be editable.
+		this.hunterLocDelay = 3; //Seconds.
+		this.fugitiveLocDelay = 30; //Also seconds.
 	}
 	
 	initSession(){
@@ -92,6 +95,7 @@ class Game {
 				gi.border = {ll: [53.348661,-1.5133166], rad: 500}; //Temporary.
 				gi.requestedRole = this.requestedRoles[sess.playerID];
 				gi.role = this.roles[sess.playerID];
+				gi.time = this.timer;
 				sess.send("INFO " + JSON.stringify(gi));
 				return;
 			}
