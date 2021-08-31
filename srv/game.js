@@ -99,7 +99,7 @@ class Game {
 				gi.border = {ll: [53.348661,-1.5133166], rad: 500}; //Temporary.
 				gi.requestedRole = this.requestedRoles[sess.playerID];
 				gi.role = this.roles[sess.playerID];
-				gi.time = this.timer;
+				gi.options = this.options;
 				sess.send("INFO " + JSON.stringify(gi));
 				return;
 			}
@@ -188,7 +188,7 @@ class Game {
 				}
 			}
 			else {
-				//Echo it to all connected clients (except the one that sent it, they don't care).
+				//This is the location feed, send it to everyone else.
 				var msg = game.publicIDS[sess.playerID] + ":" + msg.data;
 				for (var ws of Object.values(game.players)){
 					if (ws === null){
