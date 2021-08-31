@@ -25,6 +25,9 @@ function setupWS() {
 		var alertBox = document.getElementById('alerts');
 		alertBox.innerHTML = "";
 		displayAlert(alertBox, 'success', "Connected.");
+		//"set" the map's zoom to the same to trigger a reload.
+		map.setZoom(map.getZoom() - 1);
+		map.setZoom(map.getZoom() + 1);
 	};
 }
 
