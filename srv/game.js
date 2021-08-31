@@ -182,9 +182,6 @@ class Game {
 				}
 				this.playing = true; //We're now officially starting.
 				for (var ws of Object.values(game.players)){
-					if (ws === null){
-						continue; //Race condition kinda.
-					}
 					ws.send("START");
 				}
 			}
