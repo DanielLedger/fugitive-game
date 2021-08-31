@@ -18,7 +18,7 @@ function getWS(){
 	}
 	
 	//Try and make a websocket connection.
-	var wsIP = serverIP.replace(/https?/, "ws"); //Replace http or https with ws (because it's a wesocket).
+	var wsIP = serverIP.replace(/https?/, "wss"); //Replace http or https with ws (because it's a wesocket).
 	gameSocket = new ReconnectingWebSocket(`${wsIP}/game?code=${code}&uuid=${uuid}`);
 	gameSocket.addEventListener('message', (e) => {
 		console.debug("Got WS message: " + e.data);

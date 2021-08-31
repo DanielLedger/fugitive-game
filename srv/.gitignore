@@ -2,5 +2,4 @@ cache/*
 node_modules/*
 config/local.yml
 .project
-sslkey.key
-sslcert.crt
+certs
