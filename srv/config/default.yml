@@ -5,9 +5,9 @@ Server:
     Key: "sslkey.key"
     Cert: "sslcert.crt" 
   
-Mapbox:
-  Token: "YOUR-TOKEN-HERE"
-  Tileset: "mapbox.mapbox-streets-v8"
+Maptiles:
+  URL: "TILE-SERVER-URL-HERE"
+  CacheKey: "TILESET-NAME-HERE" #The cache key should be changed every time you change the style.
   
 RoleLimits:
   Fugitive: 1
