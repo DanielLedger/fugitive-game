@@ -124,7 +124,7 @@ class Game {
 					}
 				}
 				//Since objects are hashmaps internally, the order will be determined by the random private IDs, so we don't need to shuffle
-				//If there's bias, this'll be why.
+				//If there's bias, this'll be why. There is significant bias, fix is TODO.
 				var fugitives = [];
 				var hunters = [];
 				console.log(this.roleLimits)
