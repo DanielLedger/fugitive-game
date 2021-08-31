@@ -3,25 +3,26 @@ const got = require('got');
 const fs = require('fs');
 
 function init(config, app){
-	var mapbox_token = config.get("Mapbox.Token");
-	if (mapbox_token === 'YOUR_TOKEN_HERE'){
-		console.error('Please create a copy of the config and add an actual mapbox token to the file!');
+	var tileserver_url = config.get("Maptiles.URL");
+	var cachekey = config.get("Maptiles.CacheKey");
+	if (tileserver_url === 'TILE-SERVER-URL-HERE'){
+		console.error('Please add a tileserver to the config file. This URL should have {x} {y} {z} fill-ins but no other variables.');
 		process.exit(1); //End immediately.
 	}
-	
-	var tileset = config.get("Mapbox.Tileset");
-	
-	var req_url = `https://api.mapbox.com/v4/${tileset}/{z}/{x}/{y}@2x.jpg90`; //The URL we're sending the request to. TODO make this configurable.
-	var cache_dir = `./cache/tiles/${tileset}`;
+	else if (cachekey === 'TILESET-NAME-HERE'){
+		console.error("Please add a tileset name to the config file. This should be unique (unless you've used this tileset before)");
+		process.exit(1); //End immediately.
+	}
+	var cache_dir = `./cache/tiles/${cachekey}`;
 	var file_path = `${cache_dir}/{z}_{x}_{y}.jpeg`;
 	
 	fs.mkdirSync(cache_dir, {recursive: true}); //Creates the cache (needed before requests can be handled, so may as well be sync).
 	
 	async function getMapboxTile(x, y, z){
 		//Gets a mapbox tile from mapbox (unsurprisingly). Annoyingly, this needs to be done by hand, since there's no obvious way to use the API.
-		sendto = req_url.replace('{x}', x).replace('{y}', y).replace('{z}', z);
+		sendto = tileserver_url.replace('{x}', x).replace('{y}', y).replace('{z}', z);
 		console.debug(sendto);
-		resp = await got.get(sendto, {searchParams: {access_token: mapbox_token}});
+		resp = await got.get(sendto);
 		console.debug(resp.statusCode);
 		return resp.rawBody;
 	}
