@@ -11,5 +11,5 @@ if [ ! -d "certs" ]; then
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout certs/cert.key -out certs/cert.crt
 fi
 docker build -t fugitive-srv .
-docker run --name fugitive-srv-container -p 8080:443 fugitive-srv
+docker run --name fugitive-srv-container -p 8080:443 -v fugitive-srv-cache:/opt/srv/cache fugitive-srv
 
