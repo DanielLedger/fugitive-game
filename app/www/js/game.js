@@ -44,7 +44,9 @@ function setupMap() {
 	if (window.sessionStorage.getItem("role") !== 'spectator'){ //Don't watch spectator location.
 		//map.locate({watch: true, setView: false, maxZoom: 16, enableHighAccuracy: true, maxAge: 3000});
 		getGeolocationService().watch(3000, (l) => {
-			alert(l);
+			//Location spoofing can be detected with l.isFromMockProvider and l.mockLocationsEnabled.
+			//We also have speed and altitude to play with if we want.
+			onLocationObtained('self', l.latitude, l.longitude, l.accuracy);
 		});
 	}
 	setupWS();
