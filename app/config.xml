@@ -7,6 +7,14 @@
     <author email="dev@cordova.apache.org" href="http://cordova.io">
         Apache Cordova Team
     </author>
+    <plugin name="cordova-plugin-background-geolocation" spec="@mauron85/cordova-plugin-background-geolocation@~3.1.0">
+  	<variable name="GOOGLE_PLAY_SERVICES_VERSION" value="11+" />
+  	<variable name="ANDROID_SUPPORT_LIBRARY_VERSION" value="26+" />
+  	<variable name="ICON" value="@mipmap/ic_launcher" />
+  	<variable name="SMALL_ICON" value="@mipmap/ic_launcher" />
+  	<variable name="ALWAYS_USAGE_DESCRIPTION" value="App requires background tracking " />
+  	<variable name="MOTION_USAGE_DESCRIPTION" value="App requires motion detection" /> 
+    </plugin>
     <content src="index.html" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
