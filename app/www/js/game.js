@@ -40,13 +40,13 @@ function setupMap() {
     	tileSize: 512,
 		zoomOffset: -1
 	}).addTo(map);
-	map.on('locationfound', onLocationFound);
 	if (window.sessionStorage.getItem("role") !== 'spectator'){ //Don't watch spectator location.
 		//map.locate({watch: true, setView: false, maxZoom: 16, enableHighAccuracy: true, maxAge: 3000});
 		getGeolocationService().watch(3000, (l) => {
 			//Location spoofing can be detected with l.isFromMockProvider and l.mockLocationsEnabled.
 			//We also have speed and altitude to play with if we want.
 			onLocationObtained('self', l.latitude, l.longitude, l.accuracy);
+			gameSocket.send(`${l.latitude},${l.longitude},${l.accuracy}`);
 		});
 	}
 	setupWS();
@@ -79,14 +79,6 @@ function onLocationObtained(who, lat, lng, accuracy){
 			map.setView([lat, lng], 16);
 		}
 	}
-}
-
-function onLocationFound(e) {
-    var radius = e.accuracy;
-	//Call our on location found method thing.
-	onLocationObtained('self', e.latlng.lat, e.latlng.lng, radius);
-	//Send this location to all other instances via the websocket.
-	gameSocket.send(`${e.latlng.lat},${e.latlng.lng},${radius}`);
 }
 
 window.setTimeout(setupMap, 200); //Set a small timeout to allow everything to load.
