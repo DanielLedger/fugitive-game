@@ -1,7 +1,5 @@
 cache
-certs
 Dockerfile
-nginx-ssl-conf.conf
 run.sh
 run_nobuild.sh
 .gitignore
