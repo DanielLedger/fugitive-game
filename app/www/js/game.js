@@ -42,7 +42,10 @@ function setupMap() {
 	}).addTo(map);
 	map.on('locationfound', onLocationFound);
 	if (window.sessionStorage.getItem("role") !== 'spectator'){ //Don't watch spectator location.
-		map.locate({watch: true, setView: false, maxZoom: 16, enableHighAccuracy: true, maxAge: 3000});
+		//map.locate({watch: true, setView: false, maxZoom: 16, enableHighAccuracy: true, maxAge: 3000});
+		getGeolocationService().watch(3000, (l) => {
+			alert(l);
+		});
 	}
 	setupWS();
 }
