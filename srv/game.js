@@ -185,6 +185,10 @@ class Game {
 					ws.send("START");
 				}
 			}
+			else if (msg.data === 'pong'){
+				//Keepalive ping-pong, do nothing.
+				return;
+			}
 			else {
 				//This is the location feed, send it to everyone else.
 				var msg = game.publicIDS[sess.playerID] + ":" + msg.data;

@@ -100,10 +100,10 @@ app.ws('/game', (ws, req) => {
 	if (games[code] !== undefined && games[code].transferSession(uuid, ws)){
 		//Valid uuid and code, so session has been transferred.
 		ws.send("OK");
-		//Set up ping every 60 seconds so Nginx doesn't murder us
+		//Set up ping every 30 seconds so Nginx doesn't murder us
 		ws.pinger = setInterval(() => {
-			ws.ping('ping');
-		},60000);
+			ws.send('ping');
+		},30000);
 		ws.on('close', () => {
 			clearInterval(ws.pinger);
 		});

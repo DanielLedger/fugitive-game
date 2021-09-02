@@ -6,6 +6,14 @@ function setupWS() {
 	//Set the gameSocket to render players on the map (this will need changing since other control methods can also be sent).
 	gameSocket.addEventListener('message', (m) => {
 		var raw = m.data;
+		if (raw === 'OK'){
+			//Ignore
+			return;
+		}
+		else if (raw === 'ping'){
+			gameSocket.send('pong');
+			return;
+		}
 		//The protocol is now officially: 'user:lat,lng,acc'
 		var splitDat = raw.split(":");
 		var user = splitDat[0];
@@ -46,7 +54,17 @@ function setupMap() {
 			//Location spoofing can be detected with l.isFromMockProvider and l.mockLocationsEnabled.
 			//We also have speed and altitude to play with if we want.
 			onLocationObtained('self', l.latitude, l.longitude, l.accuracy);
-			gameSocket.send(`${l.latitude},${l.longitude},${l.accuracy}`);
+			if (gameSocket.readyState > 1){
+				//Socket has died on us, re-open it
+				getWS();
+				setupWS();
+				gameSocket.on('open', () => {
+					gameSocket.send(`${l.latitude},${l.longitude},${l.accuracy}`);
+				});
+			}
+			else {
+				gameSocket.send(`${l.latitude},${l.longitude},${l.accuracy}`);
+			}
 		});
 	}
 	setupWS();
