@@ -43,6 +43,14 @@ function onDeviceReady() {
 		data.forEach((i) => {str += String.fromCharCode(i)});
 		document.getElementById('gamecode').value = btoa(str);
 	};
+	
+	//If we have a location hash, fill in the info (don't join the game instantly, otherwise we've made an IP grabber).
+	if (window.location.hash !== ""){
+		var dat = window.location.hash.slice(1);
+		dat = JSON.parse(decodeURIComponent(dat));
+		document.getElementById('serverip').value = dat.ip;
+		document.getElementById('gamecode').value = dat.code;
+	}
 }
 
 function preGameStart(callNext) {
