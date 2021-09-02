@@ -69,6 +69,6 @@ document.getElementById('sharelink').onclick = () => {
 var code = window.sessionStorage.getItem('GameCode');
 var srv = window.sessionStorage.getItem('GameIP');
 
-var dat = JSON.stringify({code: code, ip: srv});
+var dat = encodeURIComponent(JSON.stringify({code: code, ip: srv}));
 
 document.getElementById('sharelink').value = `${window.location.protocol}//${window.location.host}#${dat}`; //Can't be bothered to make my own interchange format, so using JSON. 
