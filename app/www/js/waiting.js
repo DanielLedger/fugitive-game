@@ -61,3 +61,14 @@ document.getElementById('startgame').onclick = () => {
 	//Send the assign roles message.
 	gameSocket.send("START");
 };
+
+document.getElementById('sharelink').onclick = () => {
+	navigator.clipboard.writeText(document.getElementById('sharelink').value).then(() => alert('Share link copied!'));
+};
+
+var code = window.sessionStorage.getItem('GameCode');
+var srv = window.sessionStorage.getItem('GameIP');
+
+var dat = JSON.stringify({code: code, ip: srv});
+
+document.getElementById('sharelink').value = `${window.location.protocol}//${window.location.host}#${dat}`; //Can't be bothered to make my own interchange format, so using JSON. 
