@@ -54,13 +54,17 @@ function setupMap() {
 			//Location spoofing can be detected with l.isFromMockProvider and l.mockLocationsEnabled.
 			//We also have speed and altitude to play with if we want.
 			onLocationObtained('self', l.latitude, l.longitude, l.accuracy);
-			if (gameSocket.readyState > 1){
+			console.debug("Got location: WS state is " + gameSocket.readyState);
+			if (gameSocket.readyState !== 1){
 				//Socket has died on us, re-open it
+				console.debug("Socket deaded, re-opening...");
 				getWS();
 				setupWS();
-				gameSocket.on('open', () => {
+				gameSocket.addEventListener('open', () => {
 					gameSocket.send(`${l.latitude},${l.longitude},${l.accuracy}`);
+					console.debug('Sent info.');
 				});
+				console.debug("Socket connecting.");
 			}
 			else {
 				gameSocket.send(`${l.latitude},${l.longitude},${l.accuracy}`);
