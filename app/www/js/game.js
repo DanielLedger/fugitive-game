@@ -1,10 +1,15 @@
 var map;
 
+var attemptingReconnect = false;
+
+var lastPing = Date.now();
+
 var playerLocations = {}; //A dict of player public IDs -> {location, accuracy, marker, accuracyCircle}
 
 function setupWS() {
 	//Set the gameSocket to render players on the map (this will need changing since other control methods can also be sent).
 	gameSocket.addEventListener('message', (m) => {
+		lastPing = Date.now();
 		var raw = m.data;
 		if (raw === 'OK'){
 			//Ignore
@@ -33,6 +38,7 @@ function setupWS() {
 		var alertBox = document.getElementById('alerts');
 		alertBox.innerHTML = "";
 		displayAlert(alertBox, 'success', "Connected.");
+		lastPing = Date.now(); //Connecting counts as a ping.
 		//"set" the map's zoom to the same to trigger a reload.
 		map.setZoom(map.getZoom() - 1);
 		map.setZoom(map.getZoom() + 1);
@@ -57,17 +63,51 @@ function setupMap() {
 			console.debug("Got location: WS state is " + gameSocket.readyState);
 			if (gameSocket.readyState !== 1){
 				//Socket has died on us, re-open it
-				console.debug("Socket deaded, re-opening...");
-				getWS();
-				setupWS();
-				gameSocket.addEventListener('open', () => {
-					gameSocket.send(`${l.latitude},${l.longitude},${l.accuracy}`);
-					console.debug('Sent info.');
+				if (!attemptingReconnect){
+					attemptingReconnect = true;
+					console.debug("Socket deaded, re-opening...");
+					getWS();
+					setupWS();
+					gameSocket.addEventListener('open', () => {
+						gameSocket.send(`${l.latitude},${l.longitude},${l.accuracy}`);
+						attemptingReconnect = false;
+						console.debug('Sent info.');
+					});
+					console.debug("Socket connecting.");
+				}
+				else {
+					console.debug("Already attempting to reconnect...");
+				}
+				//For now, try and send in a POST request.
+				var dataObj = {
+					uuid: window.sessionStorage.getItem('ID'), 
+					lat: l.latitude, 
+					lon: l.longitude, 
+					accuracy: l.accuracy
+				};
+				fetch(serverIP + "/loc", {
+					method: "POST",
+					headers: {
+      					'Content-Type': 'application/json'
+    				},
+					body: JSON.stringify(dataObj)
+				}).then((resp) => {
+					if (resp.ok){
+						console.debug("Location posted successfully.");
+					}
+					else {
+						console.warn("Location post failed: ");
+						console.warn(resp.status + ":" + resp.statusText);
+					}
+				},
+				(err) => {
+					console.warn("Network error when posting location: ");
+					console.warn(err);
 				});
-				console.debug("Socket connecting.");
 			}
 			else {
 				gameSocket.send(`${l.latitude},${l.longitude},${l.accuracy}`);
+				console.debug("Sending location as normal.");
 			}
 		});
 	}
@@ -104,3 +144,12 @@ function onLocationObtained(who, lat, lng, accuracy){
 }
 
 window.setTimeout(setupMap, 200); //Set a small timeout to allow everything to load.
+
+//Network status checker: since apparently we don't get informed via socket closure if we drop connection.
+window.setInterval(() => {
+	if (lastPing + 60000 < Date.now() && gameSocket.readyState === 1){
+		//Last ping was more than 60 seconds ago, we've lost connection. Forcibly close the game socket.
+		gameSocket.close();
+		console.error("Network connection lost! Forcibly closing socket...");
+	}
+}, 10000);
