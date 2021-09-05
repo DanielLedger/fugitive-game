@@ -21,6 +21,9 @@ const Game = require('./game').Game;
 //All currently running games
 var games = {};
 
+//UUIDs mapped to the game codes, so we don't need to keep sending both.
+var uuids = {};
+
 //Ratelimit things: ratelimit is fixed at 1 request to restricted areas every two seconds.
 var ipLimits = {};
 
@@ -64,6 +67,7 @@ app.post("/game/start", (req, resp) => {
 			resp.sendStatus(423);
 		}
 		games[code] = game;
+		uuids[sess] = code;
 		resp.json(playerUUID);
 	}
 });
@@ -85,9 +89,10 @@ app.post("/game/join", (req, resp) => {
 	}
 	else {
 		var sess = games[code].initSession();
-		if (sess === null) { //Really shouldn't happen here, but putting this just in case.
+		if (sess === null) {
 			resp.sendStatus(423);
 		}
+		uuids[sess] = code;
 		resp.json(sess);
 	}
 });
@@ -116,7 +121,7 @@ app.ws('/game', (ws, req) => {
 
 //Import additional routes defined in other files.
 require('./maproutes').init(config, app);
-
+require('./locationpost').init(app, games, uuids);
 
 if (!config.get('Server.SSL.Enabled')){
 	app.listen(port, () => {

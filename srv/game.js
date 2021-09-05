@@ -67,6 +67,11 @@ class Game {
 		sess.playerID = undefined;
 	}
 	
+	postLocation(uuid, str, game){
+		//Acts like this string was sent in by this person (when it was sent in via a POST request)
+		handleWSMessage({playerID: uuid}, {data: str}, game); //The advantages of dynamic typing.
+	}
+	
 	//The big method which powers a lot of the core functionailty of the game: this method controls the handling of the incoming websocket messages.
 	handleWSMessage(sess, msg, game){
 		console.log("WS message from " + sess.playerID + ": " + msg.data);
