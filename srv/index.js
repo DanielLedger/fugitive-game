@@ -67,7 +67,7 @@ app.post("/game/start", (req, resp) => {
 			resp.sendStatus(423);
 		}
 		games[code] = game;
-		uuids[sess] = code;
+		uuids[playerUUID] = code;
 		resp.json(playerUUID);
 	}
 });
