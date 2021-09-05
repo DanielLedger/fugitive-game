@@ -56,14 +56,14 @@ function setupMap() {
 	}).addTo(map);
 	if (window.sessionStorage.getItem("role") !== 'spectator'){ //Don't watch spectator location.
 		//map.locate({watch: true, setView: false, maxZoom: 16, enableHighAccuracy: true, maxAge: 3000});
-		getGeolocationService().watch(3000, (l) => {
+		/*getGeolocationService().watch(3000, (l) => {
 			//Location spoofing can be detected with l.isFromMockProvider and l.mockLocationsEnabled.
 			//We also have speed and altitude to play with if we want.
 			onLocationObtained('self', l.latitude, l.longitude, l.accuracy);
 			console.debug("Got location: WS state is " + gameSocket.readyState);
-			if (gameSocket.readyState !== 1){
+			if (true || gameSocket.readyState !== 1){ //Temporarily always do this.
 				//Socket has died on us, re-open it
-				if (!attemptingReconnect){
+				if (false && !attemptingReconnect){//Temporarily never do this.
 					attemptingReconnect = true;
 					console.debug("Socket deaded, re-opening...");
 					getWS();
@@ -109,6 +109,19 @@ function setupMap() {
 				gameSocket.send(`${l.latitude},${l.longitude},${l.accuracy}`);
 				console.debug("Sending location as normal.");
 			}
+		});*/
+		//Temporary, just to try and get the damn thing to work.
+		BackgroundGeolocation.configure({
+			url: serverIP + "/loc",
+			postTemplate: {
+				lat: "@latitude",
+				lon: "@longitude",
+				accuracy: "@accuracy",
+				uuid: window.sessionStorage.getItem('ID')
+			}
+		});
+		getGeolocationService().watch(3000, (l) => {
+			onLocationObtained('self', l.latitude, l.longitude, l.accuracy);
 		});
 	}
 	setupWS();

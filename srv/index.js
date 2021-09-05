@@ -12,6 +12,8 @@ const app = express();
 const cors = require('cors');
 app.use(cors());
 
+app.use(express.json());
+
 //Load and setup ExpressWS. This currently won't work with HTTPS.
 require('express-ws')(app);
 

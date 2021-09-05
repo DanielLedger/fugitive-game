@@ -1,6 +1,7 @@
 function init(app, games, uuidMap){
 	app.post("/loc", (req, resp) => {
-		var params = req.params; //Contains 4 items: uuid, lat, lon and accuracy.
+		var params = req.body[0]; //Contains 4 items: uuid, lat, lon and accuracy.
+		console.debug(params);
 		var code = uuidMap[params.uuid];
 		var game = games[code];
 		if (!game.playing){
