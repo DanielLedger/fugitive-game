@@ -11,3 +11,5 @@ function init(app, games, uuidMap){
 		resp.sendStatus(204); //No content, but that worked.
 	});
 }
+
+module.exports.init = init;
