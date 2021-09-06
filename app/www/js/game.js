@@ -4,15 +4,21 @@ var attemptingReconnect = false;
 
 var lastPing = Date.now();
 
+var fugitives = {};
+
 var playerLocations = {}; //A dict of player public IDs -> {location, accuracy, marker, accuracyCircle}
 
 function setupWS() {
-	//Set the gameSocket to render players on the map (this will need changing since other control methods can also be sent).
+	//Set the gameSocket to render players on the map.
 	gameSocket.addEventListener('message', (m) => {
 		lastPing = Date.now();
 		var raw = m.data;
 		if (raw === 'OK'){
-			//Ignore
+			return;
+		}
+		else if (raw.startsWith('INFO')){
+			var json = raw.split(' ')[1];
+			JSON.parse(json).fugitives.map((f) => {fugitives[f] = true}); //Hashset
 			return;
 		}
 		else if (raw === 'ping'){
@@ -54,6 +60,9 @@ function setupMap() {
     	tileSize: 512,
 		zoomOffset: -1
 	}).addTo(map);
+	//Request gameinfo
+	gameSocket.send('GAMEINFO');
+	console.debug('Sent gameinfo request.');
 	if (window.sessionStorage.getItem("role") !== 'spectator'){ //Don't watch spectator location.
 		//map.locate({watch: true, setView: false, maxZoom: 16, enableHighAccuracy: true, maxAge: 3000});
 		/*getGeolocationService().watch(3000, (l) => {
@@ -141,6 +150,7 @@ function onLocationObtained(who, lat, lng, accuracy){
 		data.marker.setLatLng([lat, lng]);
 		data.circle.setLatLng([lat, lng]);
 		data.circle.setRadius(accuracy);
+		data.circle.setStyle({opacity: 0.2, color: this.fugitives[who] ? '#ff0000' : '#0000ff'});
 		//Update the actual data.
 		data.ll = [lat, lng];
 		data.acc = accuracy;
@@ -150,7 +160,8 @@ function onLocationObtained(who, lat, lng, accuracy){
 		//Need to create the data from scratch.
 		var data = {};
 		data.marker = L.marker([lat, lng]).addTo(map);
-		data.circle = L.circle([lat, lng], {radius: accuracy, opacity: 0.2}).addTo(map);
+		//Fairly alarming colours, but those can be changed. Marker will also change.
+		data.circle = L.circle([lat, lng], {radius: accuracy, opacity: 0.2, color: this.fugitives[who] ? '#ff0000' : '#0000ff'}).addTo(map);
 		//Add raw data
 		data.ll = [lat, lng];
 		data.acc = accuracy;
