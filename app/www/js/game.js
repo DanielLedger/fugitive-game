@@ -17,8 +17,12 @@ function setupWS() {
 			return;
 		}
 		else if (raw.startsWith('INFO')){
-			var json = raw.split(' ')[1];
-			JSON.parse(json).fugitives.map((f) => {fugitives[f] = true}); //Hashset
+			var gi = JSON.parse(raw.split(' ')[1]);
+			gi.fugitives.map((f) => {fugitives[f] = true}); //Hashset
+			if (fugitives[gi.publicID]){
+				//We're a fugitive too, add 'self' to the set.
+				fugitives['self'] = true;
+			}
 			return;
 		}
 		else if (raw === 'ping'){

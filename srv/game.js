@@ -108,6 +108,7 @@ class Game {
 				gi.options = this.options;
 				//The client needs to know who's a fugitive and who's a hunter, so send the fugitives (by process of elimination, non-fugitives are hunters if we get their location).
 				gi.fugitives = Object.keys(this.roles).filter((v) => {return this.roles[v] === 'fugitive'}).map((v) => {return this.publicIDS[v]});
+				gi.publicID = this.publicIDS[sess.playerID]; //Client needs to know their public ID.
 				sess.send("INFO " + JSON.stringify(gi));
 				return;
 			}
