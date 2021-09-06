@@ -147,6 +147,7 @@ function onLocationObtained(who, lat, lng, accuracy){
 	//Needed regardless.
 	var icon = L.icon({
 		iconUrl: this.fugitives[who] ? 'img/running_fugitive.png' : 'img/running_hunter.png',
+		iconSize: [32, 32]
 	});
 	if (playerLocations[who] !== undefined){
 		//Just move the already existing data.
