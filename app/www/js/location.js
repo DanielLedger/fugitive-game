@@ -2,7 +2,7 @@ const Geolocation = {};
 
 function getGeolocationService(){
 	//Gets the geolocation service which will either use BackgroundGeolocation (if available) or navigator.geolocation
-	if (BackgroundGeolocation !== undefined) {
+	if (cordova.platformId !== 'browser') { //I'm very, very unlikely to support Electron.
 		//We have the ability to use background geolocation.
 		Geolocation.watch = (timeDelay, callback) => {
 			//Check we can actually use location.
@@ -56,10 +56,30 @@ function getGeolocationService(){
 		}
 	}
 	else if (window.navigator !== undefined){
-		//use browser inbuilt navigator. Currently not implemented.
-		console.error("Navigation using the browser 'navigation' object is not currently not supported!");
-		Geolocation.watch = () => {};
-		Geolocation.stop = () => {};
+		//Use browser inbuilt navigator.
+		var nav = window.navigator.geolocation;
+		Geolocation.watch = (delay, cb) => {
+			Geolocation.watchTask = nav.watchPosition((ll) => {
+				var expectedObj = {};
+				expectedObj.latitude = ll.coords.latitude;
+				expectedObj.longitude = ll.coords.longitude;
+				expectedObj.accuracy = ll.coords.accuracy;
+				cb(expectedObj);
+			}, () => {}, {
+				//Turns out delay isn't directly used, so we're using it like this.
+				enableHighAccuracy: true,
+				maximumAge: delay
+			});
+		};
+		Geolocation.stop = () => {
+			nav.clearWatch(Geolocation.watchTask);
+		};
+	}
+	else {
+		//No location source, die impressively.
+		console.error("No functional location source detected! This won't work unless this device is spectating.");
+		alert("Error! Your device does not support location, so this game will not work. If you're simply spectating, you can ignore this message."
+		+ "Otherwise, make sure you have location (and the correct permissions) enabled.");
 	}
 	return Geolocation;
 }

@@ -111,17 +111,23 @@ function setupMap() {
 			}
 		});*/
 		//Temporary, just to try and get the damn thing to work.
-		BackgroundGeolocation.configure({
-			url: serverIP + "/loc",
-			postTemplate: {
-				lat: "@latitude",
-				lon: "@longitude",
-				accuracy: "@accuracy",
-				uuid: window.sessionStorage.getItem('ID')
-			}
-		});
+		if (cordova.platformId !== 'browser'){
+			BackgroundGeolocation.configure({
+				url: serverIP + "/loc",
+				postTemplate: {
+					lat: "@latitude",
+					lon: "@longitude",
+					accuracy: "@accuracy",
+					uuid: window.sessionStorage.getItem('ID')
+				}
+			});
+		}
 		getGeolocationService().watch(3000, (l) => {
 			onLocationObtained('self', l.latitude, l.longitude, l.accuracy);
+			if (cordova.platformId === 'browser'){
+				//We're not using BackgroundGeolocation, send it through the websocket as normal
+				gameSocket.send(`${l.latitude},${l.longitude},${l.accuracy}`);
+			}
 		});
 	}
 	setupWS();
