@@ -144,10 +144,15 @@ function setupMap() {
 
 //Called when any player's location is obtained.
 function onLocationObtained(who, lat, lng, accuracy){
+	//Needed regardless.
+	var icon = L.icon({
+		iconUrl: this.fugitives[who] ? 'img/running_fugitive.png' : 'img/running_hunter.png',
+	});
 	if (playerLocations[who] !== undefined){
 		//Just move the already existing data.
 		var data = playerLocations[who];
 		data.marker.setLatLng([lat, lng]);
+		data.marker.setIcon(icon);
 		data.circle.setLatLng([lat, lng]);
 		data.circle.setRadius(accuracy);
 		data.circle.setStyle({opacity: 0.2, color: this.fugitives[who] ? '#ff0000' : '#0000ff'});
@@ -159,7 +164,7 @@ function onLocationObtained(who, lat, lng, accuracy){
 	else {
 		//Need to create the data from scratch.
 		var data = {};
-		data.marker = L.marker([lat, lng]).addTo(map);
+		data.marker = L.marker([lat, lng], {icon: icon}).addTo(map);
 		//Fairly alarming colours, but those can be changed. Marker will also change.
 		data.circle = L.circle([lat, lng], {radius: accuracy, opacity: 0.2, color: this.fugitives[who] ? '#ff0000' : '#0000ff'}).addTo(map);
 		//Add raw data
