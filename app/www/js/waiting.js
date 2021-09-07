@@ -101,6 +101,6 @@ var dat = encodeURIComponent(JSON.stringify({code: code, ip: srv}));
 document.getElementById('sharelink').value = `${window.location.protocol}//${window.location.host}#${dat}`; //Can't be bothered to make my own interchange format, so using JSON. 
 
 //Now, add listeners to all the options.
-for (var id of ['timer']){
+for (var id of ['timer', 'hunterLocDelay', 'fugitiveLocDelay']){
 	document.getElementById(id).oninput = () => updateOptions(id, true);
 }
