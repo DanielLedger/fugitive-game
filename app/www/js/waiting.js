@@ -102,5 +102,5 @@ document.getElementById('sharelink').value = `${window.location.protocol}//${win
 
 //Now, add listeners to all the options.
 for (var id of ['timer']){
-	document.getElementById(id).oninput = () => updateOptions(id);
+	document.getElementById(id).oninput = () => updateOptions(id, true);
 }
