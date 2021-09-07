@@ -184,12 +184,3 @@ function onLocationObtained(who, lat, lng, accuracy){
 }
 
 window.setTimeout(setupMap, 200); //Set a small timeout to allow everything to load.
-
-//Network status checker: since apparently we don't get informed via socket closure if we drop connection.
-window.setInterval(() => {
-	if (lastPing + 60000 < Date.now() && gameSocket.readyState === 1){
-		//Last ping was more than 60 seconds ago, we've lost connection. Forcibly close the game socket.
-		gameSocket.close();
-		console.error("Network connection lost! Forcibly closing socket...");
-	}
-}, 10000);
