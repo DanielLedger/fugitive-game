@@ -40,7 +40,7 @@ function showGameStatus(json){
 	options = giObj.options;
 	for (var key in giObj.options){
 		var elem = document.getElementById(key);
-		if (elem === undefined){
+		if (elem === null){
 			continue;
 		}
 		else {
