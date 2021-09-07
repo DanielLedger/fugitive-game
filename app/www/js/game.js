@@ -69,8 +69,10 @@ function setupMap() {
 		zoomOffset: -1
 	}).addTo(map);
 	//Request gameinfo
-	gameSocket.send('GAMEINFO');
-	console.debug('Sent gameinfo request.');
+	window.setTimeout(() => {
+		gameSocket.send('GAMEINFO');
+		console.debug('Sent gameinfo request.');
+	}, 1000);
 	if (window.sessionStorage.getItem("role") !== 'spectator'){ //Don't watch spectator location.
 		//map.locate({watch: true, setView: false, maxZoom: 16, enableHighAccuracy: true, maxAge: 3000});
 		/*getGeolocationService().watch(3000, (l) => {
