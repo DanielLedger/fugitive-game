@@ -117,9 +117,9 @@ class Game {
 					return; //Only the host may change stuff.
 				}
 				var changed = JSON.parse(msg.data.split(' ')[1]);
-				for (var key in Object.keys(changed)){
-					if (this.options[key] !== undefined){
-						//Don't allow additional options to be set.
+				for (var key of Object.keys(changed)){
+					if (this.options[key] !== undefined && typeof this.options[key] === typeof changed[key]){
+						//Don't allow additional options to be set, unless they exist already and are the correct type.
 						this.options[key] = changed[key];
 					}
 				}
