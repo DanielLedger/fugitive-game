@@ -112,6 +112,18 @@ class Game {
 				sess.send("INFO " + JSON.stringify(gi));
 				return;
 			}
+			else if (msg.data.startsWith("OPT")){
+				if (sess.playerID !== this.host){
+					return; //Only the host may change stuff.
+				}
+				var changed = JSON.parse(msg.data.split(' ')[1]);
+				for (var key in Object.keys(changed)){
+					if (this.options[key] !== undefined){
+						//Don't allow additional options to be set.
+						this.options[key] = changed[key];
+					}
+				}
+			}
 			else if (msg.data === "ROLE_ASSIGN"){
 				//Assigns everyone a role, chosen based on their preference.
 				//Host only, and closes the game once run.

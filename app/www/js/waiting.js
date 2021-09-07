@@ -1,3 +1,5 @@
+var options = {};
+
 function showGameStatus(json){
 	var giObj = JSON.parse(json);
 	//TODO: Have a nice looking bar here
@@ -33,6 +35,28 @@ function showGameStatus(json){
 		//Ensable the role allocation button.
 		document.getElementById('lockroleselection').disabled = false;
 	}
+
+	//Go through every option in the option JSON and, if it exists, set the value of the field. In addition, set readonly on them if we're not host (also validated serverside).
+	options = giObj.options;
+	for (var key in giObj.options){
+		var elem = document.getElementById(key);
+		if (elem === undefined){
+			continue;
+		}
+		else {
+			elem.value = giObj.options[key];
+			elem.disabled = !giObj.host;
+		}
+	}
+}
+
+function updateOptions(opt){
+	var newVal = document.getElementById(opt).value;
+	options[opt] = newVal;
+	//Send a JSON of purely what's changed.
+	var justChange = {};
+	justChange[opt] = newVal;
+	gameSocket.send(`OPT ${JSON.stringify(justChange)}`);
 }
 
 gameSocket.addEventListener('message', (m) => {
@@ -72,3 +96,8 @@ var srv = window.sessionStorage.getItem('GameIP');
 var dat = encodeURIComponent(JSON.stringify({code: code, ip: srv}));
 
 document.getElementById('sharelink').value = `${window.location.protocol}//${window.location.host}#${dat}`; //Can't be bothered to make my own interchange format, so using JSON. 
+
+//Now, add listeners to all the options.
+for (var id of ['timer']){
+	document.getElementById(id).onchange = () => updateOptions(id);
+}
