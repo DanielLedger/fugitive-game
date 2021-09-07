@@ -192,6 +192,15 @@ class Game {
 				for (var ws of Object.values(game.players)){
 					ws.send("START");
 				}
+				//Set up a repeating task to decrement the timer by one second, every second.
+				setInterval(() => {
+					//To avoid spam, only send updates every 30 seconds or so (this'll probably be the minimum increment for the timer anyway at game start).
+					if (this.options.timer-- % 30 === 0){
+						for (var ws of Object.values(game.players)){
+							ws.send(`TIME ${this.options.timer}`);
+						}
+					}
+				}, 1000);
 			}
 			else if (msg.data === 'pong'){
 				//Keepalive ping-pong, do nothing.
