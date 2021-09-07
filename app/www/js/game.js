@@ -188,3 +188,24 @@ function onLocationObtained(who, lat, lng, accuracy){
 }
 
 window.setTimeout(setupMap, 200); //Set a small timeout to allow everything to load.
+
+//Set a timer decrementer.
+window.setInterval(() => {
+	//If we're at t<=0, do nothing
+	if (timeLeft <= 0){
+		return;
+	}
+	//Decrement the time
+	timeLeft--;
+	//Now, make a nice stringrep of the time.
+	var hours = (timeLeft / 3600) >> 0; //Cursed integer division.
+	var hoursString = hours.toString(); //Unlike the other 3, this can in theory go above 99, so it's a special case (obviously).
+	if (hoursString.length === 1){
+		hoursString = '0' + hoursString;
+	}
+	var secondsLeft = timeLeft % 3600;
+	//The quotient of this division is minutes, remainer is seconds.
+	var mins = (secondsLeft / 60) >> 0;
+	var secs = secondsLeft % 60;
+	document.getElementById('timer').innerText = `Time left: ${hoursString}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}, 1000);
