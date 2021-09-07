@@ -8,14 +8,14 @@ var fugitives = {};
 
 var playerLocations = {}; //A dict of player public IDs -> {location, accuracy, marker, accuracyCircle}
 
+var timeLeft = 0;
+
 function setupWS() {
 	//Set the gameSocket to render players on the map.
 	gameSocket.addEventListener('message', (m) => {
 		lastPing = Date.now();
 		var raw = m.data;
-		if (raw === 'OK'){
-			return;
-		}
+		if (raw === 'OK'){}
 		else if (raw.startsWith('INFO')){
 			var gi = JSON.parse(raw.split(' ')[1]);
 			gi.fugitives.map((f) => {fugitives[f] = true}); //Hashset
@@ -23,17 +23,21 @@ function setupWS() {
 				//We're a fugitive too, add 'self' to the set.
 				fugitives['self'] = true;
 			}
-			return;
+			//Set time from this as well.
+			timeLeft = gi.options.timer;
 		}
 		else if (raw === 'ping'){
-			gameSocket.send('pong');
-			return;
 		}
-		//The protocol is now officially: 'user:lat,lng,acc'
-		var splitDat = raw.split(":");
-		var user = splitDat[0];
-		var infoSplit = splitDat[1].split(",");
-		onLocationObtained(user, Number(infoSplit[0]), Number(infoSplit[1]), Number(infoSplit[2]));
+		else if (raw.startsWith('TIME')){
+			timeLeft = Number(raw.split(" ")[1]);
+		}
+		else {
+			//The protocol is now officially: 'user:lat,lng,acc'
+			var splitDat = raw.split(":");
+			var user = splitDat[0];
+			var infoSplit = splitDat[1].split(",");
+			onLocationObtained(user, Number(infoSplit[0]), Number(infoSplit[1]), Number(infoSplit[2]));
+		}
 	});
 	
 	//Set up a message for if we drop connection.
