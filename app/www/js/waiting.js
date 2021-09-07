@@ -50,8 +50,11 @@ function showGameStatus(json){
 	}
 }
 
-function updateOptions(opt){
+function updateOptions(opt, isnum){
 	var newVal = document.getElementById(opt).value;
+	if (isnum){
+		newVal = Number(newVal);
+	}
 	options[opt] = newVal;
 	//Send a JSON of purely what's changed.
 	var justChange = {};
@@ -99,5 +102,5 @@ document.getElementById('sharelink').value = `${window.location.protocol}//${win
 
 //Now, add listeners to all the options.
 for (var id of ['timer']){
-	document.getElementById(id).onchange = () => updateOptions(id);
+	document.getElementById(id).oninput = () => updateOptions(id);
 }
