@@ -50,9 +50,9 @@ function showGameStatus(json){
 	}
 }
 
-function updateOptions(opt, isnum){
+function updateOptions(opt, israw){
 	var newVal = document.getElementById(opt).value;
-	if (isnum){
+	if (!israw){
 		newVal = Number(newVal);
 	}
 	options[opt] = newVal;
@@ -102,5 +102,5 @@ document.getElementById('sharelink').value = `${window.location.protocol}//${win
 
 //Now, add listeners to all the options.
 for (var id of ['timer', 'hunterLocDelay', 'fugitiveLocDelay']){
-	document.getElementById(id).oninput = () => updateOptions(id, true);
+	document.getElementById(id).oninput = () => updateOptions(id, false);
 }
