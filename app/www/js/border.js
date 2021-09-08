@@ -24,13 +24,14 @@ class Border {
     //storeInLayer isn't written directly, however it is how the function knows if it needs to edit/remove the old indicator.
     render (storeInLayer, map){
         if (storeInLayer !== undefined){
-            map.removeLayer(storeInLayer);
+            storeInLayer.remove();
         }
         if (this.info.centre !== undefined){
             //Draw a circle.
             storeInLayer = L.circle(this.info.centre, {radius: this.info.radius, fill: false, color: '#ff0000', opacity: 1});
             storeInLayer.addTo(map);
         }
+        return storeInLayer;
     }
 
     isCircle() {
