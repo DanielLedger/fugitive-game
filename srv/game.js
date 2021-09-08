@@ -79,7 +79,11 @@ class Game {
 	playerOut(id) {
 		//Mark a player as out of the game. This turns them into a spectator immediately. If there are no fugitives left, the game ends in a hunter victory (TODO).
 		//First though, send a mock location of 'null,null,null' to get the location marker removed from the map (possibly leaving behind a ghostly final marker).
-		this.postLocation(id, "null,null,null", this);
+		var msg = game.publicIDS[sess.playerID] + ":null,null,null";
+		for (var session of Object.keys(game.players)){
+			var ws = game.players[session];
+			ws.send(msg);
+		}
 		//Now, they become a spectator. Their live location feed is no longer required.
 		this.roles[id] = 'spectator';
 	}

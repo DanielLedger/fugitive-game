@@ -43,6 +43,10 @@ function onDeviceReady() {
 		data.forEach((i) => {str += String.fromCharCode(i)});
 		document.getElementById('gamecode').value = btoa(str);
 	};
+
+	document.getElementById('loadlink').onclick = () => {
+		document.location = document.getElementById('joinlink').value;
+	}
 	
 	//If we have a location hash, fill in the info (don't join the game instantly, otherwise we've made an IP grabber).
 	if (window.location.hash !== ""){
