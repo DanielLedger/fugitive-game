@@ -121,6 +121,19 @@ document.getElementById('borderrad').onchange = () => {
 	gameSocket.send(`OPT ${JSON.stringify(newBorderObj)}`);
 };
 
+//Map clicked, update centre.
+map.on('click', (e) => {
+	//As above, except sets centre and leaves radius alone.
+	var newBorderObj = {
+		border: {
+			centre: [e.latlng.lat, e.latlng.lng],
+			radius: border.getRadius()
+		}
+	};
+	//Send an OPT message to actually update it.
+	gameSocket.send(`OPT ${JSON.stringify(newBorderObj)}`);
+});
+
 L.tileLayer(serverIP + "/tile?x={x}&y={y}&z={z}", {
 	//Standard settings for mapbox (which we're using for the forseeable future).
 	attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',

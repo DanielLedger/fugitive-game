@@ -46,4 +46,8 @@ class Border {
         return this.info.centre; //If poly, will return undefined (which is correct)
     }
 
+    getRadius() {
+        return this.info.radius;
+    }
+
 }
