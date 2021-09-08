@@ -89,6 +89,22 @@ document.getElementById('startgame').onclick = () => {
 	gameSocket.send("START");
 };
 
+//Set up the border listeners, which work completely differently.
+document.getElementById('borderrad').onchange = () => {
+
+};
+
+var map = L.map('bordermap');
+L.tileLayer(serverIP + "/tile?x={x}&y={y}&z={z}", {
+	//Standard settings for mapbox (which we're using for the forseeable future).
+	attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+	maxZoom: 14,
+	tileSize: 512,
+	zoomOffset: -1
+}).addTo(map);
+
+map.locate({setView: true}); //Show where the player currently is.
+
 document.getElementById('sharelink').onclick = () => {
 	navigator.clipboard.writeText(document.getElementById('sharelink').value).then(() => alert('Share link copied!'));
 };

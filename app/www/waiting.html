@@ -29,7 +29,7 @@
             * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
                 * Enable inline JS: add 'unsafe-inline' to default-src
         -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' http: https: ws: wss: data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' http: https: ws: wss: data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' https: http: data: content:;">
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
         <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
@@ -39,6 +39,10 @@
 		<link rel="stylesheet" href="css/bootstrap.min.css">
 		<script src="js/bootstrap.bundle.min.js"></script>
 		<!-- /Bootstrap -->
+        <!-- Leaflet -->
+		<link rel="stylesheet" href="css/leaflet.css">
+		<script src="js/leaflet.js"></script>
+		<!-- /Leaflet -->
 		<script src="js/reconnecting-websocket.min.js"></script>
 		<script src="js/checkserver.js"></script>
         <title>Fugitive - Waiting for game start</title>
@@ -59,6 +63,10 @@
 			<input id="fugitiveLocDelay" type=number></input>
             <label for="hunterLocDelay">Hunter location delay (seconds):</label>
 			<input id="hunterLocDelay" type=number></input>
+            <label for="borderrad">Border radius (metres):</label>
+			<input id="borderrad" type=number></input>
+            <p>Tap or click on the map below to set the centre.</p>
+            <div id="bordermap" style="width: 60%; height: 60vh"></div>
 			<button id="lockroleselection" class="btn btn-warning" style="display: none;">Lock game and allocate roles</button>
 			<label for="sharelink">Join link (click to copy): </label>
 			<input type=text id="sharelink" readonly></input>
