@@ -49,6 +49,9 @@ function showGameStatus(json){
 		if (elem === null){
 			continue;
 		}
+		else if (elem === document.activeElement){
+			continue; //Don't edit the element the user has focussed, that's just annoying.
+		}
 		else {
 			elem.value = giObj.options[key];
 			elem.disabled = !giObj.host;
@@ -61,8 +64,10 @@ function showGameStatus(json){
 	borderHighlight = border.render(borderHighlight, map);
 	//Update border radius (like how the others are changed). TODO: Accept polygonal borders without dying.
 	var bRadCtrl = document.getElementById('borderrad');
-	bRadCtrl.value = giObj.options.border.radius;
-	bRadCtrl.disabled = !giObj.host;
+	if (bRadCtrl !== document.activeElement){ //Let the user edit the thing in peace.
+		bRadCtrl.value = giObj.options.border.radius;
+		bRadCtrl.disabled = !giObj.host;
+	}
 }
 
 function updateOptions(opt, israw){
