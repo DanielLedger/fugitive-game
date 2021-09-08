@@ -76,6 +76,14 @@ class Game {
 		game.handleWSMessage({playerID: uuid}, {data: str}, game); //The advantages of dynamic typing.
 	}
 	
+	playerOut(id) {
+		//Mark a player as out of the game. This turns them into a spectator immediately. If there are no fugitives left, the game ends in a hunter victory (TODO).
+		//First though, send a mock location of 'null,null,null' to get the location marker removed from the map (possibly leaving behind a ghostly final marker).
+		this.postLocation(id, "null,null,null", this);
+		//Now, they become a spectator. Their live location feed is no longer required.
+		this.roles[id] = 'spectator';
+	}
+
 	//The big method which powers a lot of the core functionailty of the game: this method controls the handling of the incoming websocket messages.
 	handleWSMessage(sess, msg, game){
 		console.log("WS message from " + sess.playerID + ": " + msg.data);
@@ -221,6 +229,10 @@ class Game {
 			else if (msg.data === 'pong'){
 				//Keepalive ping-pong, do nothing.
 				return;
+			}
+			else if (msg.data === 'OUT'){
+				//Player was caught.
+				this.playerOut(sess.playerID);
 			}
 			else {
 				//This is the location feed, send it to everyone else.

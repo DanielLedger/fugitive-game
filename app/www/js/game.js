@@ -35,6 +35,9 @@ function setupWS() {
 			//The protocol is now officially: 'user:lat,lng,acc'
 			var splitDat = raw.split(":");
 			var user = splitDat[0];
+			if (infoSplit[1] === 'null,null,null'){
+				onLocationObtained(user); //Undefined, so location itself doesn't change, just the look of the marker.
+			}
 			var infoSplit = splitDat[1].split(",");
 			onLocationObtained(user, Number(infoSplit[0]), Number(infoSplit[1]), Number(infoSplit[2]));
 		}
@@ -162,15 +165,22 @@ function onLocationObtained(who, lat, lng, accuracy){
 	if (playerLocations[who] !== undefined){
 		//Just move the already existing data.
 		var data = playerLocations[who];
-		data.marker.setLatLng([lat, lng]);
-		data.marker.setIcon(icon);
-		data.circle.setLatLng([lat, lng]);
-		data.circle.setRadius(accuracy);
-		data.circle.setStyle({opacity: 0.2, color: this.fugitives[who] ? '#ff0000' : '#0000ff'});
-		//Update the actual data.
-		data.ll = [lat, lng];
-		data.acc = accuracy;
-		playerLocations[who] = data; //Set back over the top of the old one.
+		if (lat === undefined){
+			//Final 'move', so just show a semi-transparent marker with no accuracy circle.
+			data.circle.remove();
+			data.marker.setOpacity(0.3);
+		}
+		else {
+			data.marker.setLatLng([lat, lng]);
+			data.marker.setIcon(icon);
+			data.circle.setLatLng([lat, lng]);
+			data.circle.setRadius(accuracy);
+			data.circle.setStyle({opacity: 0.2, color: this.fugitives[who] ? '#ff0000' : '#0000ff'});
+			//Update the actual data.
+			data.ll = [lat, lng];
+			data.acc = accuracy;
+			playerLocations[who] = data; //Set back over the top of the old one.
+		}
 	}
 	else {
 		//Need to create the data from scratch.
@@ -211,3 +221,20 @@ window.setInterval(() => {
 	var secs = secondsLeft % 60;
 	document.getElementById('timer').innerText = `Time left: ${hoursString}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }, 1000);
+
+//Bind the button that reacts when the player is out.
+document.getElementById('caught').onclick = () => {
+	if (confirm("Are you sure you meant to press this button?")){
+		//Player is out.
+		if (gameSocket.readyState === 1){
+			//Send the message that you're out now.
+			gameSocket.send("OUT");
+		}
+		else {
+			//Send the message once the socket comes back.
+			gameSocket.addEventListener('open', () => {
+				gameSocket.send("OUT");
+			});
+		}
+	}
+}
