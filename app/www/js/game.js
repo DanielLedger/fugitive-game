@@ -39,7 +39,9 @@ function setupWS() {
 			if (infoSplit[1] === 'null,null,null'){
 				onLocationObtained(user); //Undefined, so location itself doesn't change, just the look of the marker.
 			}
-			onLocationObtained(user, Number(infoSplit[0]), Number(infoSplit[1]), Number(infoSplit[2]));
+			else {
+				onLocationObtained(user, Number(infoSplit[0]), Number(infoSplit[1]), Number(infoSplit[2]));
+			}
 		}
 	});
 	
@@ -236,5 +238,8 @@ document.getElementById('caught').onclick = () => {
 				gameSocket.send("OUT");
 			});
 		}
+		//Set our role to spectator and refresh.
+		window.sessionStorage.setItem('role', 'spectator');
+		document.location.reload();
 	}
 }
