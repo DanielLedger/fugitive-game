@@ -15,7 +15,11 @@ class Game {
 		this.options = {
 			timer: 600, 
 			hunterLocDelay: 3, 
-			fugitiveLocDelay: 30
+			fugitiveLocDelay: 30,
+			border: {
+				centre: [50.9289, -1.4088],
+				radius: 1000
+			}
 		};
 		this.lastSentLoc = {}; //When everyone's location was last broadcast.
 	}
