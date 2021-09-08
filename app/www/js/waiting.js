@@ -106,7 +106,14 @@ document.getElementById('startgame').onclick = () => {
 
 //Set up the border listeners, which work completely differently.
 document.getElementById('borderrad').onchange = () => {
-	
+	var newBorderObj = {
+			border: {
+				centre: border.getCentre(), //This doesn't change.
+				radius: Number(document.getElementById('borderrad').value)
+			}
+	};
+	//Send an OPT message to actually update it.
+	gameSocket.send(`OPT ${JSON.stringify(newBorderObj)}`);
 };
 
 L.tileLayer(serverIP + "/tile?x={x}&y={y}&z={z}", {
