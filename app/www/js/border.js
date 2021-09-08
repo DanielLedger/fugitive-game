@@ -12,7 +12,7 @@ class Border {
         this.info = initObj;
         if (initObj.centre !== undefined){
             //Circlular border, define isInBorder for a circle.
-            isInBorder = (centre, radius) => {
+            this.isInBorder = (centre, radius) => {
                 //Check if the point is in the radius first.
                 var distFromCentre = Math.hypot(centre[0] - this.info.centre[0], centre[1] - this.info.centre[1]);
                 var maxAllowedDist = this.info.centre + radius; //If the point is more than this away, the circles cannot touch.
