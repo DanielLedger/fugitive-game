@@ -1,6 +1,6 @@
 var options = {};
 
-var border = {};
+var border;
 
 var borderHighlight;
 
