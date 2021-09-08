@@ -224,22 +224,27 @@ window.setInterval(() => {
 	document.getElementById('timer').innerText = `Time left: ${hoursString}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }, 1000);
 
-//Bind the button that reacts when the player is out.
-document.getElementById('caught').onclick = () => {
-	if (confirm("Are you sure you meant to press this button?")){
-		//Player is out.
-		if (gameSocket.readyState === 1){
-			//Send the message that you're out now.
-			gameSocket.send("OUT");
-		}
-		else {
-			//Send the message once the socket comes back.
-			gameSocket.addEventListener('open', () => {
+//Bind the button that reacts when the player is out, if they're a fugitive. This WON'T BE ENFORCED SERVERSIDE, since hunters can go out by other means (specifically, leaving the bounds).
+if (window.sessionStorage.getItem("role") === 'fugitive'){
+	document.getElementById('caught').onclick = () => {
+		if (confirm("Are you sure you meant to press this button?")){
+			//Player is out.
+			if (gameSocket.readyState === 1){
+				//Send the message that you're out now.
 				gameSocket.send("OUT");
-			});
+			}
+			else {
+				//Send the message once the socket comes back.
+				gameSocket.addEventListener('open', () => {
+					gameSocket.send("OUT");
+				});
+			}
+			//Set our role to spectator and refresh.
+			window.sessionStorage.setItem('role', 'spectator');
+			document.location.reload();
 		}
-		//Set our role to spectator and refresh.
-		window.sessionStorage.setItem('role', 'spectator');
-		document.location.reload();
 	}
+}
+else {
+	document.getElementById('caught').style = "display: none;";
 }
