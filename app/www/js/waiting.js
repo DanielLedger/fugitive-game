@@ -1,5 +1,11 @@
 var options = {};
 
+var border = {};
+
+var borderHighlight;
+
+var map = L.map('bordermap');
+
 function showGameStatus(json){
 	var giObj = JSON.parse(json);
 	//TODO: Have a nice looking bar here
@@ -48,6 +54,15 @@ function showGameStatus(json){
 			elem.disabled = !giObj.host;
 		}
 	}
+
+	//Set the border explicitly.
+	border = new Border(giObj.options.border);
+	//Render the border.
+	borderHighlight = border.render(borderHighlight, map);
+	//Update border radius (like how the others are changed). TODO: Accept polygonal borders without dying.
+	var bRadCtrl = document.getElementById('borderrad');
+	bRadCtrl.value = giObj.options.border.radius;
+	bRadCtrl.disabled = !giObj.host;
 }
 
 function updateOptions(opt, israw){
@@ -91,10 +106,9 @@ document.getElementById('startgame').onclick = () => {
 
 //Set up the border listeners, which work completely differently.
 document.getElementById('borderrad').onchange = () => {
-
+	
 };
 
-var map = L.map('bordermap');
 L.tileLayer(serverIP + "/tile?x={x}&y={y}&z={z}", {
 	//Standard settings for mapbox (which we're using for the forseeable future).
 	attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
