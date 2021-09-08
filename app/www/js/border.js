@@ -32,4 +32,17 @@ class Border {
             storeInLayer.addTo(map);
         }
     }
+
+    isCircle() {
+        return this.info.centre !== undefined;
+    }
+
+    isPoly() {
+        return !this.isCircle();
+    }
+
+    getCentre() {
+        return this.info.centre; //If poly, will return undefined (which is correct)
+    }
+
 }
