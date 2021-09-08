@@ -35,10 +35,10 @@ function setupWS() {
 			//The protocol is now officially: 'user:lat,lng,acc'
 			var splitDat = raw.split(":");
 			var user = splitDat[0];
+			var infoSplit = splitDat[1].split(",");
 			if (infoSplit[1] === 'null,null,null'){
 				onLocationObtained(user); //Undefined, so location itself doesn't change, just the look of the marker.
 			}
-			var infoSplit = splitDat[1].split(",");
 			onLocationObtained(user, Number(infoSplit[0]), Number(infoSplit[1]), Number(infoSplit[2]));
 		}
 	});
