@@ -54,7 +54,12 @@ app.post("/game/start", (req, resp) => {
 	}
 	//Unsurprisingly, a game start route. Creates and initialises a game.
 	var code = req.query.code;
-	if (code === undefined){
+	if (code.includes("<") || code.includes(">")){
+		//Nice try...
+		resp.statusMessage = 'Nice try.';
+		resp.status(406).end();
+	}
+	else if (code === undefined){
 		resp.sendStatus(400); //Can't send no code at all.
 	}
 	else if (games[code] !== undefined){
