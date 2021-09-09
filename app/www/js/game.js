@@ -37,6 +37,10 @@ function setupWS() {
 		else if (raw.startsWith('TIME')){
 			timeLeft = Number(raw.split(" ")[1]);
 		}
+		else if (raw.startsWith('OVER')){
+			//Go to the gameover page.
+			document.location = 'gameover.html';
+		}
 		else {
 			//The protocol is now officially: 'user:lat,lng,acc'
 			var splitDat = raw.split(":");
