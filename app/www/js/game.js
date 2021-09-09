@@ -10,6 +10,9 @@ var playerLocations = {}; //A dict of player public IDs -> {location, accuracy, 
 
 var timeLeft = 0;
 
+var border;
+var borderLine;
+
 function setupWS() {
 	//Set the gameSocket to render players on the map.
 	gameSocket.addEventListener('message', (m) => {
@@ -25,6 +28,9 @@ function setupWS() {
 			}
 			//Set time from this as well.
 			timeLeft = gi.options.timer;
+			//Set the border
+			border = new Border(gi.options.border);
+			borderLine = border.render(borderLine, map);
 		}
 		else if (raw === 'ping'){
 		}
