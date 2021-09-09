@@ -79,61 +79,6 @@ function setupMap() {
 		console.debug('Sent gameinfo request.');
 	}, 1000);
 	if (window.sessionStorage.getItem("role") !== 'spectator'){ //Don't watch spectator location.
-		//map.locate({watch: true, setView: false, maxZoom: 16, enableHighAccuracy: true, maxAge: 3000});
-		/*getGeolocationService().watch(3000, (l) => {
-			//Location spoofing can be detected with l.isFromMockProvider and l.mockLocationsEnabled.
-			//We also have speed and altitude to play with if we want.
-			onLocationObtained('self', l.latitude, l.longitude, l.accuracy);
-			console.debug("Got location: WS state is " + gameSocket.readyState);
-			if (true || gameSocket.readyState !== 1){ //Temporarily always do this.
-				//Socket has died on us, re-open it
-				if (false && !attemptingReconnect){//Temporarily never do this.
-					attemptingReconnect = true;
-					console.debug("Socket deaded, re-opening...");
-					getWS();
-					setupWS();
-					gameSocket.addEventListener('open', () => {
-						gameSocket.send(`${l.latitude},${l.longitude},${l.accuracy}`);
-						attemptingReconnect = false;
-						console.debug('Sent info.');
-					});
-					console.debug("Socket connecting.");
-				}
-				else {
-					console.debug("Already attempting to reconnect...");
-				}
-				//For now, try and send in a POST request.
-				var dataObj = {
-					uuid: window.sessionStorage.getItem('ID'), 
-					lat: l.latitude, 
-					lon: l.longitude, 
-					accuracy: l.accuracy
-				};
-				fetch(serverIP + "/loc", {
-					method: "POST",
-					headers: {
-      					'Content-Type': 'application/json'
-    				},
-					body: JSON.stringify(dataObj)
-				}).then((resp) => {
-					if (resp.ok){
-						console.debug("Location posted successfully.");
-					}
-					else {
-						console.warn("Location post failed: ");
-						console.warn(resp.status + ":" + resp.statusText);
-					}
-				},
-				(err) => {
-					console.warn("Network error when posting location: ");
-					console.warn(err);
-				});
-			}
-			else {
-				gameSocket.send(`${l.latitude},${l.longitude},${l.accuracy}`);
-				console.debug("Sending location as normal.");
-			}
-		});*/
 		//Temporary, just to try and get the damn thing to work.
 		if (cordova.platformId !== 'browser'){
 			BackgroundGeolocation.configure({
