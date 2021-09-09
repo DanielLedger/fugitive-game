@@ -106,7 +106,7 @@ class Game {
 			var ws = this.players[session];
 			ws.send("OVER");
 		}
-		setTimeout(() => this.removeGame(code, Object.keys(this.players)), 50);
+		setTimeout(() => this.removeGame(this.code, Object.keys(this.players)), 50);
 	}
 
 	//The big method which powers a lot of the core functionailty of the game: this method controls the handling of the incoming websocket messages.
