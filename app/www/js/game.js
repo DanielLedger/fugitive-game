@@ -185,16 +185,20 @@ if (window.sessionStorage.getItem("role") === 'fugitive'){
 			if (gameSocket.readyState === 1){
 				//Send the message that you're out now.
 				gameSocket.send("OUT");
-				window.sessionStorage.setItem('role', 'spectator');
-				document.location.reload();
+				window.setTimeout(() => {
+					window.sessionStorage.setItem('role', 'spectator');
+					document.location.reload();
+				}, 1500);
 			}
 			else {
 				//Send the message once the socket comes back.
 				gameSocket.addEventListener('open', () => {
 					gameSocket.send("OUT");
 					//Set our role to spectator and refresh.
-					window.sessionStorage.setItem('role', 'spectator');
-					document.location.reload();
+					window.setTimeout(() => {
+						window.sessionStorage.setItem('role', 'spectator');
+						document.location.reload();
+					}, 1500);
 				});
 			}
 		}
