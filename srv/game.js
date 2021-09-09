@@ -2,7 +2,7 @@ const uuid = require('uuid');
 
 class Game {
 	
-	constructor(config){
+	constructor(config, code){
 		this.players = {}; //Maintains a list of unique ids -> websocket sessions.
 		this.publicIDS = {}; //A list of unique IDs -> public IDs that we send to the end clients (given that the ids here are also connection secrets).
 		this.roles = {}; //The roles people have.
@@ -11,6 +11,10 @@ class Game {
 		this.roleLimits = config.get('RoleLimits');
 		this.host = undefined; //Only the host can do important things like setting the boundary or starting the game.
 		this.playing = false; //We need to know if we're playing or not.
+
+		//We need to know our own code
+		this.code = code;
+
 		//If it's a time, it's in seconds.
 		this.options = {
 			timer: 600, 
@@ -86,6 +90,22 @@ class Game {
 		}
 		//Now, they become a spectator. Their live location feed is no longer required.
 		this.roles[id] = 'spectator';
+		var fugitivesLeft = Object.keys(this.roles).filter((v) => {return this.roles[v] === 'fugitive'}).length;
+		var huntersLeft = Object.keys(this.roles).filter((v) => {return this.roles[v] === 'hunter'}).length;
+		if (fugitivesLeft === 0 || huntersLeft === 0){
+			//If all of one role are gone, then it's game over.
+			this.endGame();
+		}
+	}
+
+	endGame(){
+		//Ends the game, and requests game to be deleted.
+		console.log("Game over!");
+		for (var session of Object.keys(game.players)){
+			var ws = game.players[session];
+			ws.send("OVER");
+		}
+		setTimeout(() => removeGame(code, Object.keys(this.players)), 50);
 	}
 
 	//The big method which powers a lot of the core functionailty of the game: this method controls the handling of the incoming websocket messages.
@@ -221,12 +241,17 @@ class Game {
 					ws.send("START");
 				}
 				//Set up a repeating task to decrement the timer by one second, every second.
-				setInterval(() => {
+				this.timerTask = setInterval(() => {
 					//To avoid spam, only send updates every 30 seconds or so (this'll probably be the minimum increment for the timer anyway at game start).
 					if (this.options.timer-- % 30 === 0){
 						for (var ws of Object.values(game.players)){
 							ws.send(`TIME ${this.options.timer}`);
 						}
+					}
+					if (this.options.timer <= 0){
+						//Time has expired, game ends.
+						clearInterval(this.timerTask);
+						this.endGame();
 					}
 				}, 1000);
 			}

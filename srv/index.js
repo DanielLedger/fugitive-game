@@ -45,6 +45,13 @@ function testRatelimit(ip){
 	}
 }
 
+function removeGame(code, ...uuids){
+	delete games[code];
+	for (var uuid of uuids){
+		delete uuids[code];
+	}
+}
+
 //Define a game start, game join and game WS route.
 app.post("/game/start", (req, resp) => {
 	if (!testRatelimit(req.ip)){
@@ -68,7 +75,7 @@ app.post("/game/start", (req, resp) => {
 	}
 	else {
 		//Create a game with this code, and reply with the user's access UUID.
-		var game = new Game(config);
+		var game = new Game(config, code);
 		var playerUUID = game.initSession();
 		if (playerUUID === null) { //Really shouldn't happen here, but putting this just in case.
 			resp.sendStatus(423);
