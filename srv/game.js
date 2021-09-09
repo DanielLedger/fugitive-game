@@ -2,7 +2,8 @@ const uuid = require('uuid');
 
 class Game {
 	
-	constructor(config, code){
+	constructor(config, code, rmg){
+		this.removeGame = rmg;
 		this.players = {}; //Maintains a list of unique ids -> websocket sessions.
 		this.publicIDS = {}; //A list of unique IDs -> public IDs that we send to the end clients (given that the ids here are also connection secrets).
 		this.roles = {}; //The roles people have.
@@ -105,7 +106,7 @@ class Game {
 			var ws = this.players[session];
 			ws.send("OVER");
 		}
-		setTimeout(() => removeGame(code, Object.keys(this.players)), 50);
+		setTimeout(() => this.removeGame(code, Object.keys(this.players)), 50);
 	}
 
 	//The big method which powers a lot of the core functionailty of the game: this method controls the handling of the incoming websocket messages.
