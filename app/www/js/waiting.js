@@ -157,5 +157,7 @@ document.getElementById('sharelink').value = `${window.location.protocol}//${win
 
 //Now, add listeners to all the options.
 for (var id of ['timer', 'hunterLocDelay', 'fugitiveLocDelay']){
-	document.getElementById(id).oninput = () => updateOptions(id, false);
+	document.getElementById(id).oninput = (e) => {
+		updateOptions(e.target.id, false);
+	}
 }
