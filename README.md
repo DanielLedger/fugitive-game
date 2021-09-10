@@ -31,14 +31,15 @@ script, you'll need to generate your own keys for the `certs` directory (the ope
 2) In the `app` directory, run `npm install cordova && npm install` to install cordova (which is needed to build the app) and all listed dependancies. Note that npm will complain about security issues, however there's not much you can do (`npm audit fix --force` just installs v10, which has issues that are 'fixed' by installing v9, which tries to 'fix' it by installing v10 and so on).
 3) Make sure you have an accessible version of the android SDK. This is quite involved and beyond the scope of this quickly typed miniguide, see https://cordova.apache.org/docs/en/10.x/guide/platforms/android/
 for more detail.
-4) Connect your phone via a USB cable to your PC. Make sure to allow the PC to do USB debugging.
-5) Run `cordova run android` to install the app on the connected phone.
+4) Run `cordova platform add android`.
+5) Connect your phone via a USB cable to your PC. Make sure to allow the PC to do USB debugging.
+6) Run `cordova run android` to install the app on the connected phone.
 
 Note: It will be significantly easier if one person runs those steps and does 4 and 5 for all players.
 
 Note 2: If someone has a mac, people with iPhones can also play by following this guide for building for iOS: https://cordova.apache.org/docs/en/10.x/guide/platforms/ios/index.html
 
-Note 3: If people do not wish to (or are incapable of) installing the app, they can still watch on the PC used to build the app: `cordova run browser` will open up
+Note 3: If people do not wish to (or are incapable of) installing the app, they can still watch on the PC used to build the app: `cordova platform add browser && cordova run browser` will open up
 the app in a browser of choice, which can then join as a spectator.
 
 ## Roles
