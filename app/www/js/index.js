@@ -27,33 +27,33 @@ function onDeviceReady() {
     console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
 
 	//Add functionality to the join game and start game buttons.
-	document.getElementById('makegame').onclick = () => {
+	$('#makegame').onclick = () => {
 		onStartGame();
 	};
 	
-	document.getElementById('joingame').onclick = () => {
+	$('#joingame').onclick = () => {
 		onJoinGame();
 	};
 	
 	//Add functionality to the button that generates a random code.
-	document.getElementById('coderegen').onclick = () => {
+	$('#coderegen').onclick = () => {
 		var data = new Uint8Array(9); //Using 9 bytes because that encodes into base64 without padding.
 		window.crypto.getRandomValues(data);
 		var str = "";
 		data.forEach((i) => {str += String.fromCharCode(i)});
-		document.getElementById('gamecode').value = btoa(str);
+		$('#gamecode').value = btoa(str);
 	};
 
-	document.getElementById('loadlink').onclick = () => {
-		document.location = document.getElementById('joinlink').value;
+	$('#loadlink').onclick = () => {
+		document.location = $('#joinlink').value;
 	}
 	
 	//If we have a location hash, fill in the info (don't join the game instantly, otherwise we've made an IP grabber).
 	if (window.location.hash !== ""){
 		var dat = window.location.hash.slice(1);
 		dat = JSON.parse(decodeURIComponent(dat));
-		document.getElementById('serverip').value = dat.ip;
-		document.getElementById('gamecode').value = dat.code;
+		$('#serverip').value = dat.ip;
+		$('#gamecode').value = dat.code;
 	}
 }
 
@@ -72,8 +72,8 @@ function postGameStart() {
 //Two functions, will likely end up fairly similar.
 function onStartGame() {
 	console.log("Starting game: contacting server...");
-	var ip = document.getElementById('serverip').value;
-	var code = document.getElementById('gamecode').value;
+	var ip = $('#serverip').value;
+	var code = $('#gamecode').value;
 	fetch(ip + "/game/start?code=" + code, {method: "POST"}).then((resp) => {
 		//Expecting either 409 (shouldn't get this really), 429 or 200.
 		if (resp.status === 200){
@@ -88,24 +88,24 @@ function onStartGame() {
 			})
 		}
 		else if (resp.status === 429) {
-			displayAlert(document.getElementById('alerts'), "danger", "Try again in a few seconds!");
+			displayAlert($('#alerts'), "danger", "Try again in a few seconds!");
 		}
 		else if (resp.status === 423) {
-			displayAlert(document.getElementById('alerts'), "danger", "Game has already started!");
+			displayAlert($('#alerts'), "danger", "Game has already started!");
 		}
 		else if (resp.status === 409) {
-			displayAlert(document.getElementById('alerts'), "danger", "Press 'Join a game' or try a different code.");
+			displayAlert($('#alerts'), "danger", "Press 'Join a game' or try a different code.");
 		}
 		else {
-			displayAlert(document.getElementById('alerts'), "danger", `Unknown error (${resp.status}: ${resp.statusText}).`);
+			displayAlert($('#alerts'), "danger", `Unknown error (${resp.status}: ${resp.statusText}).`);
 		}
 	})
 }
 
 function onJoinGame() {
 	console.log("Joining game: contacting server...");
-	var ip = document.getElementById('serverip').value;
-	var code = document.getElementById('gamecode').value;
+	var ip = $('#serverip').value;
+	var code = $('#gamecode').value;
 	fetch(ip + "/game/join?code=" + code, {method: "POST"}).then((resp) => {
 		//Expecting either 404, 429 or 200.
 		if (resp.status === 200){
@@ -120,16 +120,16 @@ function onJoinGame() {
 			})
 		}
 		else if (resp.status === 429) {
-			displayAlert(document.getElementById('alerts'), "danger", "Try again in a few seconds!");
+			displayAlert($('#alerts'), "danger", "Try again in a few seconds!");
 		}
 		else if (resp.status === 404) {
-			displayAlert(document.getElementById('alerts'), "danger", "Press 'start a game' or try a different code.");
+			displayAlert($('#alerts'), "danger", "Press 'start a game' or try a different code.");
 		}
 		else if (resp.status === 423) {
-			displayAlert(document.getElementById('alerts'), "danger", "Game has already started!");
+			displayAlert($('#alerts'), "danger", "Game has already started!");
 		}
 		else {
-			displayAlert(document.getElementById('alerts'), "danger", `Unknown error (${resp.status}: ${resp.statusText}).`);
+			displayAlert($('#alerts'), "danger", `Unknown error (${resp.status}: ${resp.statusText}).`);
 		}
 	})
 }

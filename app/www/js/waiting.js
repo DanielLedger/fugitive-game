@@ -13,15 +13,15 @@ function showGameStatus(json){
 	if (giObj.host){
 		document.getElementById("ishost").innerHTML = `<span class='h4'>Host: </span><a class='btn btn-success'>Yes</a>`;
 		//Show the 'allocate roles' button
-		document.getElementById('lockroleselection').style = "display: block;";
+		$('#lockroleselection').style = "display: block;";
 		//Undisable the "start game" button.
-		document.getElementById('startgame').disabled = false;
+		$('#startgame').disabled = false;
 	}
 	else {
 		document.getElementById("ishost").innerHTML = `<span class='h4'>Host: </span><a class='btn btn-danger'>No</a>`;
-		document.getElementById('lockroleselection').style = "display: none;";
+		$('#lockroleselection').style = "display: none;";
 		//Disable the "start game" button.
-		document.getElementById('startgame').disabled = true;
+		$('#startgame').disabled = true;
 	}
 	document.getElementById("players").innerHTML = `<span class='h4'>Players: </span><span class='h5'>${giObj.players}</span>`;
 	//TODO: Render this in a CASE-SENSITIVE font.
@@ -33,13 +33,13 @@ function showGameStatus(json){
 		window.sessionStorage.setItem("role", giObj.role);
 		//Disable the role allocation button if we aren't a spectator (since spectators are allocated immediately).
 		if (giObj.role !== 'spectator'){
-			document.getElementById('lockroleselection').disabled = true;
+			$('#lockroleselection').disabled = true;
 		}
 	}
 	else {
 		document.getElementById("role").innerHTML = `<span>Requested role: </span><span>${giObj.requestedRole}</span>`;
 		//Ensable the role allocation button.
-		document.getElementById('lockroleselection').disabled = false;
+		$('#lockroleselection').disabled = false;
 	}
 
 	//Go through every option in the option JSON and, if it exists, set the value of the field. In addition, set readonly on them if we're not host (also validated serverside).
@@ -63,7 +63,7 @@ function showGameStatus(json){
 	//Render the border.
 	borderHighlight = border.render(borderHighlight, map);
 	//Update border radius (like how the others are changed). TODO: Accept polygonal borders without dying.
-	var bRadCtrl = document.getElementById('borderrad');
+	var bRadCtrl = $('#borderrad');
 	if (bRadCtrl !== document.activeElement){ //Let the user edit the thing in peace.
 		bRadCtrl.value = giObj.options.border.radius;
 		bRadCtrl.disabled = !giObj.host;
@@ -97,24 +97,24 @@ window.setInterval(() => {
 	gameSocket.send("GAMEINFO");
 }, 2000);
 
-document.getElementById('lockroleselection').onclick = () => {
+$('#lockroleselection').onclick = () => {
 	//Disable the button (so it can't be clicked again
-	document.getElementById('lockroleselection').disabled = true;
+	$('#lockroleselection').disabled = true;
 	//Send the assign roles message.
 	gameSocket.send("ROLE_ASSIGN");
 };
 
-document.getElementById('startgame').onclick = () => {
+$('#startgame').onclick = () => {
 	//Send the assign roles message.
 	gameSocket.send("START");
 };
 
 //Set up the border listeners, which work completely differently.
-document.getElementById('borderrad').onchange = () => {
+$('#borderrad').onchange = () => {
 	var newBorderObj = {
 			border: {
 				centre: border.getCentre(), //This doesn't change.
-				radius: Number(document.getElementById('borderrad').value)
+				radius: Number($('#borderrad').value)
 			}
 	};
 	//Send an OPT message to actually update it.
@@ -144,8 +144,8 @@ L.tileLayer(serverIP + "/tile?x={x}&y={y}&z={z}", {
 
 map.locate({setView: true}); //Show where the player currently is.
 
-document.getElementById('sharelink').onclick = () => {
-	navigator.clipboard.writeText(document.getElementById('sharelink').value).then(() => alert('Share link copied!'));
+$('#sharelink').onclick = () => {
+	navigator.clipboard.writeText($('#sharelink').value).then(() => alert('Share link copied!'));
 };
 
 var code = window.sessionStorage.getItem('GameCode');
@@ -153,7 +153,7 @@ var srv = window.sessionStorage.getItem('GameIP');
 
 var dat = encodeURIComponent(JSON.stringify({code: code, ip: srv}));
 
-document.getElementById('sharelink').value = `${window.location.protocol}//${window.location.host}#${dat}`; //Can't be bothered to make my own interchange format, so using JSON. 
+$('#sharelink').value = `${window.location.protocol}//${window.location.host}#${dat}`; //Can't be bothered to make my own interchange format, so using JSON. 
 
 //Now, add listeners to all the options.
 for (var id of ['timer', 'hunterLocDelay', 'fugitiveLocDelay']){
