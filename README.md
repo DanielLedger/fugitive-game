@@ -35,7 +35,7 @@ for more detail.
 5) Connect your phone via a USB cable to your PC. Make sure to allow the PC to do USB debugging.
 6) Run `cordova run android` to install the app on the connected phone.
 
-Note: It will be significantly easier if one person runs those steps and does 4 and 5 for all players.
+Note: It will be significantly easier if one person runs those steps and does 5 and 6 for all players.
 
 Note 2: If someone has a mac, people with iPhones can also play by following this guide for building for iOS: https://cordova.apache.org/docs/en/10.x/guide/platforms/ios/index.html
 
