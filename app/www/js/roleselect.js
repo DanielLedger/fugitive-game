@@ -3,10 +3,10 @@ function reportRoleChoice(rChoice){
 	console.log(`Sending ${rChoice} as role choice.`);
 }
 
-$('#fugitivesel').onclick = () => {reportRoleChoice('fugitive')};
-$('#eithersel').onclick = () => {reportRoleChoice('either')};
-$('#huntersel').onclick = () => {reportRoleChoice('hunter')};
-$('#spectatesel').onclick = () => {reportRoleChoice('spectator')};
+$('#fugitivesel')[0].onclick = () => {reportRoleChoice('fugitive')};
+$('#eithersel')[0].onclick = () => {reportRoleChoice('either')};
+$('#huntersel')[0].onclick = () => {reportRoleChoice('hunter')};
+$('#spectatesel')[0].onclick = () => {reportRoleChoice('spectator')};
 
 gameSocket.addEventListener('message', (m) => {
 	if (m.data === "ROLE_OK"){

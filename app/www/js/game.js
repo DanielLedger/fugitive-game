@@ -57,14 +57,14 @@ function setupWS() {
 	
 	//Set up a message for if we drop connection.
 	gameSocket.onclose = () => {
-		var alertBox = $('#alerts');
+		var alertBox = $('#alerts')[0];
 		alertBox.innerHTML = "";
 		displayAlert(alertBox, 'warning', "Connection lost! Attempting to reconnect...");
 	};
 	
 	//Set up another message for when we regain connection.
 	gameSocket.onopen = () => {
-		var alertBox = $('#alerts');
+		var alertBox = $('#alerts')[0];
 		alertBox.innerHTML = "";
 		displayAlert(alertBox, 'success', "Connected.");
 		lastPing = Date.now(); //Connecting counts as a ping.
@@ -176,12 +176,12 @@ window.setInterval(() => {
 	//The quotient of this division is minutes, remainer is seconds.
 	var mins = (secondsLeft / 60) >> 0;
 	var secs = secondsLeft % 60;
-	$('#timer').innerText = `Time left: ${hoursString}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+	$('#timer')[0].innerText = `Time left: ${hoursString}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }, 1000);
 
 //Bind the button that reacts when the player is out, if they're a fugitive. This WON'T BE ENFORCED SERVERSIDE, since hunters can go out by other means (specifically, leaving the bounds).
 if (window.sessionStorage.getItem("role") === 'fugitive'){
-	$('#caught').onclick = () => {
+	$('#caught')[0].onclick = () => {
 		if (confirm("Are you sure you meant to press this button?")){
 			//Player is out.
 			//Cancel background location task.
@@ -209,5 +209,5 @@ if (window.sessionStorage.getItem("role") === 'fugitive'){
 	}
 }
 else {
-	$('#caught').style = "display: none;";
+	$('#caught')[0].style = "display: none;";
 }

@@ -27,39 +27,37 @@ function onDeviceReady() {
     console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
 
 	//Add functionality to the join game and start game buttons.
-	$('#makegame').onclick = () => {
+	$('#makegame')[0].onclick = () => {
 		onStartGame();
 	};
 	
-	$('#joingame').onclick = () => {
+	$('#joingame')[0].onclick = () => {
 		onJoinGame();
 	};
 	
 	//Add functionality to the button that generates a random code.
-	$('#coderegen').onclick = () => {
+	$('#coderegen')[0].onclick = () => {
 		var data = new Uint8Array(9); //Using 9 bytes because that encodes into base64 without padding.
 		window.crypto.getRandomValues(data);
 		var str = "";
 		data.forEach((i) => {str += String.fromCharCode(i)});
-		$('#gamecode').value = btoa(str);
+		$('#gamecode')[0].value = btoa(str);
 	};
 
-	$('#loadlink').onclick = () => {
-		document.location = $('#joinlink').value;
+	$('#loadlink')[0].onclick = () => {
+		document.location = $('#joinlink')[0].value;
 	}
 	
 	//If we have a location hash, fill in the info (don't join the game instantly, otherwise we've made an IP grabber).
 	if (window.location.hash !== ""){
 		var dat = window.location.hash.slice(1);
 		dat = JSON.parse(decodeURIComponent(dat));
-		$('#serverip').value = dat.ip;
-		$('#gamecode').value = dat.code;
+		$('#serverip')[0].value = dat.ip;
+		$('#gamecode')[0].value = dat.code;
 	}
 }
 
 function preGameStart(callNext) {
-	//Save the entered IP address to session storage.
-	window.sessionStorage.setItem("GameIP", );
 	//Call our "callback" function.
 	callNext();
 }
@@ -72,8 +70,8 @@ function postGameStart() {
 //Two functions, will likely end up fairly similar.
 function onStartGame() {
 	console.log("Starting game: contacting server...");
-	var ip = $('#serverip').value;
-	var code = $('#gamecode').value;
+	var ip = $('#serverip')[0].value;
+	var code = $('#gamecode')[0].value;
 	fetch(ip + "/game/start?code=" + code, {method: "POST"}).then((resp) => {
 		//Expecting either 409 (shouldn't get this really), 429 or 200.
 		if (resp.status === 200){
@@ -88,24 +86,24 @@ function onStartGame() {
 			})
 		}
 		else if (resp.status === 429) {
-			displayAlert($('#alerts'), "danger", "Try again in a few seconds!");
+			displayAlert($('#alerts')[0], "danger", "Try again in a few seconds!");
 		}
 		else if (resp.status === 423) {
-			displayAlert($('#alerts'), "danger", "Game has already started!");
+			displayAlert($('#alerts')[0], "danger", "Game has already started!");
 		}
 		else if (resp.status === 409) {
-			displayAlert($('#alerts'), "danger", "Press 'Join a game' or try a different code.");
+			displayAlert($('#alerts')[0], "danger", "Press 'Join a game' or try a different code.");
 		}
 		else {
-			displayAlert($('#alerts'), "danger", `Unknown error (${resp.status}: ${resp.statusText}).`);
+			displayAlert($('#alerts')[0], "danger", `Unknown error (${resp.status}: ${resp.statusText}).`);
 		}
 	})
 }
 
 function onJoinGame() {
 	console.log("Joining game: contacting server...");
-	var ip = $('#serverip').value;
-	var code = $('#gamecode').value;
+	var ip = $('#serverip')[0].value;
+	var code = $('#gamecode')[0].value;
 	fetch(ip + "/game/join?code=" + code, {method: "POST"}).then((resp) => {
 		//Expecting either 404, 429 or 200.
 		if (resp.status === 200){
@@ -120,16 +118,16 @@ function onJoinGame() {
 			})
 		}
 		else if (resp.status === 429) {
-			displayAlert($('#alerts'), "danger", "Try again in a few seconds!");
+			displayAlert($('#alerts')[0], "danger", "Try again in a few seconds!");
 		}
 		else if (resp.status === 404) {
-			displayAlert($('#alerts'), "danger", "Press 'start a game' or try a different code.");
+			displayAlert($('#alerts')[0], "danger", "Press 'start a game' or try a different code.");
 		}
 		else if (resp.status === 423) {
-			displayAlert($('#alerts'), "danger", "Game has already started!");
+			displayAlert($('#alerts')[0], "danger", "Game has already started!");
 		}
 		else {
-			displayAlert($('#alerts'), "danger", `Unknown error (${resp.status}: ${resp.statusText}).`);
+			displayAlert($('#alerts')[0], "danger", `Unknown error (${resp.status}: ${resp.statusText}).`);
 		}
 	})
 }

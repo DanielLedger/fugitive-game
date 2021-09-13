@@ -13,15 +13,15 @@ function showGameStatus(json){
 	if (giObj.host){
 		document.getElementById("ishost").innerHTML = `<span class='h4'>Host: </span><a class='btn btn-success'>Yes</a>`;
 		//Show the 'allocate roles' button
-		$('#lockroleselection').style = "display: block;";
+		$('#lockroleselection')[0].style = "display: block;";
 		//Undisable the "start game" button.
-		$('#startgame').disabled = false;
+		$('#startgame')[0].disabled = false;
 	}
 	else {
 		document.getElementById("ishost").innerHTML = `<span class='h4'>Host: </span><a class='btn btn-danger'>No</a>`;
-		$('#lockroleselection').style = "display: none;";
+		$('#lockroleselection')[0].style = "display: none;";
 		//Disable the "start game" button.
-		$('#startgame').disabled = true;
+		$('#startgame')[0].disabled = true;
 	}
 	document.getElementById("players").innerHTML = `<span class='h4'>Players: </span><span class='h5'>${giObj.players}</span>`;
 	//TODO: Render this in a CASE-SENSITIVE font.
@@ -33,13 +33,13 @@ function showGameStatus(json){
 		window.sessionStorage.setItem("role", giObj.role);
 		//Disable the role allocation button if we aren't a spectator (since spectators are allocated immediately).
 		if (giObj.role !== 'spectator'){
-			$('#lockroleselection').disabled = true;
+			$('#lockroleselection')[0].disabled = true;
 		}
 	}
 	else {
 		document.getElementById("role").innerHTML = `<span>Requested role: </span><span>${giObj.requestedRole}</span>`;
 		//Ensable the role allocation button.
-		$('#lockroleselection').disabled = false;
+		$('#lockroleselection')[0].disabled = false;
 	}
 
 	//Go through every option in the option JSON and, if it exists, set the value of the field. In addition, set readonly on them if we're not host (also validated serverside).
@@ -63,7 +63,7 @@ function showGameStatus(json){
 	//Render the border.
 	borderHighlight = border.render(borderHighlight, map);
 	//Update border radius (like how the others are changed). TODO: Accept polygonal borders without dying.
-	var bRadCtrl = $('#borderrad');
+	var bRadCtrl = $('#borderrad')[0];
 	if (bRadCtrl !== document.activeElement){ //Let the user edit the thing in peace.
 		bRadCtrl.value = giObj.options.border.radius;
 		bRadCtrl.disabled = !giObj.host;
@@ -97,24 +97,24 @@ window.setInterval(() => {
 	gameSocket.send("GAMEINFO");
 }, 2000);
 
-$('#lockroleselection').onclick = () => {
+$('#lockroleselection')[0].onclick = () => {
 	//Disable the button (so it can't be clicked again
-	$('#lockroleselection').disabled = true;
+	$('#lockroleselection')[0].disabled = true;
 	//Send the assign roles message.
 	gameSocket.send("ROLE_ASSIGN");
 };
 
-$('#startgame').onclick = () => {
+$('#startgame')[0].onclick = () => {
 	//Send the assign roles message.
 	gameSocket.send("START");
 };
 
 //Set up the border listeners, which work completely differently.
-$('#borderrad').onchange = () => {
+$('#borderrad')[0].onchange = () => {
 	var newBorderObj = {
 			border: {
 				centre: border.getCentre(), //This doesn't change.
-				radius: Number($('#borderrad').value)
+				radius: Number($('#borderrad')[0].value)
 			}
 	};
 	//Send an OPT message to actually update it.
@@ -144,8 +144,8 @@ L.tileLayer(serverIP + "/tile?x={x}&y={y}&z={z}", {
 
 map.locate({setView: true}); //Show where the player currently is.
 
-$('#sharelink').onclick = () => {
-	navigator.clipboard.writeText($('#sharelink').value).then(() => alert('Share link copied!'));
+$('#sharelink')[0].onclick = () => {
+	navigator.clipboard.writeText($('#sharelink')[0].value).then(() => alert('Share link copied!'));
 };
 
 var code = window.sessionStorage.getItem('GameCode');
@@ -153,7 +153,7 @@ var srv = window.sessionStorage.getItem('GameIP');
 
 var dat = encodeURIComponent(JSON.stringify({code: code, ip: srv}));
 
-$('#sharelink').value = `${window.location.protocol}//${window.location.host}#${dat}`; //Can't be bothered to make my own interchange format, so using JSON. 
+$('#sharelink')[0].value = `${window.location.protocol}//${window.location.host}#${dat}`; //Can't be bothered to make my own interchange format, so using JSON. 
 
 //Now, add listeners to all the options.
 for (var id of ['timer', 'hunterLocDelay', 'fugitiveLocDelay']){
