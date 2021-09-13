@@ -1,4 +1,5 @@
 const uuid = require('uuid');
+const shuf = require('./shuffle');
 
 class Game {
 	
@@ -181,8 +182,9 @@ class Game {
 						dontCare.push(pair[0]);
 					}
 				}
-				//Since objects are hashmaps internally, the order will be determined by the random private IDs, so we don't need to shuffle
-				//If there's bias, this'll be why. There is significant bias, fix is TODO.
+				//Shuffles the request lists since, turns out it was biased very badly.
+				shuf.shuffle(fugitiveReq);
+				shuf.shuffle(hunterReq);
 				var fugitives = [];
 				var hunters = [];
 				console.log(this.roleLimits)
@@ -207,6 +209,8 @@ class Game {
 				//Merge the two other lists into the "don't care" pile, which is technically wrong (they expressed an opinion) but works.
 				dontCare.push(...fugitiveReq);
 				dontCare.push(...hunterReq);
+				//Shuffle this, just in case.
+				shuf.shuffle(dontCare);
 				for (var person of dontCare){
 					if (!(fugitives.length >= this.roleLimits.Fugitive)){
 						//Add this person as a fugitive
