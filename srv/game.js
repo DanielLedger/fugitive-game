@@ -140,7 +140,6 @@ class Game {
 				var gi = {};
 				gi.players = Object.keys(this.players).length; //Doesn't appear to be a better way of doing this.
 				gi.host = (sess.playerID === this.host);
-				gi.border = {ll: [53.348661,-1.5133166], rad: 500}; //Temporary.
 				gi.requestedRole = this.requestedRoles[sess.playerID];
 				gi.role = this.roles[sess.playerID];
 				gi.options = this.options;
