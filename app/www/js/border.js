@@ -22,11 +22,44 @@ class Border {
         else {
             //TODO: Write linear inequality setup thing.
             this.isInBorder = (centre, radius) => {
-                return true;
+                //Test for whether or not you're in a polygon: draw a line from point to infinity (will draw due north for simplicity)
+                //If we cross the polygon an odd number of times in total, we're inside it. Else, we're outside.
+                //I think playing near the north pole will break this, so don't do that.
+                var crosses = 0;
+                for (var i in this.info){
+                    //For each number
+                    var p1 = this.info[i];
+                    var p2 = this.info[(i+1) % this.info.length];
+                    if (this.doesLineIntersect(p1, p2, centre[1], centre[0])){
+                        crosses++;
+                    }
+                }
+                //Return true if the number of crossings is odd.
+                return crosses & 1 == 1;
             }
         }
     }
     
+    doesLineIntersect(llMin, llMax, lonTest, latitudeBase){
+        //Tests if a line between two points intersects this specific line of longitude, at a point above the specified latitude.
+        var lonMin = llMin[1];
+        var lonMax = llMax[1];
+        //Note that we exclude the maximum longitude so that verticies don't become a huge problem.
+        if (!(lonMin <= lonTest && lonMax < lonTest)){
+            return false;
+        }
+        else {
+            //Make sure the intersect is above 'latitudeBase' (a.k.a the intersect latitude > latitudeBase)
+            /*y - y1 = m(x - x1)
+            Therefore, y = m(x - x1) + y1
+            Latitude is y because that works from an intuitive perspective.
+            */
+           var m = (llMin[0] - llMax[0])/(llMin[1] - llMax[1]);
+           var y = m*(lonTest - llMin[1]) + llMin[0];
+           return y > latitudeBase;
+        }
+    }
+
     //storeInLayer isn't written directly, however it is how the function knows if it needs to edit/remove the old indicator.
     render (storeInLayer, map){
         if (storeInLayer !== undefined){
