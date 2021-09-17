@@ -67,7 +67,16 @@ is_in(50.9280,-1.4026)->.a;
 way(pivot.a);
 out tags id;
 relation(pivot.a);
-out tags;-->
+out tags;
+
+[timeout:20]
+[out:json];
+relation(127864);
+/*added by auto repair*/
+(._;>;);
+/*end of auto repair*/
+out;
+-->
 			</div>
             <label for="timer">Time (seconds):</label>
 			<input id="timer" type=number></input>
