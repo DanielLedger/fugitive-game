@@ -19,6 +19,12 @@ class Border {
                 return distFromCentre <= maxAllowedDist;
             };
         }
+        else {
+            //TODO: Write linear inequality setup thing.
+            this.isInBorder = (centre, radius) => {
+                return true;
+            }
+        }
     }
     
     //storeInLayer isn't written directly, however it is how the function knows if it needs to edit/remove the old indicator.
@@ -29,6 +35,11 @@ class Border {
         if (this.info.centre !== undefined){
             //Draw a circle.
             storeInLayer = L.circle(this.info.centre, {radius: this.info.radius, fill: false, color: '#ff0000', opacity: 1});
+            storeInLayer.addTo(map);
+        }
+        else {
+            //Draw a polygon
+            storeInLayer = L.polygon(this.info, {fill: false, color: '#ff0000', opacity: 1});
             storeInLayer.addTo(map);
         }
         return storeInLayer;
