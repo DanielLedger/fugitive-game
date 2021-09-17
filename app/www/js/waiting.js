@@ -151,9 +151,16 @@ $('#sharelink')[0].onclick = () => {
 var code = window.sessionStorage.getItem('GameCode');
 var srv = window.sessionStorage.getItem('GameIP');
 
-var dat = encodeURIComponent(JSON.stringify({code: code, ip: srv}));
+var dat = JSON.stringify({code: code, ip: srv});
 
-$('#sharelink')[0].value = `${window.location.protocol}//${window.location.host}#${dat}`; //Can't be bothered to make my own interchange format, so using JSON. 
+//Create a join QR code.
+document.addEventListener('deviceready', () => {
+	cordova.plugins.qrcodejs.encode('TEXT_TYPE', dat, (b64) => {
+		$('#sharecode')[0].src = b64;
+	},()=>{});
+}, false);
+
+//$('#sharelink')[0].value = `${window.location.protocol}//${window.location.host}#${dat}`; //Can't be bothered to make my own interchange format, so using JSON. 
 
 //Now, add listeners to all the options.
 for (var id of ['timer', 'hunterLocDelay', 'fugitiveLocDelay']){
