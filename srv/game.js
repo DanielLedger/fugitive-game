@@ -316,7 +316,7 @@ class Game {
 			}
 			else {
 				//This is the location feed, send it to everyone else.
-				var msg = game.publicIDS[sess.playerID] + ":" + msg.data;
+				var toSendOn = game.publicIDS[sess.playerID] + ":" + msg.data;
 				//Do a quick boundary check.
 				var info = msg.data.split(',');
 				var ll = [Number(info[0]), Number(info[1])];
@@ -352,12 +352,12 @@ class Game {
 					switch (this.roles[session]){
 						case 'spectator':
 							//Send regardless.
-							ws.send(msg);
+							ws.send(toSendOn);
 							break;
 						default:
 							//Anything else, only send if we're "broadcasting".
 							if (broadcast) {
-								ws.send(msg);
+								ws.send(toSendOn);
 							} 
 					}
 				}
