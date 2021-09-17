@@ -114,32 +114,26 @@ class Game {
 	//Borders need to be handled serverside because background issues.
 	isInBorder(centre){
 		if (this.options.border.centre !== undefined){
-            //Circlular border, define isInBorder for a circle.
-            this.isInBorder = (centre, radius) => {
-                //Check if the point is in the radius first.
-                var distFromCentre = Math.hypot(centre[0] - this.options.border.centre[0], centre[1] - this.options.border.centre[1]);
-                var maxAllowedDist = this.options.border.centre + radius; //If the point is more than this away, the circles cannot touch.
-                return distFromCentre <= maxAllowedDist;
-            };
+			//Check if the point is in the radius first.
+			var distFromCentre = Math.hypot(centre[0] - this.options.border.centre[0], centre[1] - this.options.border.centre[1]);
+			var maxAllowedDist = this.options.border.centre + radius; //If the point is more than this away, the circles cannot touch.
+			return distFromCentre <= maxAllowedDist;
         }
         else {
-            //TODO: Write linear inequality setup thing.
-            this.isInBorder = (centre, radius) => {
-                //Test for whether or not you're in a polygon: draw a line from point to infinity (will draw due north for simplicity)
-                //If we cross the polygon an odd number of times in total, we're inside it. Else, we're outside.
-                //I think playing near the north pole will break this, so don't do that.
-                var crosses = 0;
-                for (var i in this.options.border){
-                    //For each number
-                    var p1 = this.options.border[i];
-                    var p2 = this.options.border[(i+1) % this.options.border.length];
-                    if (this.doesLineIntersect(p1, p2, centre[1], centre[0])){
-                        crosses++;
-                    }
-                }
-                //Return true if the number of crossings is odd.
-                return crosses & 1 == 1;
-            }
+			//Test for whether or not you're in a polygon: draw a line from point to infinity (will draw due north for simplicity)
+			//If we cross the polygon an odd number of times in total, we're inside it. Else, we're outside.
+			//I think playing near the north pole will break this, so don't do that.
+			var crosses = 0;
+			for (var i in this.options.border){
+				//For each number
+				var p1 = this.options.border[i];
+				var p2 = this.options.border[(i+1) % this.options.border.length];
+				if (this.doesLineIntersect(p1, p2, centre[1], centre[0])){
+					crosses++;
+				}
+			}
+			//Return true if the number of crossings is odd.
+			return crosses & 1 == 1;
         }
 	}
 
@@ -323,6 +317,13 @@ class Game {
 			else {
 				//This is the location feed, send it to everyone else.
 				var msg = game.publicIDS[sess.playerID] + ":" + msg.data;
+				//Do a quick boundary check.
+				var info = msg.data.split(',');
+				var ll = [Number(info[0]), Number(info[1])];
+				if (!this.isInBorder(ll)){
+					//*oops*
+					this.playerOut(sess.playerID); //This won't sync correctly at the moment.
+				}
 				var now = Date.now();
 				var lastSent = this.lastSentLoc[sess.playerID] || 0;
 				var nextSend = lastSent;
