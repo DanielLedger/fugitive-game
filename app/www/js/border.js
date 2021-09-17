@@ -42,6 +42,7 @@ class Border {
             storeInLayer = L.polygon(this.info, {fill: false, color: '#ff0000', opacity: 1});
             storeInLayer.addTo(map);
         }
+        map.fitBounds(storeInLayer.getBounds()); //Zoom the map to show the border.
         return storeInLayer;
     }
 
