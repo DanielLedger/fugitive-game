@@ -29,7 +29,7 @@
             * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
                 * Enable inline JS: add 'unsafe-inline' to default-src
         -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' http: https: data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: http: https: data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
         <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
@@ -47,15 +47,13 @@
     <body>
         <div class="app">
 			<label for="serverip">Server IP</label>
-            <input id="serverip" type="text" class="form-control form-control-lg" placeholder="Server IP" value="https://d679-81-106-1-201.eu.ngrok.io">
+            <input id="serverip" type="text" class="form-control form-control-lg" placeholder="Server IP" value="https://b4de-81-106-1-201.eu.ngrok.io">
 			<label for="gamecode">Game passcode</label>
 			<input id="gamecode" type="text" class="form-control" placeholder="Game passcode">
 			<button id="coderegen" class="btn btn-dark">Generate code</button><br>
 			<button id="makegame" class="btn btn-lg btn-primary">Start game</button><br>
 			<button id="joingame" class="btn btn-secondary">Join game</button><br>
-            <label for="joinlink">Or, paste joinlink here: </label>
-            <input id="joinlink" type="text"><br>
-            <button id="loadlink" class="btn btn-lg btn-primary">Use link.</button>
+            <button id="getqr" class="btn btn-lg btn-primary" disabled>Scan join code</button>
 			<div id="alerts"></div>
         </div>
         <script src="cordova.js"></script>
