@@ -37,11 +37,12 @@ function onDeviceReady() {
 	
 	//Add functionality to the button that generates a random code.
 	$('#coderegen')[0].onclick = () => {
-		var data = new Uint8Array(9); //Using 9 bytes because that encodes into base64 without padding.
+		var data = new Uint32Array(1); //Random number
 		window.crypto.getRandomValues(data);
-		var str = "";
-		data.forEach((i) => {str += String.fromCharCode(i)});
-		$('#gamecode')[0].value = btoa(str);
+		var num = String(data[0]);
+		num = num.padStart(9, '0');
+		num = num.substring(num.length - 9); //We want a string that is exactly 9 numbers long.
+		$('#gamecode')[0].value = `${num.substring(0, 3)}-${num.substring(3,6)}-${num.substring(6,9)}`;
 	};
 
 	$('#getqr')[0].onclick = () => {
