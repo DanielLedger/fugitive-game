@@ -19,7 +19,8 @@ class Game {
 
 		//If it's a time, it's in seconds.
 		this.options = {
-			timer: 600, 
+			timer: 600,
+			hstimer: 30,
 			hunterLocDelay: 3, 
 			fugitiveLocDelay: 30,
 			border: [
@@ -294,10 +295,17 @@ class Game {
 				}
 				//Set up a repeating task to decrement the timer by one second, every second.
 				this.timerTask = setInterval(() => {
+					//Decrement the headstart timer first.
+					if (this.options.hstimer > 0){
+						this.options.hstimer--;
+					}
+					else {
+						this.options.timer--;
+					}
 					//To avoid spam, only send updates every 30 seconds or so (this'll probably be the minimum increment for the timer anyway at game start).
-					if (this.options.timer-- % 30 === 0){
+					if ((this.options.timer + this.options.hstimer) % 30 === 0){
 						for (var ws of Object.values(game.players)){
-							ws.send(`TIME ${this.options.timer}`);
+							ws.send(`TIME ${this.options.timer} ${this.options.hstimer}`);
 						}
 					}
 					if (this.options.timer <= 0){
@@ -336,7 +344,7 @@ class Game {
 					//Only other role capable of sending location is fugitive.
 					nextSend += (this.options.fugitiveLocDelay * 1000);
 				}
-				var broadcast = nextSend <= now;
+				var broadcast = (this.options.hstimer <= 0) && nextSend <= now;
 				if (broadcast){
 					//Update the last send time to be now.
 					this.lastSentLoc[sess.playerID] = now;
