@@ -14,6 +14,9 @@ app.use(cors());
 
 app.use(express.json());
 
+//We should be behind a localhost reverse proxy
+app.set('trust proxy', 'localhost');
+
 //Load and setup ExpressWS. This currently won't work with HTTPS.
 require('express-ws')(app);
 
