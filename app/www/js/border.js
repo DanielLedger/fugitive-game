@@ -44,8 +44,8 @@ class Border {
         //Tests if a line between two points intersects this specific line of longitude, at a point above the specified latitude.
         var lonMin = llMin[1];
         var lonMax = llMax[1];
-        //Note that we exclude the maximum longitude so that verticies don't become a huge problem.
-        if (!(lonMin <= lonTest && lonMax < lonTest)){
+        //If both points are on the same side of lonTest, they can't intersect.
+        if ((lonMin < lonTest && lonMax < lonTest) || (lonMin > lonTest && lonMax > lonTest)){
             return false;
         }
         else {

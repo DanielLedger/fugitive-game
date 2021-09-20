@@ -112,7 +112,7 @@ class Game {
 	}
 
 	//Borders need to be handled serverside because background issues.
-	isInBorder(centre){
+	isInBorder(centre, radius){
 		if (this.options.border.centre !== undefined){
 			//Check if the point is in the radius first.
 			var distFromCentre = Math.hypot(centre[0] - this.options.border.centre[0], centre[1] - this.options.border.centre[1]);
@@ -133,6 +133,7 @@ class Game {
 				}
 			}
 			//Return true if the number of crossings is odd.
+			console.debug(`Lat: ${centre[0]}, Lon: ${centre[1]}, Crosses: ${crosses}`);
 			return crosses & 1 == 1;
         }
 	}
@@ -141,8 +142,8 @@ class Game {
         //Tests if a line between two points intersects this specific line of longitude, at a point above the specified latitude.
         var lonMin = llMin[1];
         var lonMax = llMax[1];
-        //Note that we exclude the maximum longitude so that verticies don't become a huge problem.
-        if (!(lonMin <= lonTest && lonMax < lonTest)){
+        //If both points are on the same side of lonTest, they can't intersect.
+        if ((lonMin < lonTest && lonMax < lonTest) || (lonMin > lonTest && lonMax > lonTest)){
             return false;
         }
         else {
