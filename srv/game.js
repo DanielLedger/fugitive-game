@@ -329,7 +329,8 @@ class Game {
 				//Do a quick boundary check.
 				var info = msg.data.split(',');
 				var ll = [Number(info[0]), Number(info[1])];
-				if (!this.isInBorder(ll)){
+				var acc = Number(info[2]);
+				if (!this.isInBorder(ll, acc)){
 					//*oops*
 					this.playerOut(sess.playerID); //This won't sync correctly at the moment.
 				}
