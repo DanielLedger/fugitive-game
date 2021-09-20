@@ -45,34 +45,6 @@ function onDeviceReady() {
 		$('#gamecode')[0].value = `${num.substring(0, 3)}-${num.substring(3,6)}-${num.substring(6,9)}`;
 	};
 
-	$('#getqr')[0].onclick = () => {
-		QRScanner.scan((err, res) => {
-			if (err){
-				alert("Error: " + err);
-			}
-			else {
-				alert(res);
-			}
-		});
-		//Yeet literally everything
-		$('.app')[0].style = 'display: none;';
-		console.debug('Starting camera...');
-		QRScanner.show();
-	}
-	
-	/*
-	QRScanner.prepare((err, stat) => {
-		if (err){
-			alert("Error: " +err);
-		}
-		else {
-			alert(JSON.stringify(stat));
-		}
-
-	});
-
-	$('#getqr')[0].disabled = false;*/
-
 	//If we have a location hash, fill in the info (don't join the game instantly, otherwise we've made an IP grabber).
 	if (window.location.hash !== ""){
 		var dat = window.location.hash.slice(1);

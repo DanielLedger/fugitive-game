@@ -153,13 +153,6 @@ var srv = window.sessionStorage.getItem('GameIP');
 
 var dat = JSON.stringify({code: code, ip: srv});
 
-//Create a join QR code.
-document.addEventListener('deviceready', () => {
-	cordova.plugins.qrcodejs.encode('TEXT_TYPE', dat, (b64) => {
-		$('#sharecode')[0].src = b64;
-	},()=>{});
-}, false);
-
 //$('#sharelink')[0].value = `${window.location.protocol}//${window.location.host}#${dat}`; //Can't be bothered to make my own interchange format, so using JSON. 
 
 //Now, add listeners to all the options.
