@@ -40,6 +40,34 @@ class Border {
         }
     }
     
+    static areSame(b1, b2){
+        try {
+            //Check their types first.
+            if (b1.isCircle() !== b2.isCircle()){return false;}
+            if (b1.isCircle()){
+                return b1.getRadius() === b2.getRadius() && b1.getCentre()[0] === b2.getCentre()[0] && b1.getCentre()[1] === b2.getCentre()[1];
+            }
+            else {
+                //Just got to iterate though the points.
+                var p1 = b1.getPoints();
+                var p2 = b2.getPoints();
+                if (p1.length !== p2.length){return false;}
+                for (var i in p1){
+                    if (p1[i][0] === p2[i][0] && p1[i][1] === p2[i][1]){
+                        continue;
+                    }
+                    else {
+                        return false;
+                    }
+                }
+                return true; //Same border.
+            }
+        }
+        catch (TypeError){
+            return false; //One is undefined.
+        }
+    }
+
     doesLineIntersect(llMin, llMax, lonTest, latitudeBase){
         //Tests if a line between two points intersects this specific line of longitude, at a point above the specified latitude.
         var lonMin = llMin[1];
@@ -61,7 +89,7 @@ class Border {
     }
 
     //storeInLayer isn't written directly, however it is how the function knows if it needs to edit/remove the old indicator.
-    render (storeInLayer, map){
+    render (storeInLayer, map, fitTo){
         if (storeInLayer !== undefined){
             storeInLayer.remove();
         }
@@ -75,7 +103,9 @@ class Border {
             storeInLayer = L.polygon(this.info, {fill: false, color: '#ff0000', opacity: 1});
             storeInLayer.addTo(map);
         }
-        map.fitBounds(storeInLayer.getBounds()); //Zoom the map to show the border.
+        if (fitTo){
+            map.fitBounds(storeInLayer.getBounds()); //Zoom the map to show the border.
+        }
         return storeInLayer;
     }
 
@@ -93,6 +123,15 @@ class Border {
 
     getRadius() {
         return this.info.radius;
+    }
+
+    getPoints() {
+        if (this.isCircle()){
+            return undefined;
+        }
+        else {
+            return this.info;
+        }
     }
 
 }

@@ -1,5 +1,7 @@
 var options = {};
 
+var oldBorder;
+
 var border;
 
 var borderHighlight;
@@ -57,17 +59,20 @@ function showGameStatus(json){
 			elem.disabled = !giObj.host;
 		}
 	}
-
-	//Set the border explicitly.
 	border = new Border(giObj.options.border);
-	//Render the border.
-	borderHighlight = border.render(borderHighlight, map);
-	//Update border radius (like how the others are changed). TODO: Accept polygonal borders without dying.
-	var bRadCtrl = $('#borderrad')[0];
-	if (bRadCtrl !== document.activeElement){ //Let the user edit the thing in peace.
-		bRadCtrl.value = giObj.options.border.radius;
-		bRadCtrl.disabled = !giObj.host;
+	//Set the border explicitly.
+	if (!Border.areSame(border, oldBorder)){
+		//Render the border.
+		borderHighlight = border.render(borderHighlight, map, true);
+		//Update border radius (like how the others are changed). TODO: Accept polygonal borders without dying.
+		var bRadCtrl = $('#borderrad')[0];
+		if (bRadCtrl !== document.activeElement){ //Let the user edit the thing in peace.
+			bRadCtrl.value = giObj.options.border.radius;
+			bRadCtrl.disabled = !giObj.host;
+		}
+		oldBorder = border;
 	}
+	
 }
 
 function updateOptions(opt, israw){

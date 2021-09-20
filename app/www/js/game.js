@@ -45,7 +45,7 @@ function setupWS() {
 			hsTime = gi.options.hstimer;
 			//Set the border
 			border = new Border(gi.options.border);
-			borderLine = border.render(borderLine, map);
+			borderLine = border.render(borderLine, map, window.sessionStorage.getItem("role") === 'spectator'); //Only snap to the border if the player is a spectator.
 		}
 		else if (raw === 'ping'){
 		}
