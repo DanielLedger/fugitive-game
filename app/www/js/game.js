@@ -211,3 +211,10 @@ if (window.sessionStorage.getItem("role") === 'fugitive'){
 else {
 	$('#caught')[0].style = "display: none;";
 }
+
+//When we leave this page, stop location watching.
+window.onbeforeunload = () => {
+	if (BackgroundGeolocation !== undefined){
+		BackgroundGeolocation.stop(); //Stop the background task when the game is unloaded.
+	}
+}
