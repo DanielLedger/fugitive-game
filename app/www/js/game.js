@@ -9,9 +9,23 @@ var fugitives = {};
 var playerLocations = {}; //A dict of player public IDs -> {location, accuracy, marker, accuracyCircle}
 
 var timeLeft = 0;
+var hsTime = 0; //How much of a headstart we have to sit through.
 
 var border;
 var borderLine;
+
+function calculateTimeRep(seconds){
+	var hours = (seconds / 3600) >> 0; //Cursed integer division.
+	var hoursString = hours.toString(); //Unlike the other 3, this can in theory go above 99, so it's a special case (obviously).
+	if (hoursString.length === 1){
+		hoursString = '0' + hoursString;
+	}
+	var secondsLeft = seconds % 3600;
+	//The quotient of this division is minutes, remainer is seconds.
+	var mins = (secondsLeft / 60) >> 0;
+	var secs = secondsLeft % 60;
+	return `${hoursString}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
 
 function setupWS() {
 	//Set the gameSocket to render players on the map.
@@ -28,6 +42,7 @@ function setupWS() {
 			}
 			//Set time from this as well.
 			timeLeft = gi.options.timer;
+			hsTime = gi.options.hstimer;
 			//Set the border
 			border = new Border(gi.options.border);
 			borderLine = border.render(borderLine, map);
@@ -35,7 +50,15 @@ function setupWS() {
 		else if (raw === 'ping'){
 		}
 		else if (raw.startsWith('TIME')){
-			timeLeft = Number(raw.split(" ")[1]);
+			var dat = raw.split(" ");
+			timeLeft = Number(dat[1]);
+			hsTime = Number(dat[2]);
+			if (hsTime <= 0){
+				$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
+			}
+			else {
+				$('#blanker')[0].style="display: block;"; //Show blanker. TODO: Show headstart timer + don't do this for spectators.
+			}
 		}
 		else if (raw.startsWith('OVER')){
 			//Go to the gameover page.
@@ -164,19 +187,22 @@ window.setInterval(() => {
 	if (timeLeft <= 0){
 		return;
 	}
-	//Decrement the time
-	timeLeft--;
-	//Now, make a nice stringrep of the time.
-	var hours = (timeLeft / 3600) >> 0; //Cursed integer division.
-	var hoursString = hours.toString(); //Unlike the other 3, this can in theory go above 99, so it's a special case (obviously).
-	if (hoursString.length === 1){
-		hoursString = '0' + hoursString;
+	if (hsTime > 0){
+		//Decrement headstart timer first.
+		hsTime--;
+		if (hsTime <= 0){
+			$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
+		}
+		else {
+			$('#blanker')[0].style="display: block;"; //Show blanker. TODO: Show headstart timer + don't do this for spectators.
+			$('#headstarttimer')[0].innerText = `Headstart: ${calculateTimeRep(hsTime)}`
+		}
 	}
-	var secondsLeft = timeLeft % 3600;
-	//The quotient of this division is minutes, remainer is seconds.
-	var mins = (secondsLeft / 60) >> 0;
-	var secs = secondsLeft % 60;
-	$('#timer')[0].innerText = `Time left: ${hoursString}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+	else{
+		timeLeft--; //Decrement timer as normal.
+	}
+	//Now, make a nice stringrep of the time.
+	$('#timer')[0].innerText = `Time left: ${calculateTimeRep(timeLeft)}`;
 }, 1000);
 
 //Bind the button that reacts when the player is out, if they're a fugitive. This WON'T BE ENFORCED SERVERSIDE, since hunters can go out by other means (specifically, leaving the bounds).
