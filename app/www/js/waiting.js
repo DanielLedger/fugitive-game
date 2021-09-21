@@ -114,6 +114,22 @@ $('#startgame')[0].onclick = () => {
 	gameSocket.send("START");
 };
 
+//Set up the selection that changes what you see based on which border type you have enabled.
+$('#bordersel')[0].onchange = () => {
+	var bs = $('#bordersel')[0];
+	console.debug(bs);
+	for (var i = 0; i < bs.options.length; i++){
+		var val = bs.options[i].value;
+		console.debug(val);
+		if (bs.value === val){
+			$(`#${val}-opt`)[0].style = 'display: block;';
+		}
+		else {
+			$(`#${val}-opt`)[0].style = 'display: none;';
+		}
+	}
+}
+
 //Set up the border listeners, which work completely differently.
 $('#borderrad')[0].onchange = () => {
 	var newBorderObj = {

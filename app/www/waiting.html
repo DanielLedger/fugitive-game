@@ -86,9 +86,23 @@ out;
 			<input id="fugitiveLocDelay" type=number></input>
             <label for="hunterLocDelay">Hunter location delay (seconds):</label>
 			<input id="hunterLocDelay" type=number></input>
-            <label for="borderrad">Border radius (metres):</label>
-			<input id="borderrad" type=number></input>
-            <p>Tap or click on the map below to set the centre.</p>
+            <label for="bordersel">Border Type:</label>
+            <select id="bordersel">
+                <option value="circle" selected>Circular</option>
+                <option value="polygon">Polygon (custom)</option>
+                <option value="smart" disabled>Polygon (smart)</option>
+            </select>
+            <div id="circle-opt">
+                <label for="borderrad">Border radius (metres):</label>
+                <input id="borderrad" type=number></input>
+                <p>Tap or click on the map below to set the centre.</p>
+            </div>
+            <div id="polygon-opt" style="display: none;">
+                <p>Editing not currently supported.</p>
+            </div>
+            <div id="smart-opt" style="display: none;">
+                <p>Not implemented.</p>
+            </div>
             <div id="bordermap" style="width: 60%; height: 60vh; min-width: 400px;"></div>
 			<button id="lockroleselection" class="btn btn-warning" style="display: none;">Lock game and allocate roles</button>
 			<label style="display:none;" for="sharelink">Join link (click to copy): </label>
