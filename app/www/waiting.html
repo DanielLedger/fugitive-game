@@ -95,10 +95,16 @@ out;
             <div id="circle-opt">
                 <label for="borderrad">Border radius (metres):</label>
                 <input id="borderrad" type=number></input>
-                <p>Tap or click on the map below to set the centre.</p>
+                <label for="circlelat">Centre: </label>
+                <input type=number step=0.0001 id="circlelat"></input>
+                <input type=number step=0.0001 id="circlelon"></input>
+                <p>Tap or click on the map below to set the centre, or edit it above.</p>
             </div>
             <div id="polygon-opt" style="display: none;">
-                <p>Editing not currently supported.</p>
+                <ul id="pointlist">
+
+                </ul>
+                <button id="polypoint-add">Add point</button>
             </div>
             <div id="smart-opt" style="display: none;">
                 <p>Not implemented.</p>

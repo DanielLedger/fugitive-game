@@ -1,15 +1,22 @@
 var options = {};
 
+var host = false;
+
 var oldBorder;
 
 var border;
 
 var borderHighlight;
 
+var lastCircle;
+var lastPoly;
+var lastSmart;
+
 var map = L.map('bordermap');
 
 function showGameStatus(json){
 	var giObj = JSON.parse(json);
+	host = giObj.host;
 	//TODO: Have a nice looking bar here
 	document.getElementById("wsping").innerHTML = `<span class='h4'>Websocket last ping: </span><span class='h5'>${Date.now()}</span>`;
 	if (giObj.host){
@@ -64,12 +71,15 @@ function showGameStatus(json){
 	if (!Border.areSame(border, oldBorder)){
 		//Render the border.
 		borderHighlight = border.render(borderHighlight, map, true);
-		//Update border radius (like how the others are changed). TODO: Accept polygonal borders without dying.
+		if (border.isCircle() && lastCircle === undefined){
+			lastCircle = border;
+		}
+		/*//Update border radius (like how the others are changed). TODO: Accept polygonal borders without dying.
 		var bRadCtrl = $('#borderrad')[0];
 		if (bRadCtrl !== document.activeElement){ //Let the user edit the thing in peace.
 			bRadCtrl.value = giObj.options.border.radius;
 			bRadCtrl.disabled = !giObj.host;
-		}
+		}*/
 		oldBorder = border;
 	}
 	
@@ -128,32 +138,63 @@ $('#bordersel')[0].onchange = () => {
 			$(`#${val}-opt`)[0].style = 'display: none;';
 		}
 	}
+	switch (bs.value){
+		case 'circle':
+			//If our border is undefined, set it to a default one.
+			if (lastCircle === undefined){
+				var dat = {
+					centre: [map.getCenter().lat, map.getCenter().lng],
+					radius: 1000
+				};
+				lastCircle = new Border(dat);
+			}
+			//Now, send an OPT packet to the server with our new border.
+			circleBorderChange(lastCircle.getCentre(), lastCircle.getRadius());
+			//Update our view now so we don't get any strange desyncs.
+			borderHighlight = lastCircle.render(borderHighlight, map, true);
+			break;
+	}
+
 }
 
-//Set up the border listeners, which work completely differently.
-$('#borderrad')[0].onchange = () => {
-	var newBorderObj = {
-			border: {
-				centre: border.getCentre(), //This doesn't change.
-				radius: Number($('#borderrad')[0].value)
-			}
-	};
-	//Send an OPT message to actually update it.
-	gameSocket.send(`OPT ${JSON.stringify(newBorderObj)}`);
-};
-
-//Map clicked, update centre.
-map.on('click', (e) => {
-	//As above, except sets centre and leaves radius alone.
+function circleBorderChange(centre, rad){
 	var newBorderObj = {
 		border: {
-			centre: [e.latlng.lat, e.latlng.lng],
-			radius: border.getRadius()
+			centre: centre,
+			radius: rad
 		}
 	};
 	//Send an OPT message to actually update it.
 	gameSocket.send(`OPT ${JSON.stringify(newBorderObj)}`);
-});
+
+	//Now, update 'lastCircle' to be this.
+	lastCircle = new Border(newBorderObj.border);
+
+	//Finally, update the various inputs to reflect our changes.
+	var bRadCtrl = $('#borderrad')[0];
+	if (bRadCtrl !== document.activeElement){ //Let the user edit the thing in peace.
+		bRadCtrl.value = lastCircle.getRadius();
+		bRadCtrl.disabled = !host;
+	}
+	var bLatCtrl = $('#circlelat')[0];
+	var bLonCtrl = $('#circlelon')[0];
+	if (bLatCtrl !== document.activeElement){ 
+		bLatCtrl.value = lastCircle.getCentre()[0];
+		bLatCtrl.disabled = !host;
+	}
+	if (bLonCtrl !== document.activeElement){ 
+		bLonCtrl.value = lastCircle.getCentre()[1];
+		bLonCtrl.disabled = !host;
+	}
+};
+
+//Set up the border listeners, which work completely differently.
+$('#borderrad')[0].onchange = () => circleBorderChange(lastCircle.getCentre(), Number($('#borderrad')[0].value));
+$('#circlelat')[0].onchange = () => circleBorderChange([Number($('#circlelat')[0].value),Number($('#circlelon')[0].value)], lastCircle.getRadius());
+$('#circlelon')[0].onchange = () => circleBorderChange([Number($('#circlelat')[0].value),Number($('#circlelon')[0].value)], lastCircle.getRadius());
+
+//Map clicked, update centre.
+map.on('click', (e) => circleBorderChange([e.latlng.lat, e.latlng.lng], lastCircle.getRadius()));
 
 L.tileLayer(serverIP + "/tile?x={x}&y={y}&z={z}", {
 	//Standard settings for mapbox (which we're using for the forseeable future).
