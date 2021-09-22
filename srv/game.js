@@ -115,10 +115,11 @@ class Game {
 	//Borders need to be handled serverside because background issues.
 	isInBorder(centre, radius){
 		if (this.options.border.centre !== undefined){
+			console.log("circular border.");
 			//Check if the point is in the radius first. Because maths, we need to use the Haversine formula to calculate the distance in metres.
 			var earthRad = 6731e3;
 			var latRad1 = centre[0] * Math.PI * 1/180;
-			var latRad2 = this.options.centre[0] * Math.PI * 1/180;
+			var latRad2 = this.options.border.centre[0] * Math.PI * 1/180;
 			var latRadDelta = (centre[0] - this.options.border.centre[0]) * Math.PI * 1/180;
 			var lonRadDelta = (centre[1] - this.options.border.centre[1]) * Math.PI * 1/180;
 
@@ -129,10 +130,13 @@ class Game {
 			var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 
 			var distFromCentre = earthRad * c;
-			var maxAllowedDist = this.options.border.centre + radius; //If the point is more than this away, the circles cannot touch.
+
+			var maxAllowedDist = this.options.border.radius + radius; //If the point is more than this away, the circles cannot touch.
+			console.log(`Distance: ${distFromCentre}, Maximum permitted distance: ${maxAllowedDist}`);
 			return distFromCentre <= maxAllowedDist;
         }
         else {
+			console.log("poly border.");
 			//Test for whether or not you're in a polygon: draw a line from point to infinity (will draw due north for simplicity)
 			//If we cross the polygon an odd number of times in total, we're inside it. Else, we're outside.
 			//I think playing near the north pole will break this, so don't do that.
@@ -340,6 +344,7 @@ class Game {
 				var toSendOn = game.publicIDS[sess.playerID] + ":" + msg.data;
 				//Do a quick boundary check.
 				var info = msg.data.split(',');
+				console.log(info);
 				var ll = [Number(info[0]), Number(info[1])];
 				var acc = Number(info[2]);
 				if (!this.isInBorder(ll, acc)){
