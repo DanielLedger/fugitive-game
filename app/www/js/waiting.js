@@ -208,8 +208,23 @@ function editPolyPoint(index, newPoint){
 	sendPolyUpdate(lastPoly.getPoints());
 }
 
+function removePolyPoint(){
+	//Removes the most recently added polygonal point.
+	lastPoly.getPoints().pop();
+	var remIndex = lastPoly.getPoints().length; //Since length is max index + 1, this is the bit we just removed.
+	if (remIndex === 0){
+		//Disable the point remover button.
+		$('#polypoint-rem')[0].disabled = true;
+	}
+	//Send the update.
+	sendPolyUpdate(lastPoly.getPoints());
+	//Remove the point controls.
+	$(`#polypoint${remIndex}`).remove();
+}
+
 //Make the addPolyPoint button do something.
 $('#polypoint-add')[0].onclick = () => addPolyPoint([map.getCenter().lat, map.getCenter().lng]);
+$('#polypoint-rem')[0].onclick = () => removePolyPoint();
 
 function sendPolyUpdate(points){
 	var newBorderObj = {
