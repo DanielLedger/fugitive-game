@@ -153,8 +153,48 @@ $('#bordersel')[0].onchange = () => {
 			//Update our view now so we don't get any strange desyncs.
 			borderHighlight = lastCircle.render(borderHighlight, map, true);
 			break;
+		case 'polygon':
+			//As with circle, create a default border if we don't have one.
+			if (lastPoly === undefined){
+				lastPoly = new Border([]);
+			}
+			sendPolyUpdate(lastPoly.getPoints());
+			borderHighlight = lastPoly.render(borderHighlight, map, true);
+
 	}
 
+}
+
+function addPolyPoint(loc){
+	//Adds a polygon point.
+	var pointIndex = lastPoly.getPoints().length;
+	lastPoly.getPoints().push(loc);
+	sendPolyUpdate(lastPoly.getPoints());
+	//Now, actually update the HTML
+	//Firstly, re-enable the button to remove a point.
+	$('#polypoint-rem')[0].disabled = false;
+	//Now we need to add the actual point adjustment stuff.
+	var newElem = $('<div>', {id: `polypoint${pointIndex}`});
+	var latBox = $('<input>', {id: `polypoint${pointIndex}-lat`, type: 'number', step: 0.0001, value: loc[0]});
+	var lonBox = $('<input>', {id: `polypoint${pointIndex}-lon`, type: 'number', step: 0.0001, value: loc[1]});
+	//TODO: Event listeners on these.
+	newElem.append(latBox);
+	newElem.append(lonBox);
+	$('#pointlist').append(newElem);
+}
+
+//Make the addPolyPoint button do something.
+$('#polypoint-add')[0].onclick = () => addPolyPoint([map.getCenter().lat, map.getCenter().lng]);
+
+function sendPolyUpdate(points){
+	var newBorderObj = {
+		border: points
+	};
+	//Send an OPT message to actually update it.
+	gameSocket.send(`OPT ${JSON.stringify(newBorderObj)}`);
+
+	//Also update lastPoly
+	lastPoly = new Border(newBorderObj.border);
 }
 
 function circleBorderChange(centre, rad){
