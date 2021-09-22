@@ -12,7 +12,19 @@ var lastCircle;
 var lastPoly;
 var lastSmart;
 
+var mapCrosshair;
+
 var map = L.map('bordermap');
+
+map.on('move', () => {
+	if (mapCrosshair === undefined){
+		mapCrosshair = L.marker(map.getCenter());
+		mapCrosshair.addTo(map);
+	}
+	else {
+		mapCrosshair.setLatLng(map.getCenter());
+	}
+});
 
 function showGameStatus(json){
 	var giObj = JSON.parse(json);
@@ -177,10 +189,23 @@ function addPolyPoint(loc){
 	var newElem = $('<div>', {id: `polypoint${pointIndex}`});
 	var latBox = $('<input>', {id: `polypoint${pointIndex}-lat`, type: 'number', step: 0.0001, value: loc[0]});
 	var lonBox = $('<input>', {id: `polypoint${pointIndex}-lon`, type: 'number', step: 0.0001, value: loc[1]});
-	//TODO: Event listeners on these.
+	latBox.change(() => {
+		var i = pointIndex; //Make a local copy because JS scope is weird.
+		editPolyPoint(i, [Number($(`#polypoint${i}-lat`)[0].value),Number($(`#polypoint${i}-lon`)[0].value)])
+	});
+	lonBox.change(() => {
+		var i = pointIndex; //Make a local copy because JS scope is weird.
+		editPolyPoint(i, [Number($(`#polypoint${i}-lat`)[0].value),Number($(`#polypoint${i}-lon`)[0].value)])
+	});
 	newElem.append(latBox);
 	newElem.append(lonBox);
 	$('#pointlist').append(newElem);
+}
+
+function editPolyPoint(index, newPoint){
+	console.debug(`Editing point ${index} to have value of ${newPoint}.`);
+	lastPoly.getPoints()[index] = newPoint;
+	sendPolyUpdate(lastPoly.getPoints());
 }
 
 //Make the addPolyPoint button do something.
