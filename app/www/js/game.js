@@ -14,6 +14,8 @@ var hsTime = 0; //How much of a headstart we have to sit through.
 var border;
 var borderLine;
 
+var infoRequester;
+
 function calculateTimeRep(seconds){
 	var hours = (seconds / 3600) >> 0; //Cursed integer division.
 	var hoursString = hours.toString(); //Unlike the other 3, this can in theory go above 99, so it's a special case (obviously).
@@ -34,6 +36,8 @@ function setupWS() {
 		var raw = m.data;
 		if (raw === 'OK'){}
 		else if (raw.startsWith('INFO')){
+			//Stop the gameinfo requester.
+			clearInterval(infoRequester);
 			var gi = JSON.parse(raw.split(' ')[1]);
 			gi.fugitives.map((f) => {fugitives[f] = true}); //Hashset
 			if (fugitives[gi.publicID]){
@@ -108,9 +112,11 @@ function setupMap() {
 	}).addTo(map);
 	//Request gameinfo
 	window.setTimeout(() => {
-		gameSocket.send('GAMEINFO');
-		console.debug('Sent gameinfo request.');
-	}, 1000);
+		infoRequester = window.setInterval(() => {
+			gameSocket.send('GAMEINFO');
+			console.debug('Sent gameinfo request.');
+		}, 3000);
+	}, 1000)
 	if (window.sessionStorage.getItem("role") !== 'spectator'){ //Don't watch spectator location.
 		//Temporary, just to try and get the damn thing to work.
 		if (cordova.platformId !== 'browser'){
