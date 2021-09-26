@@ -140,6 +140,19 @@ app.ws('/game', (ws, req) => {
 require('./maproutes').init(config, app);
 require('./locationpost').init(app, games, uuids);
 
+//Start a timed task that kills off inactive games every few minutes.
+setInterval(() => {
+	for (var game of Object.values(games)){
+		if (game.isDead()){
+			//Kill
+			var code = game.code;
+			var players = Object.keys(game.players);
+			console.info(`Killing inactive game with code ${code}...`);
+			removeGame(code, players);
+		}
+	}
+}, 3000); //TODO: Massively increase rate here (but I'm impatient).
+
 if (!config.get('Server.SSL.Enabled')){
 	app.listen(port, () => {
 		console.log("Application started on port " + port + ".");

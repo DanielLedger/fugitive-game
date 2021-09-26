@@ -1,6 +1,12 @@
 const uuid = require('uuid');
 const shuf = require('./shuffle');
 
+const states = {
+	LOBBY: 'Lobby', //Not started the game yet.
+	PLAYING: 'Playing', //In-game.
+	POST: 'Post-game' //After the game, so we can show people a map with live locations on it.
+}
+
 class Game {
 	
 	constructor(config, code, rmg){
@@ -17,6 +23,12 @@ class Game {
 		//We need to know our own code
 		this.code = code;
 
+		//Our state is important, since it tells the server terminator whether we should exist or not.
+		this.state = states.LOBBY;
+
+		//When we got our last websocket message.
+		this.lastWSMsg = Date.now();
+
 		//If it's a time, it's in seconds.
 		this.options = {
 			timer: 600,
@@ -32,6 +44,15 @@ class Game {
 		this.lastSentLoc = {}; //When everyone's location was last broadcast.
 	}
 	
+	isDead(){
+		if (this.state === states.PLAYING){
+			//Don't kill live games, since people are running around who knows where and possibly not getting great signal.
+			return false;
+		}
+		//Else, if the last message was more than x seconds ago, it's probaly eligible for deletion.
+		return this.lastWSMsg + (1000*60) < Date.now(); //For the actual server, this'll be something like 6-12 hours.
+	}
+
 	initSession(){
 		if (!this.gameOpen){
 			//Roles have already been assigned, so don't let the person in.
@@ -109,6 +130,7 @@ class Game {
 			var ws = this.players[session];
 			ws.send("OVER");
 		}
+		this.state = states.POST;
 		setTimeout(() => this.removeGame(this.code, Object.keys(this.players)), 50);
 	}
 
@@ -179,6 +201,8 @@ class Game {
 	handleWSMessage(sess, msg, game){
 		console.log("WS message from " + sess.playerID + ": " + msg.data);
 		try {
+			//Log the fact that we just got a websocket message.
+			this.lastWSMsg = Date.now();
 			if (msg.data.startsWith('SELECT')){
 				//Role select message
 				var role = msg.data.split(" ")[1];
@@ -309,6 +333,7 @@ class Game {
 				for (var ws of Object.values(game.players)){
 					ws.send("START");
 				}
+				this.state = states.PLAYING;
 				//Set up a repeating task to decrement the timer by one second, every second.
 				this.timerTask = setInterval(() => {
 					//Decrement the headstart timer first.
