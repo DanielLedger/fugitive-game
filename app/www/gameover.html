@@ -29,16 +29,26 @@
             * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
                 * Enable inline JS: add 'unsafe-inline' to default-src
         -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' http: https: data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' ws: wss: 'unsafe-inline' http: https: data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' http: https: data: content:;">
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
         <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
         <meta name="color-scheme" content="light dark">
-        <link rel="stylesheet" href="css/index.css">
+        <link rel="stylesheet" href="css/game.css">
+		<!-- jQuery -->
+        <script src="js/jquery-3.6.0.min.js"></script>
+        <!-- /jQuery -->
 		<!-- Bootstrap -->
 		<link rel="stylesheet" href="css/bootstrap.min.css">
 		<script src="js/bootstrap.bundle.min.js"></script>
 		<!-- /Bootstrap -->
+		<!-- Leaflet -->
+		<link rel="stylesheet" href="css/leaflet.css">
+		<script src="js/leaflet.js"></script>
+		<!-- /Leaflet -->
+		<script src="js/reconnecting-websocket.min.js"></script>
+		<script src="js/checkserver.js"></script>
+		<script src="js/location.js"></script>
         <title>Fugitive - Game over</title>
     </head>
     <body>
@@ -46,6 +56,8 @@
 			<h1>Game over xD</h1>
             <button class="btn btn-danger" id="restart">Play Again</button>
         </div>
+        <div id="map"></div>
+        <div id="alerts"></div>
         <script>
             //This script is so simple that it can go here.
             document.getElementById('restart').onclick = () => {
@@ -56,5 +68,7 @@
             }
         </script>
         <script src="cordova.js"></script>
+        <script src="js/common.js"></script>
+        <script src="js/gameover.js"></script>
     </body>
 </html>
