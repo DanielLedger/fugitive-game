@@ -124,14 +124,17 @@ class Game {
 	}
 
 	endGame(){
-		//Ends the game, and requests game to be deleted.
-		console.log("Game over!");
+		//Ends the game and enters post-game (which shows navigation maps on the end screen so people can actually meet up again without just having to call each other and yell).
+		console.log(`Game with code ${this.code} has ended.`);
 		for (var session of Object.keys(this.players)){
 			var ws = this.players[session];
 			ws.send("OVER");
+			//Set everyone's role to a special post-game role
+			this.roles[session] = 'postgame';
 		}
 		this.state = states.POST;
-		setTimeout(() => this.removeGame(this.code, Object.keys(this.players)), 50);
+		//Set it so that people can join the game again.
+		this.gameOpen = true;
 	}
 
 	//Borders need to be handled serverside because background issues.
