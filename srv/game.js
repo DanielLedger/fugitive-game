@@ -382,7 +382,7 @@ class Game {
 				console.log(info);
 				var ll = [Number(info[0]), Number(info[1])];
 				var acc = Number(info[2]);
-				if (!this.isInBorder(ll, acc)){
+				if (this.state !== states.POST && !this.isInBorder(ll, acc)){
 					//*oops*
 					this.playerOut(sess.playerID); //This won't sync correctly at the moment.
 				}
