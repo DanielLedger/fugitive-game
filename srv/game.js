@@ -390,7 +390,7 @@ class Game {
 					//Only other role capable of sending location is fugitive.
 					nextSend += (this.options.fugitiveLocDelay * 1000);
 				}
-				var broadcast = (this.options.hstimer <= 0) && nextSend <= now;
+				var broadcast = ((this.options.hstimer <= 0) && nextSend <= now) || this.roles[sess.playerID] === 'postgame';
 				if (broadcast){
 					//Update the last send time to be now.
 					this.lastSentLoc[sess.playerID] = now;
