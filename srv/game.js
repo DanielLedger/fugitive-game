@@ -7,6 +7,13 @@ const states = {
 	POST: 'Post-game' //After the game, so we can show people a map with live locations on it.
 }
 
+const roles = {
+	FUGITIVE: 'fugitive',
+	HUNTER: 'hunter',
+	SPECTATOR: 'spectator',
+	POSTGAME: 'postgame'
+}
+
 class Game {
 	
 	constructor(config, code, rmg){
@@ -114,9 +121,9 @@ class Game {
 			ws.send(msg);
 		}
 		//Now, they become a spectator. Their live location feed is no longer required.
-		this.roles[id] = 'spectator';
-		var fugitivesLeft = Object.keys(this.roles).filter((v) => {return this.roles[v] === 'fugitive'}).length;
-		var huntersLeft = Object.keys(this.roles).filter((v) => {return this.roles[v] === 'hunter'}).length;
+		this.roles[id] = roles.SPECTATOR;
+		var fugitivesLeft = Object.keys(this.roles).filter((v) => {return this.roles[v] === roles.FUGITIVE}).length;
+		var huntersLeft = Object.keys(this.roles).filter((v) => {return this.roles[v] === roles.HUNTER}).length;
 		if (fugitivesLeft === 0 || huntersLeft === 0){
 			//If all of one role are gone, then it's game over.
 			this.endGame();
@@ -130,7 +137,7 @@ class Game {
 			var ws = this.players[session];
 			ws.send("OVER");
 			//Set everyone's role to a special post-game role
-			this.roles[session] = 'postgame';
+			this.roles[session] = roles.POSTGAME;
 		}
 		this.state = states.POST;
 		//Set it so that people can join the game again.
@@ -212,7 +219,7 @@ class Game {
 				switch (role) {
 					case "spectator":
 						//Add this user directly to the roles object (since spectators can't be allocated a non-spectator role).
-						this.roles[sess.playerID] = "spectator";
+						this.roles[sess.playerID] = roles.SPECTATOR;
 						break;
 					case "fugitive":
 					case "either":
@@ -236,7 +243,7 @@ class Game {
 				gi.role = this.roles[sess.playerID];
 				gi.options = this.options;
 				//The client needs to know who's a fugitive and who's a hunter, so send the fugitives (by process of elimination, non-fugitives are hunters if we get their location).
-				gi.fugitives = Object.keys(this.roles).filter((v) => {return this.roles[v] === 'fugitive'}).map((v) => {return this.publicIDS[v]});
+				gi.fugitives = Object.keys(this.roles).filter((v) => {return this.roles[v] === roles.FUGITIVE}).map((v) => {return this.publicIDS[v]});
 				gi.publicID = this.publicIDS[sess.playerID]; //Client needs to know their public ID.
 				sess.send("INFO " + JSON.stringify(gi));
 				return;
@@ -263,10 +270,10 @@ class Game {
 				var hunterReq = [];
 				var dontCare = [];
 				for (var pair of Object.entries(this.requestedRoles)){
-					if (pair[1] === 'fugitive'){
+					if (pair[1] === roles.FUGITIVE){
 						fugitiveReq.push(pair[0]);
 					}
-					else if (pair[1] === 'hunter'){
+					else if (pair[1] === roles.HUNTER){
 						hunterReq.push(pair[0]);
 					}
 					else {
@@ -313,15 +320,15 @@ class Game {
 					}
 					else {
 						//Game is full, add them as spectator.
-						this.roles[person] = 'spectator';
+						this.roles[person] = roles.SPECTATOR;
 					}
 				}
 				//Finally, add the fugitive list and hunter list of roles to the 'roles' object.
 				for (var fugitive of fugitives){
-					this.roles[fugitive] = 'fugitive';
+					this.roles[fugitive] = roles.FUGITIVE;
 				}
 				for (var hunter of hunters){
-					this.roles[hunter] = 'hunter';
+					this.roles[hunter] = roles.HUNTER;
 				}
 				//Close game off.
 				this.gameOpen = false;
@@ -383,14 +390,14 @@ class Game {
 				var lastSent = this.lastSentLoc[sess.playerID] || 0;
 				var nextSend = lastSent;
 				//Multiply by 1000 because delays are in seconds, but last sent is ms.
-				if (this.roles[sess.playerID] === "hunter"){
+				if (this.roles[sess.playerID] === roles.HUNTER){
 					nextSend += (this.options.hunterLocDelay * 1000);
 				}
 				else {
 					//Only other role capable of sending location is fugitive.
 					nextSend += (this.options.fugitiveLocDelay * 1000);
 				}
-				var broadcast = ((this.options.hstimer <= 0) && nextSend <= now) || this.roles[sess.playerID] === 'postgame';
+				var broadcast = ((this.options.hstimer <= 0) && nextSend <= now);
 				if (broadcast){
 					//Update the last send time to be now.
 					this.lastSentLoc[sess.playerID] = now;
@@ -405,7 +412,8 @@ class Game {
 						continue;
 					}
 					switch (this.roles[session]){
-						case 'spectator':
+						case roles.POSTGAME:
+						case roles.SPECTATOR:
 							//Send regardless.
 							ws.send(toSendOn);
 							break;
