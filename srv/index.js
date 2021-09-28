@@ -151,7 +151,7 @@ setInterval(() => {
 			removeGame(code, players);
 		}
 	}
-}, 3000); //TODO: Massively increase rate here (but I'm impatient).
+}, 3000); //TODO: Massively increase delay here (but I'm impatient).
 
 if (!config.get('Server.SSL.Enabled')){
 	app.listen(port, () => {
