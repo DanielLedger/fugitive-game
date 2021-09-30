@@ -13,9 +13,23 @@ class Border {
         if (initObj.centre !== undefined){
             //Circlular border, define isInBorder for a circle.
             this.isInBorder = (centre, radius) => {
-                //Check if the point is in the radius first.
-                var distFromCentre = Math.hypot(centre[0] - this.info.centre[0], centre[1] - this.info.centre[1]);
-                var maxAllowedDist = this.info.centre + radius; //If the point is more than this away, the circles cannot touch.
+                //Check if the point is in the radius first. Because maths, we need to use the Haversine formula to calculate the distance in metres.
+                var earthRad = 6731e3;
+                var latRad1 = centre[0] * Math.PI * 1/180;
+                var latRad2 = this.info.centre[0] * Math.PI * 1/180;
+                var latRadDelta = (centre[0] - this.info.centre[0]) * Math.PI * 1/180;
+                var lonRadDelta = (centre[1] - this.info.centre[1]) * Math.PI * 1/180;
+
+                var a = Math.pow(Math.sin(latRadDelta/2), 2) +
+                    Math.cos(latRad1) * Math.cos(latRad2) * 
+                    Math.pow(Math.sin(lonRadDelta), 2);
+
+                var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+                var distFromCentre = earthRad * c;
+
+                var maxAllowedDist = this.info.radius + radius; //If the point is more than this away, the circles cannot touch.
+                console.log(`Distance: ${distFromCentre}, Maximum permitted distance: ${maxAllowedDist}`);
                 return distFromCentre <= maxAllowedDist;
             };
         }
