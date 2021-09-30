@@ -42,6 +42,7 @@ function setupWS() {
 			gi.fugitives.map((f) => {fugitives[f] = true}); //Hashset
 			if (fugitives[gi.publicID]){
 				//We're a fugitive too, add 'self' to the set.
+				delete fugitives[gi.publicID];
 				fugitives['self'] = true;
 			}
 			//Set time from this as well.
@@ -181,6 +182,13 @@ function onLocationObtained(who, lat, lng, accuracy){
 		if (who === 'self' || window.sessionStorage.getItem("role") === 'spectator'){
 			//This is us or we're a spectator, and we don't currently have a location, so set an initial view.
 			map.setView([lat, lng], 16);
+		}
+	}
+	if (lat !== undefined && this.fugitives[who] != this.fugitives['self']){
+		//Person is our opposite role and moved, check if they're within buzz range (default is 100m)
+		if (new Border({centre: playerLocations['self'].ll, radius: 100}).isInBorder([lat, lng], 0)){
+			//In buzz range, play a buzz on the vibrator.
+			navigator.vibrate(200);
 		}
 	}
 }
