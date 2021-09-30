@@ -5,7 +5,7 @@ class Border {
     info;
 
     /*initObj should be either:
-    1) A 2d array of points (not implemented yet)
+    1) A 2d array of points
     2) An object with a .centre attribute and a .radius attribute.
     */
     constructor(initObj){
