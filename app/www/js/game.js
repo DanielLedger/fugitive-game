@@ -188,7 +188,7 @@ function onLocationObtained(who, lat, lng, accuracy){
 		//Person is our opposite role and moved, check if they're within buzz range (default is 100m)
 		if (new Border({centre: playerLocations['self'].ll, radius: 100}).isInBorder([lat, lng], 0)){
 			//In buzz range, play a buzz on the vibrator.
-			navigator.vibrate(200);
+			navigator.vibrate(500);
 		}
 	}
 }
