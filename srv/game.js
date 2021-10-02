@@ -374,6 +374,20 @@ class Game {
 				//Player was caught.
 				this.playerOut(sess.playerID);
 			}
+			else if (msg.data.startsWith("COMPING")){
+				//A hunter communication ping.
+				if (this.roles[sess.playerID] !== roles.HUNTER){
+					//Only hunters may use communication pings.
+					return;
+				}
+				var newDat = msg.data.replace('self', sess.playerID); //So we ping the person who sent it, not the receiver.
+				for (var session of Object.keys(game.players)){
+					if (this.roles[session] === roles.HUNTER && session !== sess.playerID){
+						//Send the packet on.
+						game.players[session].send(newDat);
+					}
+				}
+			}
 			else {
 				//This is the location feed, send it to everyone else.
 				var toSendOn = game.publicIDS[sess.playerID] + ":" + msg.data;

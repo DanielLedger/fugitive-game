@@ -44,6 +44,8 @@ function setupWS() {
 				//We're a fugitive too, add 'self' to the set.
 				delete fugitives[gi.publicID];
 				fugitives['self'] = true;
+				//Hide the ping buttons.
+				$('#pingbuttons')[0].style = "display: none;";
 			}
 			//Set time from this as well.
 			timeLeft = gi.options.timer;
@@ -139,7 +141,22 @@ function setupMap() {
 			}
 		});
 	}
+	//Set up the ability to ping.
+	if (window.sessionStorage.getItem("role") === 'hunter'){
+		$('#gotthat')[0].onclick = () => sendPing('Y');
+		$('#repeat')[0].onclick = () => sendPing('N');
+		//Map is more complex: if you click a player's marker, then it'll ping the player, else a location will be pinged.
+		map.on('click', (e) => {
+			sendPing([e.latlng.lat, e.latlng.lng]);
+		})
+		//The marker click is handled elsewhere.
+	}
 	setupWS();
+}
+
+function sendPing(target){
+	//Target is either a lat-lon pair, a UUID or one of 'Y' or 'N'
+	gameSocket.send(`COMPING ${JSON.stringify(target)}`);
 }
 
 //Called when any player's location is obtained.
@@ -173,6 +190,12 @@ function onLocationObtained(who, lat, lng, accuracy){
 		//Need to create the data from scratch.
 		var data = {};
 		data.marker = L.marker([lat, lng], {icon: icon}).addTo(map);
+		//If we're a hunter, make it possible to ping this marker.
+		if (window.sessionStorage.getItem("role") === 'hunter'){
+			data.marker.on('click', (e) => {
+				sendPing(who); //Possible scope issues.
+			})
+		}
 		//Fairly alarming colours, but those can be changed. Marker will also change.
 		data.circle = L.circle([lat, lng], {radius: accuracy, opacity: 0.2, color: this.fugitives[who] ? '#ff0000' : '#0000ff'}).addTo(map);
 		//Add raw data
