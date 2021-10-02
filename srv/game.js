@@ -380,7 +380,7 @@ class Game {
 					//Only hunters may use communication pings.
 					return;
 				}
-				var newDat = msg.data.replace('self', sess.playerID); //So we ping the person who sent it, not the receiver.
+				var newDat = msg.data.replace('self', sess.playerID) + " " + this.publicIDS[sess.playerID]; //So we ping the person who sent it, not the receiver.
 				for (var session of Object.keys(game.players)){
 					if (this.roles[session] === roles.HUNTER && session !== sess.playerID){
 						//Send the packet on.
