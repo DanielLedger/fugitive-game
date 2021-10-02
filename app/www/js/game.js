@@ -6,6 +6,8 @@ var lastPing = Date.now();
 
 var fugitives = {};
 
+var us;
+
 var playerLocations = {}; //A dict of player public IDs -> {location, accuracy, marker, accuracyCircle}
 
 var timeLeft = 0;
@@ -44,7 +46,12 @@ function showPing(target, from){
 		}
 		else {
 			//Pinging a player.
-			playerLocations[target].marker.bindPopup("<b>THEM</b>").openPopup();
+			if (target === us){
+				playerLocations['self'].marker.bindPopup("<b>YOU</b>").openPopup();
+			}
+			else {
+				playerLocations[target].marker.bindPopup("<b>THEM</b>").openPopup();
+			}
 		}
 	}
 	else {
@@ -77,6 +84,8 @@ function setupWS() {
 			//Set the border
 			border = new Border(gi.options.border);
 			borderLine = border.render(borderLine, map, window.sessionStorage.getItem("role") === 'spectator'); //Only snap to the border if the player is a spectator.
+			//Stores who we are
+			us = gi.publicID;
 		}
 		else if (raw.startsWith('COMPING')){
 			var pingInfo = JSON.parse(raw.split(' ')[1]);
