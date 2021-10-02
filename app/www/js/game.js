@@ -29,6 +29,30 @@ function calculateTimeRep(seconds){
 	return `${hoursString}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
+function showPing(target, from){
+	console.debug(`Pinging ${JSON.stringify(target)}.`);
+	//TODO: Sort out how notifications will work.
+	if (typeof target === 'string'){
+		//Either a UUID, a Y or a N.
+		if (target === 'Y'){
+			//Show a yes from the person it was from.
+			playerLocations[from].marker.bindPopup("<b>OK</b>").openPopup();
+		}
+		else if (target === 'N'){
+			//Show a yes from the person it was from.
+			playerLocations[from].marker.bindPopup("<b>REPEAT?</b>").openPopup();
+		}
+		else {
+			//Pinging a player.
+			playerLocations[target].marker.bindPopup("<b>THEM</b>").openPopup();
+		}
+	}
+	else {
+		//A location was pinged.
+		L.popup().setLatLng(target).setContent("<b>HERE</b>").openOn(map);
+	}
+}
+
 function setupWS() {
 	//Set the gameSocket to render players on the map.
 	gameSocket.addEventListener('message', (m) => {
@@ -53,6 +77,10 @@ function setupWS() {
 			//Set the border
 			border = new Border(gi.options.border);
 			borderLine = border.render(borderLine, map, window.sessionStorage.getItem("role") === 'spectator'); //Only snap to the border if the player is a spectator.
+		}
+		else if (raw.startsWith('COMPING')){
+			var pingInfo = JSON.parse(raw.split(' ')[1]);
+			showPing(pingInfo, raw.split(' ')[2]);
 		}
 		else if (raw === 'ping'){
 		}
