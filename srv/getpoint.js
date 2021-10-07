@@ -10,7 +10,7 @@ you need to rewrite this file from scratch to not use the query-overpass module.
 var areaQueryCache = {}; //Caches areas so we don't hit the OSM API 6 million times.
 
 var options = {
-    overpassUrl: "https://overpass.kumi.systems/api/" //Hits Kumi Systems' overpass instance, which is generally more performant
+    overpassUrl: "https://overpass.kumi.systems/api/interpreter" //Hits Kumi Systems' overpass instance, which is generally more performant
     //It also doesn't throw 429 errors every 5 seconds, unlike the regular one.
 }
 
@@ -36,7 +36,7 @@ async function cachedQuery(query){
     return areaQueryCache[query];
 }
 
-//osmQueryPromise('[out:json][timeout:25];(node["amenity"="drinking_water"](50.8871,-1.4867,50.9580,-1.2834););out body;>;out skel qt;', {});
+cachedQuery('[out:json][timeout:25];(node["amenity"="drinking_water"](50.8871,-1.4867,50.9580,-1.2834););out body;>;out skel qt;').then(console.log, console.log);
 //Test query
 /*
 [out:json][timeout:25];
