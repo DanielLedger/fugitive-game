@@ -12,8 +12,6 @@ class Game {
 
 		this.roleCounts = {}; //How many of each role are in the game.
 
-		this.requestedRoles = {}; //The roles people are requesting.
-
 		this.gameOpen = true;
 		this.roleLimits = config.get('RoleLimits');
 		this.host = undefined; //Only the host can do important things like setting the boundary or starting the game.
@@ -225,15 +223,17 @@ class Game {
 		var fugitiveReq = [];
 		var hunterReq = [];
 		var dontCare = [];
-		for (var pair of Object.entries(this.requestedRoles)){
-			if (pair[1] === roles.FUGITIVE){
-				fugitiveReq.push(this.players[pair[0]]);
-			}
-			else if (pair[1] === roles.HUNTER){
-				hunterReq.push(this.players[pair[0]]);
-			}
-			else {
-				dontCare.push(this.players[pair[0]]);
+		for (var pl of Object.values(this.players)){
+			switch (pl.getRequestedRole()){
+				case roles.FUGITIVE:
+					fugitiveReq.push(pl);
+					break;
+				case roles.HUNTER:
+					hunterReq.push(pl);
+					break;
+				default:
+					dontCare.push(pl);
+					break;
 			}
 		}
 		//Shuffles the request lists since, turns out it was biased very badly.
@@ -308,7 +308,7 @@ class Game {
 					case "fugitive":
 					case "either":
 					case "hunter":
-						this.requestedRoles[sess.playerID] = role;
+						person.setRequestedRole(role);
 						break;
 					default:
 						sess.send("INVALID_ROLE");
@@ -323,7 +323,7 @@ class Game {
 				var gi = {};
 				gi.players = Object.keys(this.players).length; //Doesn't appear to be a better way of doing this.
 				gi.host = (sess.playerID === this.host);
-				gi.requestedRole = this.requestedRoles[person];
+				gi.requestedRole = person.getRequestedRole();
 				gi.role = person.getRole();
 				gi.options = this.options;
 				//The client needs to know who's a fugitive and who's a hunter, so send the fugitives (by process of elimination, non-fugitives are hunters if we get their location).
