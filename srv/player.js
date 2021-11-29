@@ -25,8 +25,16 @@ class Player {
         return this.hosting;
     }
 
+    setHost(isHost){
+        this.hosting = isHost;
+    }
+
     getSocket(){
         return this.ws;
+    }
+
+    setSocket(newSock){
+        this.ws = newSock;
     }
 
     getName(){

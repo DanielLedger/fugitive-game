@@ -2,13 +2,14 @@ const idGen = require('./utils/idgen');
 const shuf = require('./utils/shuffle');
 
 const { states, roles } = require('./utils/enums');
+const { Player } = require('./player');
 
 class Game {
 	
 	constructor(config, code, rmg){
 		this.removeGame = rmg;
-		this.players = {}; //Maintains a list of unique ids -> websocket sessions.
-		this.publicIDS = {}; //A list of unique IDs -> public IDs that we send to the end clients (given that the ids here are also connection secrets).
+		this.players = {}; //Maintains a list of unique ids -> player objects.
+
 		this.roles = {}; //The roles people have.
 		this.requestedRoles = {}; //The roles people are requesting.
 		this.gameOpen = true;
@@ -54,13 +55,10 @@ class Game {
 			//Roles have already been assigned, so don't let the person in.
 			return null;
 		}
-		//Creates a session for a new player. Returns them a unique ID for their session.
-		var newID = idGen.getRandId();
-		//Since they don't currently have a socket, add them as 'null' (NOT undefined, since that means "session isn't valid")
-		this.players[newID] = null;
-		//Generate them a new public ID.
-		this.publicIDS[newID] = idGen.getRandId();
-		return newID;
+		var player = new Player(null, 'player'); //Names are TODO.
+		var id = player.getPrivateId();
+		this.players[id] = player;
+		return id;
 	}
 	
 	transferSession(playerID, newSession){
@@ -71,7 +69,7 @@ class Game {
 		}
 		else {
 			//Player's current session is now the new one.
-			this.players[playerID] = newSession;
+			this.players[playerID].setSocket(newSession);
 			newSession.playerID = playerID; //This may or may not work.
 			var currentGame = this; //Required due to scope problems.
 			//Set up the new session with a handler.
@@ -86,6 +84,7 @@ class Game {
 			//If host is undefined, this player is now the host.
 			if (this.host === undefined) {
 				this.host = playerID;
+				this.players[playerID].setHost(true);
 			}
 			return true;
 		}
@@ -104,9 +103,9 @@ class Game {
 	playerOut(id) {
 		//Mark a player as out of the game. This turns them into a spectator immediately. If there are no fugitives left, the game ends in a hunter victory (TODO).
 		//First though, send a mock location of 'null,null,null' to get the location marker removed from the map (possibly leaving behind a ghostly final marker).
-		var msg = this.publicIDS[id] + ":null,null,null";
+		var msg = this.players[id].getPublicId() + ":null,null,null";
 		for (var session of Object.keys(this.players)){
-			var ws = this.players[session];
+			var ws = this.players[session].getSocket();
 			ws.send(msg);
 		}
 		//Now, they become a spectator. Their live location feed is no longer required.
@@ -123,7 +122,7 @@ class Game {
 		//Ends the game and enters post-game (which shows navigation maps on the end screen so people can actually meet up again without just having to call each other and yell).
 		console.log(`Game with code ${this.code} has ended.`);
 		for (var session of Object.keys(this.players)){
-			var ws = this.players[session];
+			var ws = this.players[session].getSocket();
 			ws.send("OVER");
 			//Set everyone's role to a special post-game role
 			this.roles[session] = roles.POSTGAME;
@@ -232,8 +231,8 @@ class Game {
 				gi.role = this.roles[sess.playerID];
 				gi.options = this.options;
 				//The client needs to know who's a fugitive and who's a hunter, so send the fugitives (by process of elimination, non-fugitives are hunters if we get their location).
-				gi.fugitives = Object.keys(this.roles).filter((v) => {return this.roles[v] === roles.FUGITIVE}).map((v) => {return this.publicIDS[v]});
-				gi.publicID = this.publicIDS[sess.playerID]; //Client needs to know their public ID.
+				gi.fugitives = Object.keys(this.roles).filter((v) => {return this.roles[v] === roles.FUGITIVE}).map((v) => {return this.players[v].getPublicId()});
+				gi.publicID = this.players[sess.playerID].getPublicId(); //Client needs to know their public ID.
 				sess.send("INFO " + JSON.stringify(gi));
 				return;
 			}
@@ -330,7 +329,7 @@ class Game {
 				}
 				this.playing = true; //We're now officially starting.
 				for (var ws of Object.values(game.players)){
-					ws.send("START");
+					ws.getSocket().send("START");
 				}
 				this.state = states.PLAYING;
 				//Set up a repeating task to decrement the timer by one second, every second.
@@ -345,7 +344,7 @@ class Game {
 					//To avoid spam, only send updates every 30 seconds or so (this'll probably be the minimum increment for the timer anyway at game start).
 					if ((this.options.timer + this.options.hstimer) % 30 === 0){
 						for (var ws of Object.values(game.players)){
-							ws.send(`TIME ${this.options.timer} ${this.options.hstimer}`);
+							ws.getSocket().send(`TIME ${this.options.timer} ${this.options.hstimer}`);
 						}
 					}
 					if (this.options.timer <= 0){
@@ -369,17 +368,17 @@ class Game {
 					//Only hunters may use communication pings.
 					return;
 				}
-				var newDat = msg.data.replace('self', sess.playerID) + " " + this.publicIDS[sess.playerID]; //So we ping the person who sent it, not the receiver.
+				var newDat = msg.data.replace('self', sess.playerID) + " " + this.players[sess.playerID].getPublicId(); //So we ping the person who sent it, not the receiver.
 				for (var session of Object.keys(game.players)){
 					if (this.roles[session] === roles.HUNTER && session !== sess.playerID){
 						//Send the packet on.
-						game.players[session].send(newDat);
+						game.players[session].getSocket().send(newDat);
 					}
 				}
 			}
 			else {
 				//This is the location feed, send it to everyone else.
-				var toSendOn = game.publicIDS[sess.playerID] + ":" + msg.data;
+				var toSendOn = game.players[sess.playerID].getPublicId() + ":" + msg.data;
 				//Do a quick boundary check.
 				var info = msg.data.split(',');
 				console.log(info);
@@ -406,7 +405,7 @@ class Game {
 					this.lastSentLoc[sess.playerID] = now;
 				}
 				for (var session of Object.keys(game.players)){
-					var ws = game.players[session];
+					var ws = game.players[session].getSocket();
 					if (ws === null){
 						continue; //Race condition kinda. Don't think this is relevant anymore though.
 					}
