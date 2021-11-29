@@ -41,7 +41,7 @@ class Player {
         return this.playerName;
     }
 
-    setChosenRole(role) {
+    setRequestedRole(role) {
         this.requestedRole = role;
         if (role === roles.SPECTATOR){
             this.role = role;

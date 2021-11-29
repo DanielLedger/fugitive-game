@@ -10,8 +10,10 @@ class Game {
 		this.removeGame = rmg;
 		this.players = {}; //Maintains a list of unique ids -> player objects.
 
-		this.roles = {}; //The roles people have.
+		this.roleCounts = {}; //How many of each role are in the game.
+
 		this.requestedRoles = {}; //The roles people are requesting.
+
 		this.gameOpen = true;
 		this.roleLimits = config.get('RoleLimits');
 		this.host = undefined; //Only the host can do important things like setting the boundary or starting the game.
@@ -109,9 +111,9 @@ class Game {
 			ws.send(msg);
 		}
 		//Now, they become a spectator. Their live location feed is no longer required.
-		this.roles[id] = roles.SPECTATOR;
-		var fugitivesLeft = Object.keys(this.roles).filter((v) => {return this.roles[v] === roles.FUGITIVE}).length;
-		var huntersLeft = Object.keys(this.roles).filter((v) => {return this.roles[v] === roles.HUNTER}).length;
+		this.setPlayerRole(this.players[id], roles.SPECTATOR);
+		var fugitivesLeft = this.roleCounts[roles.FUGITIVE];
+		var huntersLeft = this.roleCounts[roles.HUNTER];
 		if (fugitivesLeft === 0 || huntersLeft === 0){
 			//If all of one role are gone, then it's game over.
 			this.endGame();
@@ -125,7 +127,7 @@ class Game {
 			var ws = this.players[session].getSocket();
 			ws.send("OVER");
 			//Set everyone's role to a special post-game role
-			this.roles[session] = roles.POSTGAME;
+			this.setPlayerRole(this.players[session], roles.POSTGAME);
 		}
 		this.state = states.POST;
 		//Set it so that people can join the game again.
@@ -195,9 +197,103 @@ class Game {
         }
     }
 
+	addRoleCount(r){
+		this.roleCounts[r] = (this.roleCounts[r] || 0) + 1;
+	}
+
+	subRoleCount(r){
+		var ctr = this.roleCounts[r];
+		if (ctr === 1){
+			delete this.roleCounts[r];
+		}
+		else {
+			this.roleCounts[r] = ctr - 1;
+		}
+	}
+
+	setPlayerRole(player, role){
+		if (player.getRole() !== undefined){
+			this.subRoleCount(player.getRole());
+		}
+		player.setRole(role);
+		this.addRoleCount(role);
+	}
+
+	assignRoles(){
+		//Assigns everyone a role, chosen based on their preference.
+				
+		var fugitiveReq = [];
+		var hunterReq = [];
+		var dontCare = [];
+		for (var pair of Object.entries(this.requestedRoles)){
+			if (pair[1] === roles.FUGITIVE){
+				fugitiveReq.push(this.players[pair[0]]);
+			}
+			else if (pair[1] === roles.HUNTER){
+				hunterReq.push(this.players[pair[0]]);
+			}
+			else {
+				dontCare.push(this.players[pair[0]]);
+			}
+		}
+		//Shuffles the request lists since, turns out it was biased very badly.
+		shuf.shuffle(fugitiveReq);
+		shuf.shuffle(hunterReq);
+		var fugitives = [];
+		var hunters = [];
+		console.log(this.roleLimits)
+		//Put fugitive requesters on the fugitive pile.
+		while (fugitiveReq.length > 0){
+			if (fugitives.length >= this.roleLimits.Fugitive){
+				//Will this work? No clue, hopefully. If the limit is undefined, this will be false.
+				break;
+			}
+			var f = fugitiveReq.pop();
+			fugitives.push(f);
+		}
+		//Same code for the hunters.
+		while (hunterReq.length > 0){
+			if (hunters.length >= this.roleLimits.Hunter){
+				//Will this work? No clue, hopefully. If the limit is undefined, this will be false.
+				break;
+			}
+			var f = hunterReq.pop();
+			hunters.push(f);
+		}
+		//Merge the two other lists into the "don't care" pile, which is technically wrong (they expressed an opinion) but works.
+		dontCare.push(...fugitiveReq);
+		dontCare.push(...hunterReq);
+		//Shuffle this, just in case.
+		shuf.shuffle(dontCare);
+		for (var person of dontCare){
+			if (!(fugitives.length >= this.roleLimits.Fugitive)){
+				//Add this person as a fugitive
+				fugitives.push(person);
+			}
+			else if (!(hunters.length >= this.roleLimits.Hunter)){
+				//Add this person as a hunter
+				hunters.push(person);
+			}
+			else {
+				//Game is full, add them as spectator.
+				this.setPlayerRole(person, roles.SPECTATOR);
+			}
+		}
+		//Finally, add the fugitive list and hunter list of roles to the 'roles' object.
+		for (var fugitive of fugitives){
+			this.setPlayerRole(fugitive, roles.FUGITIVE);
+		}
+		for (var hunter of hunters){
+			this.setPlayerRole(hunter, roles.HUNTER);
+		}
+		//Close game off.
+		this.gameOpen = false;
+	}
+
 	//The big method which powers a lot of the core functionailty of the game: this method controls the handling of the incoming websocket messages.
 	handleWSMessage(sess, msg, game){
 		console.log("WS message from " + sess.playerID + ": " + msg.data);
+		var person = this.players[sess.playerID];
 		try {
 			//Log the fact that we just got a websocket message.
 			this.lastWSMsg = Date.now();
@@ -207,7 +303,7 @@ class Game {
 				switch (role) {
 					case "spectator":
 						//Add this user directly to the roles object (since spectators can't be allocated a non-spectator role).
-						this.roles[sess.playerID] = roles.SPECTATOR;
+						this.setPlayerRole(person, roles.SPECTATOR);
 						break;
 					case "fugitive":
 					case "either":
@@ -227,11 +323,11 @@ class Game {
 				var gi = {};
 				gi.players = Object.keys(this.players).length; //Doesn't appear to be a better way of doing this.
 				gi.host = (sess.playerID === this.host);
-				gi.requestedRole = this.requestedRoles[sess.playerID];
-				gi.role = this.roles[sess.playerID];
+				gi.requestedRole = this.requestedRoles[person];
+				gi.role = person.getRole();
 				gi.options = this.options;
 				//The client needs to know who's a fugitive and who's a hunter, so send the fugitives (by process of elimination, non-fugitives are hunters if we get their location).
-				gi.fugitives = Object.keys(this.roles).filter((v) => {return this.roles[v] === roles.FUGITIVE}).map((v) => {return this.players[v].getPublicId()});
+				gi.fugitives = Object.values(this.players).filter((p) => {return p.getRole() === roles.FUGITIVE}).map((v) => {return v.getPublicId()});
 				gi.publicID = this.players[sess.playerID].getPublicId(); //Client needs to know their public ID.
 				sess.send("INFO " + JSON.stringify(gi));
 				return;
@@ -249,77 +345,11 @@ class Game {
 				}
 			}
 			else if (msg.data === "ROLE_ASSIGN"){
-				//Assigns everyone a role, chosen based on their preference.
 				//Host only, and closes the game once run.
 				if (sess.playerID !== this.host || !this.gameOpen){
 					return; //Can't use this.
 				}
-				var fugitiveReq = [];
-				var hunterReq = [];
-				var dontCare = [];
-				for (var pair of Object.entries(this.requestedRoles)){
-					if (pair[1] === roles.FUGITIVE){
-						fugitiveReq.push(pair[0]);
-					}
-					else if (pair[1] === roles.HUNTER){
-						hunterReq.push(pair[0]);
-					}
-					else {
-						dontCare.push(pair[0]);
-					}
-				}
-				//Shuffles the request lists since, turns out it was biased very badly.
-				shuf.shuffle(fugitiveReq);
-				shuf.shuffle(hunterReq);
-				var fugitives = [];
-				var hunters = [];
-				console.log(this.roleLimits)
-				//Put fugitive requesters on the fugitive pile.
-				while (fugitiveReq.length > 0){
-					if (fugitives.length >= this.roleLimits.Fugitive){
-						//Will this work? No clue, hopefully. If the limit is undefined, this will be false.
-						break;
-					}
-					var f = fugitiveReq.pop();
-					fugitives.push(f);
-				}
-				//Same code for the hunters.
-				while (hunterReq.length > 0){
-					if (hunters.length >= this.roleLimits.Hunter){
-						//Will this work? No clue, hopefully. If the limit is undefined, this will be false.
-						break;
-					}
-					var f = hunterReq.pop();
-					hunters.push(f);
-				}
-				//Merge the two other lists into the "don't care" pile, which is technically wrong (they expressed an opinion) but works.
-				dontCare.push(...fugitiveReq);
-				dontCare.push(...hunterReq);
-				//Shuffle this, just in case.
-				shuf.shuffle(dontCare);
-				for (var person of dontCare){
-					if (!(fugitives.length >= this.roleLimits.Fugitive)){
-						//Add this person as a fugitive
-						fugitives.push(person);
-					}
-					else if (!(hunters.length >= this.roleLimits.Hunter)){
-						//Add this person as a hunter
-						hunters.push(person);
-					}
-					else {
-						//Game is full, add them as spectator.
-						this.roles[person] = roles.SPECTATOR;
-					}
-				}
-				//Finally, add the fugitive list and hunter list of roles to the 'roles' object.
-				for (var fugitive of fugitives){
-					this.roles[fugitive] = roles.FUGITIVE;
-				}
-				for (var hunter of hunters){
-					this.roles[hunter] = roles.HUNTER;
-				}
-				//Close game off.
-				this.gameOpen = false;
+				this.assignRoles();
 				return;
 			}
 			else if (msg.data === "START"){
@@ -364,13 +394,13 @@ class Game {
 			}
 			else if (msg.data.startsWith("COMPING")){
 				//A hunter communication ping.
-				if (this.roles[sess.playerID] !== roles.HUNTER){
+				if (person.getRole() !== roles.HUNTER){
 					//Only hunters may use communication pings.
 					return;
 				}
 				var newDat = msg.data.replace('self', sess.playerID) + " " + this.players[sess.playerID].getPublicId(); //So we ping the person who sent it, not the receiver.
 				for (var session of Object.keys(game.players)){
-					if (this.roles[session] === roles.HUNTER && session !== sess.playerID){
+					if (person.getRole() === roles.HUNTER && session !== sess.playerID){
 						//Send the packet on.
 						game.players[session].getSocket().send(newDat);
 					}
@@ -392,7 +422,7 @@ class Game {
 				var lastSent = this.lastSentLoc[sess.playerID] || 0;
 				var nextSend = lastSent;
 				//Multiply by 1000 because delays are in seconds, but last sent is ms.
-				if (this.roles[sess.playerID] === roles.HUNTER){
+				if (person.getRole() === roles.HUNTER){
 					nextSend += (this.options.hunterLocDelay * 1000);
 				}
 				else {
@@ -413,7 +443,7 @@ class Game {
 						//Don't send to us.
 						continue;
 					}
-					switch (this.roles[session]){
+					switch (person.getRole()){
 						case roles.POSTGAME:
 						case roles.SPECTATOR:
 							//Send regardless.
