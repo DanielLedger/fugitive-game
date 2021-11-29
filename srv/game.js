@@ -1,5 +1,5 @@
-const uuid = require('uuid');
-const shuf = require('./shuffle');
+const idGen = require('./utils/idgen');
+const shuf = require('./utils/shuffle');
 
 const states = {
 	LOBBY: 'Lobby', //Not started the game yet.
@@ -66,11 +66,11 @@ class Game {
 			return null;
 		}
 		//Creates a session for a new player. Returns them a unique ID for their session.
-		var newID = uuid.v4();
+		var newID = idGen.getRandId();
 		//Since they don't currently have a socket, add them as 'null' (NOT undefined, since that means "session isn't valid")
 		this.players[newID] = null;
 		//Generate them a new public ID.
-		this.publicIDS[newID] = uuid.v4();
+		this.publicIDS[newID] = idGen.getRandId();
 		return newID;
 	}
 	
