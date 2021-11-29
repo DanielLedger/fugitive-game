@@ -322,7 +322,7 @@ class Game {
 				//Client is expecting JSON of gameinfo.
 				var gi = {};
 				gi.players = Object.keys(this.players).length; //Doesn't appear to be a better way of doing this.
-				gi.host = (sess.playerID === this.host);
+				gi.host = (person.isHost());
 				gi.requestedRole = person.getRequestedRole();
 				gi.role = person.getRole();
 				gi.options = this.options;
@@ -333,7 +333,7 @@ class Game {
 				return;
 			}
 			else if (msg.data.startsWith("OPT")){
-				if (sess.playerID !== this.host){
+				if (!person.isHost()){
 					return; //Only the host may change stuff.
 				}
 				var changed = JSON.parse(msg.data.split(' ')[1]);
@@ -346,7 +346,7 @@ class Game {
 			}
 			else if (msg.data === "ROLE_ASSIGN"){
 				//Host only, and closes the game once run.
-				if (sess.playerID !== this.host || !this.gameOpen){
+				if (!person.isHost()|| !this.gameOpen){
 					return; //Can't use this.
 				}
 				this.assignRoles();
@@ -354,7 +354,7 @@ class Game {
 			}
 			else if (msg.data === "START"){
 				//Only the host can start the game, and the roles must've been assigned (so the game must be closed)
-				if (sess.playerID !== this.host || this.gameOpen){
+				if (!person.isHost() || this.gameOpen){
 					return; //Can't use this.
 				}
 				this.playing = true; //We're now officially starting.
