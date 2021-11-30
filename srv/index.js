@@ -31,7 +31,8 @@ const io = new Server(httpSrv, {
 		origin: true,
 		credentials: true,
 		methods: ["GET", "POST"]
-	}
+	},
+	allowEIO4: true
 });
 
 //Load game class.
