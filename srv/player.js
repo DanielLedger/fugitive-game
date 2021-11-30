@@ -11,7 +11,9 @@ class Player {
         this.hosting = host;
         this.ws = socket;
         this.game = game;
-        this.addListenersToSocket();
+        if (socket !== null){
+            this.addListenersToSocket();
+        }
     }
 
     getPublicId(){
@@ -36,6 +38,9 @@ class Player {
 
     setSocket(newSock){
         this.ws = newSock;
+        if (newSock !== null){
+            this.addListenersToSocket();
+        }
     }
 
     getName(){
@@ -70,7 +75,7 @@ class Player {
             if ((r_roles[sel] || roles.POSTGAME) !== roles.POSTGAME){
                 //Set the person's role choice.
                 player.setRequestedRole(sel);
-                console.log(`${player.name} requested role ${sel}.`);
+                console.log(`${player.getName()} requested role ${sel}.`);
                 callback(true);
             }
             else {
