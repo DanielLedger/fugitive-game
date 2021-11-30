@@ -55,7 +55,7 @@ class Game {
 			//Roles have already been assigned, so don't let the person in.
 			return null;
 		}
-		var player = new Player(null, 'player'); //Names are TODO.
+		var player = new Player(null, 'player', this); //Names are TODO.
 		var id = player.getPrivateId();
 		this.players[id] = player;
 		return id;
