@@ -17,11 +17,18 @@ function getWS(){
 		document.location = "index.html";
 	}
 	
-	//Try and make a websocket connection.
+	//Try and make a socket.io connection.
 	gameSocket = io(serverIP, {
 		auth: {
 			game: code,
 			player: uuid
+		}
+	});
+
+	gameSocket.on('disconnect', (reason) => {
+		if (reason === "server namespace disconnect"){
+			//We got server disconnected, don't reconnect and redirect to index.
+			document.location = "index.html";
 		}
 	});
 }
