@@ -42,12 +42,15 @@ class Game {
 	}
 	
 	isDead(){
+		/*
 		if (this.state === states.PLAYING){
 			//Don't kill live games, since people are running around who knows where and possibly not getting great signal.
 			return false;
 		}
 		//Else, if the last message was more than x seconds ago, it's probaly eligible for deletion.
 		return this.lastWSMsg + (1000*60) < Date.now(); //For the actual server, this'll be something like 6-12 hours.
+		*/
+		return false;
 	}
 
 	initSession(){
