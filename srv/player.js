@@ -1,6 +1,6 @@
 const idGen = require('./utils/idgen');
 
-const { roles } = require('./utils/enums');
+const { roles, r_roles } = require('./utils/enums');
 
 class Player {
     constructor (socket, name, game, host = false){
@@ -59,6 +59,24 @@ class Player {
 
     getRequestedRole(){
         return this.requestedRole;
+    }
+
+    addListenersToSocket(){
+        var game = this.game;
+        var player = this;
+
+        //Role selection route.
+        this.ws.on('SELECT_ROLE', (sel, callback) => {
+            if ((r_roles[sel] || roles.POSTGAME) !== roles.POSTGAME){
+                //Set the person's role choice.
+                player.setRequestedRole(sel);
+                callback(true);
+            }
+            else {
+                //Do nothing and return false.
+                callback(false);
+            }
+        })
     }
 
 }

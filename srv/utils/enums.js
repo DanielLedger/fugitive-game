@@ -11,7 +11,15 @@ const roles = {
 	POSTGAME: 'postgame'
 }
 
+const r_roles = {
+	'fugitive': FUGITIVE,
+	'hunter': HUNTER,
+	'spectator': SPECTATOR,
+	'postgame': POSTGAME
+}
+
 module.exports = {
     states: states,
-    roles: roles
+    roles: roles,
+	r_roles: r_roles
 };

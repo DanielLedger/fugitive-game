@@ -298,6 +298,7 @@ class Game {
 		try {
 			//Log the fact that we just got a websocket message.
 			this.lastWSMsg = Date.now();
+			//DONE
 			if (msg.data.startsWith('SELECT')){
 				//Role select message
 				var role = msg.data.split(" ")[1];
