@@ -11,7 +11,7 @@ class Player {
         this.hosting = host;
         this.ws = socket;
         this.game = game;
-
+        this.addListenersToSocket();
     }
 
     getPublicId(){
@@ -70,6 +70,7 @@ class Player {
             if ((r_roles[sel] || roles.POSTGAME) !== roles.POSTGAME){
                 //Set the person's role choice.
                 player.setRequestedRole(sel);
+                console.log(`${player.name} requested role ${sel}.`);
                 callback(true);
             }
             else {
