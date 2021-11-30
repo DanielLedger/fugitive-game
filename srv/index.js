@@ -37,7 +37,6 @@ const io = new Server(httpSrv, {
 
 //Load game class.
 const Game = require('./game').Game;
-const { create } = require('domain');
 
 //All currently running games
 var games = {};
