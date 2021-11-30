@@ -12,10 +12,10 @@ const roles = {
 }
 
 const r_roles = {
-	'fugitive': FUGITIVE,
-	'hunter': HUNTER,
-	'spectator': SPECTATOR,
-	'postgame': POSTGAME
+	'fugitive': roles.FUGITIVE,
+	'hunter': roles.HUNTER,
+	'spectator': roles.SPECTATOR,
+	'postgame': roles.POSTGAME
 }
 
 module.exports = {
