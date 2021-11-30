@@ -213,6 +213,15 @@ class Game {
 		}
 	}
 
+	updateOptions(changed){
+		for (var key of Object.keys(changed)){
+			if (this.options[key] !== undefined && typeof this.options[key] === typeof changed[key]){
+				//Don't allow additional options to be set, unless they exist already and are the correct type.
+				this.options[key] = changed[key];
+			}
+		}
+	}
+
 	setPlayerRole(player, role){
 		if (player.getRole() !== undefined){
 			this.subRoleCount(player.getRole());
@@ -302,28 +311,7 @@ class Game {
 			//Log the fact that we just got a websocket message.
 			this.lastWSMsg = Date.now();
 			//DONE
-			if (msg.data.startsWith('SELECT')){
-				//Role select message
-				var role = msg.data.split(" ")[1];
-				switch (role) {
-					case "spectator":
-						//Add this user directly to the roles object (since spectators can't be allocated a non-spectator role).
-						this.setPlayerRole(person, roles.SPECTATOR);
-						break;
-					case "fugitive":
-					case "either":
-					case "hunter":
-						person.setRequestedRole(role);
-						break;
-					default:
-						sess.send("INVALID_ROLE");
-						return;
-				}
-				//If we get to here, got a valid role sent to us.
-				sess.send("ROLE_OK");
-				return;
-			}
-			else if (msg.data === "GAMEINFO"){
+			if (msg.data === "GAMEINFO"){
 				//Client is expecting JSON of gameinfo.
 				var gi = {};
 				gi.players = Object.keys(this.players).length; //Doesn't appear to be a better way of doing this.
@@ -342,12 +330,7 @@ class Game {
 					return; //Only the host may change stuff.
 				}
 				var changed = JSON.parse(msg.data.split(' ')[1]);
-				for (var key of Object.keys(changed)){
-					if (this.options[key] !== undefined && typeof this.options[key] === typeof changed[key]){
-						//Don't allow additional options to be set, unless they exist already and are the correct type.
-						this.options[key] = changed[key];
-					}
-				}
+				this.updateOptions(changed);
 			}
 			else if (msg.data === "ROLE_ASSIGN"){
 				//Host only, and closes the game once run.
