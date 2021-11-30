@@ -110,8 +110,9 @@ class Game {
 		}
 		//Now, they become a spectator. Their live location feed is no longer required.
 		this.setPlayerRole(this.players[id], roles.SPECTATOR);
-		var fugitivesLeft = this.roleCounts[roles.FUGITIVE];
-		var huntersLeft = this.roleCounts[roles.HUNTER];
+		console.log(this.roleCounts);
+		var fugitivesLeft = this.roleCounts[roles.FUGITIVE] || 0;
+		var huntersLeft = this.roleCounts[roles.HUNTER] || 0;
 		if (fugitivesLeft === 0 || huntersLeft === 0){
 			//If all of one role are gone, then it's game over.
 			this.endGame();
