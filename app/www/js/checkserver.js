@@ -18,13 +18,10 @@ function getWS(){
 	}
 	
 	//Try and make a websocket connection.
-	var wsIP = serverIP.replace(/https?/, "wss"); //Replace http or https with ws (because it's a wesocket).
-	gameSocket = new ReconnectingWebSocket(`${wsIP}/game?code=${code}&uuid=${uuid}`);
-	gameSocket.addEventListener('message', (e) => {
-		console.debug("Got WS message: " + e.data);
-		if (e.data === "INVALID"){
-			//Something is wrong
-			document.location = "index.html";
+	gameSocket = io(serverIP, {
+		auth: {
+			game: code,
+			player: uuid
 		}
 	});
 }
