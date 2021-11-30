@@ -26,7 +26,13 @@ const { createServer } = require("http");
 
 var httpSrv = createServer(app);
 
-const io = new Server(httpSrv);
+const io = new Server(httpSrv, {
+	cors: {
+		origin: true,
+		credentials: true,
+		methods: ["GET", "POST"]
+	}
+});
 
 //Load game class.
 const Game = require('./game').Game;
