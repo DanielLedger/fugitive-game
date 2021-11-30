@@ -130,6 +130,7 @@ app.post("/game/join", (req, resp) => {
 });
 
 //Websocket route: create a game socket.
+/*
 app.ws('/game', (ws, req) => {
 	//Verify code and UUID, and if so, make this session the current one.
 	var code = req.query.code;
@@ -150,10 +151,20 @@ app.ws('/game', (ws, req) => {
 		ws.close();
 	}
 })
-
+*/
 io.on('connection', (sock) => {
-	sock.send("Hello World!");
-	console.log(`Got socket connection from ${sock.id}`);
+	//Verify the connection.
+	var authInfo = sock.handshake.auth;
+	//TODO: Possible (but unlikely) timing attack here, that might let you deduce valid game codes, which you could then join as normal.
+	if (games[authInfo.game] !== undefined && games[authInfo.game].transferSession(authInfo.player, sock)){
+		//OK, do nothing except log the connection.
+		console.log(`Socket connection from ${sock.handshake.address} for ID ${authInfo.game}:${authInfo.player} OK.`);
+	}
+	else {
+		//Reject the connection.
+		sock.disconnect(true); //Bye-bye
+		console.warn(`Socket connection from ${sock.handshake.address} for ID ${authInfo.game}:${authInfo.player} REJECTED.`);
+	}
 })
 
 //Import additional routes defined in other files.

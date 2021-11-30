@@ -22,15 +22,19 @@ function getWS(){
 		auth: {
 			game: code,
 			player: uuid
-		}
+		},
+		autoConnect: false
 	});
 
 	gameSocket.on('disconnect', (reason) => {
-		if (reason === "server namespace disconnect"){
+		console.warn(`Disconnct: ${reason}`);
+		if (reason === "io server disconnect"){
 			//We got server disconnected, don't reconnect and redirect to index.
 			document.location = "index.html";
 		}
 	});
+
+	gameSocket.connect();
 }
 
 getWS();
