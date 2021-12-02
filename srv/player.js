@@ -112,6 +112,12 @@ class Player {
             }
         });
 
+        //Player is out.
+        this.ws.on('OUT', (callback) => {
+            game.playerOut(this.getPrivateId());
+            callback();
+        });
+
         //Join the room given by the game code (we'll need this later)
         this.ws.join(game.code);
         console.log(this.ws.rooms);

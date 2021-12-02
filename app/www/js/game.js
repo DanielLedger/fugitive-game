@@ -99,10 +99,14 @@ function setupWS() {
 		}
 	})
 
+	gameSocket.on('OVER', () => {
+		document.location = 'gameover.html';
+	});
+
 	gameSocket.emit('INFO', (opts) => {
 		showFromInfo(opts);
 	});
-
+	return; //Can't use the stuff below anyway.
 	//Set the gameSocket to render players on the map.
 	gameSocket.addEventListener('message', (m) => {
 		lastPing = Date.now();
@@ -113,10 +117,6 @@ function setupWS() {
 			showPing(pingInfo, raw.split(' ')[2]);
 		}
 		else if (raw === 'ping'){
-		}
-		else if (raw.startsWith('OVER')){
-			//Go to the gameover page.
-			document.location = 'gameover.html';
 		}
 		else {
 			//The protocol is now officially: 'user:lat,lng,acc'
@@ -160,13 +160,6 @@ function setupMap() {
     	tileSize: 512,
 		zoomOffset: -1
 	}).addTo(map);
-	//Request gameinfo
-	window.setTimeout(() => {
-		infoRequester = window.setInterval(() => {
-			gameSocket.send('GAMEINFO');
-			console.debug('Sent gameinfo request.');
-		}, 3000);
-	}, 1000)
 	if (window.sessionStorage.getItem("role") !== 'spectator'){ //Don't watch spectator location.
 		//Temporary, just to try and get the damn thing to work.
 		if (cordova.platformId !== 'browser'){
@@ -296,6 +289,12 @@ if (window.sessionStorage.getItem("role") === 'fugitive'){
 			//Player is out.
 			//Cancel background location task.
 			getGeolocationService().stop();
+
+			gameSocket.emit('OUT', () => {
+				window.sessionStorage.setItem('role', 'spectator');
+				document.location.reload();
+			});
+			/*
 			if (gameSocket.readyState === 1){
 				//Send the message that you're out now.
 				gameSocket.send("OUT");
@@ -314,7 +313,7 @@ if (window.sessionStorage.getItem("role") === 'fugitive'){
 						document.location.reload();
 					}, 1500);
 				});
-			}
+			}*/
 		}
 	}
 }

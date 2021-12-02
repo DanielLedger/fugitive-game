@@ -132,9 +132,8 @@ class Game {
 	endGame(){
 		//Ends the game and enters post-game (which shows navigation maps on the end screen so people can actually meet up again without just having to call each other and yell).
 		console.log(`Game with code ${this.code} has ended.`);
+		this.roomBroadcast('OVER');
 		for (var session of Object.keys(this.players)){
-			var ws = this.players[session].getSocket();
-			ws.send("OVER");
 			//Set everyone's role to a special post-game role
 			this.setPlayerRole(this.players[session], roles.POSTGAME);
 		}
