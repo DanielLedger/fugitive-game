@@ -4,12 +4,13 @@ const shuf = require('./utils/shuffle');
 const { states, roles } = require('./utils/enums');
 const { Player } = require('./player');
 
-const io = require('socket.io');
-
 class Game {
 	
-	constructor(config, code, rmg){
+	constructor(config, code, rmg, ioRef){
 		this.removeGame = rmg;
+
+		this.io = ioRef;
+
 		this.players = {}; //Maintains a list of unique ids -> player objects.
 
 		this.roleCounts = {}; //How many of each role are in the game.
@@ -44,7 +45,7 @@ class Game {
 	}
 	
 	roomBroadcast(event, ...args){
-		io.to(this.code).emit(event, args);
+		this.io.to(this.code).emit(event, ...args);
 	}
 
 	isDead(){

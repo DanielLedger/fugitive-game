@@ -93,7 +93,7 @@ app.post("/game/start", (req, resp) => {
 	}
 	else {
 		//Create a game with this code, and reply with the user's access UUID.
-		var game = new Game(config, code, removeGame);
+		var game = new Game(config, code, removeGame, io);
 		var playerUUID = game.initSession();
 		if (playerUUID === null) { //Really shouldn't happen here, but putting this just in case.
 			resp.sendStatus(423);
