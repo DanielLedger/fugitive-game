@@ -61,6 +61,18 @@ function showPing(target, from){
 }
 
 function setupWS() {
+
+	gameSocket.on('TIME', (timers) => {
+		timeLeft = timers[0];
+		hsTime = timers[1];
+		if (hsTime <= 0){
+			$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
+		}
+		else {
+			$('#blanker')[0].style="display: block;"; //Show blanker. TODO: Show headstart timer + don't do this for spectators.
+		}
+	})
+
 	//Set the gameSocket to render players on the map.
 	gameSocket.addEventListener('message', (m) => {
 		lastPing = Date.now();
@@ -92,17 +104,6 @@ function setupWS() {
 			showPing(pingInfo, raw.split(' ')[2]);
 		}
 		else if (raw === 'ping'){
-		}
-		else if (raw.startsWith('TIME')){
-			var dat = raw.split(" ");
-			timeLeft = Number(dat[1]);
-			hsTime = Number(dat[2]);
-			if (hsTime <= 0){
-				$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
-			}
-			else {
-				$('#blanker')[0].style="display: block;"; //Show blanker. TODO: Show headstart timer + don't do this for spectators.
-			}
 		}
 		else if (raw.startsWith('OVER')){
 			//Go to the gameover page.
