@@ -105,6 +105,13 @@ class Player {
             }
         });
 
+        //Game start.
+        this.ws.on('STARTGAME', () => {
+            if (player.isHost()){
+                game.startGame();
+            }
+        });
+
         //Join the room given by the game code (we'll need this later)
         this.ws.join(game.code);
         console.log(this.ws.rooms);

@@ -323,6 +323,31 @@ class Game {
 		this.gameOpen = false;
 	}
 
+	startGame(){
+		this.playing = true; //We're now officially starting.
+		this.roomBroadcast('START');
+		this.state = states.PLAYING;
+		//Set up a repeating task to decrement the timer by one second, every second.
+		this.timerTask = setInterval(() => {
+			//Decrement the headstart timer first.
+			if (this.options.hstimer > 0){
+				this.options.hstimer--;
+			}
+			else {
+				this.options.timer--;
+			}
+			//To avoid spam, only send updates every 30 seconds or so (this'll probably be the minimum increment for the timer anyway at game start).
+			if ((this.options.timer + this.options.hstimer) % 30 === 0){
+				this.roomBroadcast('TIME', [this.options.timer, this.options.hstimer]);
+			}
+			if (this.options.timer <= 0){
+				//Time has expired, game ends.
+				clearInterval(this.timerTask);
+				this.endGame();
+			}
+		}, 1000);
+	}
+
 	//The big method which powers a lot of the core functionailty of the game: this method controls the handling of the incoming websocket messages.
 	handleWSMessage(sess, msg, game){
 		console.log("WS message from " + sess.playerID + ": " + msg.data);
@@ -330,43 +355,7 @@ class Game {
 		try {
 			//Log the fact that we just got a websocket message.
 			this.lastWSMsg = Date.now();
-			if (msg.data === "START"){
-				//Only the host can start the game, and the roles must've been assigned (so the game must be closed)
-				if (!person.isHost() || this.gameOpen){
-					return; //Can't use this.
-				}
-				this.playing = true; //We're now officially starting.
-				for (var ws of Object.values(game.players)){
-					ws.getSocket().send("START");
-				}
-				this.state = states.PLAYING;
-				//Set up a repeating task to decrement the timer by one second, every second.
-				this.timerTask = setInterval(() => {
-					//Decrement the headstart timer first.
-					if (this.options.hstimer > 0){
-						this.options.hstimer--;
-					}
-					else {
-						this.options.timer--;
-					}
-					//To avoid spam, only send updates every 30 seconds or so (this'll probably be the minimum increment for the timer anyway at game start).
-					if ((this.options.timer + this.options.hstimer) % 30 === 0){
-						for (var ws of Object.values(game.players)){
-							ws.getSocket().send(`TIME ${this.options.timer} ${this.options.hstimer}`);
-						}
-					}
-					if (this.options.timer <= 0){
-						//Time has expired, game ends.
-						clearInterval(this.timerTask);
-						this.endGame();
-					}
-				}, 1000);
-			}
-			else if (msg.data === 'pong'){
-				//Keepalive ping-pong, do nothing.
-				return;
-			}
-			else if (msg.data === 'OUT'){
+			if (msg.data === 'OUT'){
 				//Player was caught.
 				this.playerOut(sess.playerID);
 			}

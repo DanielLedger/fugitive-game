@@ -111,13 +111,6 @@ function updateOptions(opt, israw){
 	gameSocket.emit('OPTION', justChange);
 }
 
-gameSocket.addEventListener('message', (m) => {
-	if (m.data === "START"){
-		//We're starting. Good luck!
-		document.location = "game.html";
-	}
-});
-
 gameSocket.emit('INFO', (opts) => {
 	showGameStatus(opts);
 });
@@ -135,6 +128,10 @@ gameSocket.on('UPDATED', (newOpts) => {
 	showOptions(newOpts);
 });
 
+gameSocket.on('START', () => {
+	document.location = 'game.html';
+});
+
 $('#lockroleselection')[0].onclick = () => {
 	//Disable the button (so it can't be clicked again
 	$('#lockroleselection')[0].disabled = true;
@@ -144,7 +141,7 @@ $('#lockroleselection')[0].onclick = () => {
 
 $('#startgame')[0].onclick = () => {
 	//Send the assign roles message.
-	gameSocket.send("START");
+	gameSocket.emit('STARTGAME');
 };
 
 //Set up the selection that changes what you see based on which border type you have enabled.
