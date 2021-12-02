@@ -330,15 +330,7 @@ class Game {
 		try {
 			//Log the fact that we just got a websocket message.
 			this.lastWSMsg = Date.now();
-			if (msg.data === "ROLE_ASSIGN"){
-				//Host only, and closes the game once run.
-				if (!person.isHost()|| !this.gameOpen){
-					return; //Can't use this.
-				}
-				this.assignRoles();
-				return;
-			}
-			else if (msg.data === "START"){
+			if (msg.data === "START"){
 				//Only the host can start the game, and the roles must've been assigned (so the game must be closed)
 				if (!person.isHost() || this.gameOpen){
 					return; //Can't use this.

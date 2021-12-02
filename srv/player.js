@@ -97,6 +97,14 @@ class Player {
             }
         })
 
+        //Role assign.
+        this.ws.on('ROLE_ASSIGN', () => {
+            if (player.isHost()){
+                game.assignRoles();
+                game.roomBroadcast('REFETCH');
+            }
+        });
+
         //Join the room given by the game code (we'll need this later)
         this.ws.join(game.code);
         console.log(this.ws.rooms);

@@ -122,6 +122,14 @@ gameSocket.emit('INFO', (opts) => {
 	showGameStatus(opts);
 });
 
+gameSocket.on('REFETCH', () => {
+	//Something changed, so reget the player info (not just options)
+	//TODO: Just send the info directly (which is surprisngly annoying at the moment)
+	gameSocket.emit('INFO', (opts) => {
+		showGameStatus(opts);
+	});
+});
+
 gameSocket.on('UPDATED', (newOpts) => {
 	console.debug(newOpts);
 	showOptions(newOpts);
@@ -131,7 +139,7 @@ $('#lockroleselection')[0].onclick = () => {
 	//Disable the button (so it can't be clicked again
 	$('#lockroleselection')[0].disabled = true;
 	//Send the assign roles message.
-	gameSocket.send("ROLE_ASSIGN");
+	gameSocket.emit("ROLE_ASSIGN");
 };
 
 $('#startgame')[0].onclick = () => {
