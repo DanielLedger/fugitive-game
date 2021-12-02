@@ -89,6 +89,14 @@ class Player {
             callback(game.getGameInfo(player));
         });
 
+        //Option update route.
+        this.ws.on('OPTION', (newOpts, callback) => {
+            if (player.isHost()){ //Check dynamically since host might change.
+                game.updateOptions(newOpts);
+                game.broadcast('UPDATED', game.options);
+            }
+        })
+
         //Join the room given by the game code (we'll need this later)
         this.ws.join(game.code);
 

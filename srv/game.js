@@ -4,6 +4,8 @@ const shuf = require('./utils/shuffle');
 const { states, roles } = require('./utils/enums');
 const { Player } = require('./player');
 
+const io = require('socket.io');
+
 class Game {
 	
 	constructor(config, code, rmg){
@@ -41,6 +43,10 @@ class Game {
 		this.lastSentLoc = {}; //When everyone's location was last broadcast.
 	}
 	
+	roomBroadcast(event, ...args){
+		io.to(this.code).emit(event, args);
+	}
+
 	isDead(){
 		/*
 		if (this.state === states.PLAYING){
