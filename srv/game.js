@@ -330,14 +330,7 @@ class Game {
 		try {
 			//Log the fact that we just got a websocket message.
 			this.lastWSMsg = Date.now();
-			if (msg.data.startsWith("OPT")){
-				if (!person.isHost()){
-					return; //Only the host may change stuff.
-				}
-				var changed = JSON.parse(msg.data.split(' ')[1]);
-				this.updateOptions(changed);
-			}
-			else if (msg.data === "ROLE_ASSIGN"){
+			if (msg.data === "ROLE_ASSIGN"){
 				//Host only, and closes the game once run.
 				if (!person.isHost()|| !this.gameOpen){
 					return; //Can't use this.

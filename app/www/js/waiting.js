@@ -112,11 +112,7 @@ function updateOptions(opt, israw){
 }
 
 gameSocket.addEventListener('message', (m) => {
-	if (m.data.startsWith('INFO')){
-		var json = m.data.split(' ')[1];
-		showGameStatus(json);
-	}
-	else if (m.data === "START"){
+	if (m.data === "START"){
 		//We're starting. Good luck!
 		document.location = "game.html";
 	}
