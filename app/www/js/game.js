@@ -60,6 +60,32 @@ function showPing(target, from){
 	}
 }
 
+function showFromInfo(gi){
+	gi.fugitives.map((f) => {fugitives[f] = true}); //Hashset
+	if (fugitives[gi.publicID]){
+		//We're a fugitive too, add 'self' to the set.
+		delete fugitives[gi.publicID];
+		fugitives['self'] = true;
+		//Hide the ping buttons.
+		$('#pingbuttons')[0].style = "display: none;";
+	}
+	//Set time from this as well.
+	timeLeft = gi.options.timer;
+	hsTime = gi.options.hstimer;
+
+	if (hsTime <= 0){
+		$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
+	}
+	else {
+		$('#blanker')[0].style="display: block;"; //Show blanker. TODO: Show headstart timer + don't do this for spectators.
+	}
+	//Set the border
+	border = new Border(gi.options.border);
+	borderLine = border.render(borderLine, map, window.sessionStorage.getItem("role") === 'spectator'); //Only snap to the border if the player is a spectator.
+	//Stores who we are
+	us = gi.publicID;
+}
+
 function setupWS() {
 
 	gameSocket.on('TIME', (timers) => {
@@ -73,32 +99,15 @@ function setupWS() {
 		}
 	})
 
+	gameSocket.emit('INFO', (opts) => {
+		showFromInfo(opts);
+	});
+
 	//Set the gameSocket to render players on the map.
 	gameSocket.addEventListener('message', (m) => {
 		lastPing = Date.now();
 		var raw = m.data;
 		if (raw === 'OK'){}
-		else if (raw.startsWith('INFO')){
-			//Stop the gameinfo requester.
-			clearInterval(infoRequester);
-			var gi = JSON.parse(raw.split(' ')[1]);
-			gi.fugitives.map((f) => {fugitives[f] = true}); //Hashset
-			if (fugitives[gi.publicID]){
-				//We're a fugitive too, add 'self' to the set.
-				delete fugitives[gi.publicID];
-				fugitives['self'] = true;
-				//Hide the ping buttons.
-				$('#pingbuttons')[0].style = "display: none;";
-			}
-			//Set time from this as well.
-			timeLeft = gi.options.timer;
-			hsTime = gi.options.hstimer;
-			//Set the border
-			border = new Border(gi.options.border);
-			borderLine = border.render(borderLine, map, window.sessionStorage.getItem("role") === 'spectator'); //Only snap to the border if the player is a spectator.
-			//Stores who we are
-			us = gi.publicID;
-		}
 		else if (raw.startsWith('COMPING')){
 			var pingInfo = JSON.parse(raw.split(' ')[1]);
 			showPing(pingInfo, raw.split(' ')[2]);
