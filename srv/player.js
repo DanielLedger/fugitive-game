@@ -82,6 +82,11 @@ class Player {
                 //Do nothing and return false.
                 callback(false);
             }
+        });
+
+        //Game info route.
+        this.ws.on('INFO', (callback) => {
+            callback(game.getGameInfo(player));
         })
     }
 

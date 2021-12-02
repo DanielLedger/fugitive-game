@@ -26,8 +26,7 @@ map.on('move', () => {
 	}
 });
 
-function showGameStatus(json){
-	var giObj = JSON.parse(json);
+function showGameStatus(giObj){
 	host = giObj.host;
 	//TODO: Have a nice looking bar here
 	document.getElementById("wsping").innerHTML = `<span class='h4'>Websocket last ping: </span><span class='h5'>${Date.now()}</span>`;
@@ -120,9 +119,9 @@ gameSocket.addEventListener('message', (m) => {
 	}
 });
 
-window.setInterval(() => {
-	gameSocket.send("GAMEINFO");
-}, 2000);
+gameSocket.emit('INFO', (opts) => {
+	showGameStatus(opts);
+});
 
 $('#lockroleselection')[0].onclick = () => {
 	//Disable the button (so it can't be clicked again

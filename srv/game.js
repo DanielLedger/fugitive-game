@@ -230,6 +230,19 @@ class Game {
 		this.addRoleCount(role);
 	}
 
+	getGameInfo(playerFor){
+		var gi = {};
+		gi.players = Object.keys(this.players).length; //Doesn't appear to be a better way of doing this.
+		gi.host = (playerFor.isHost());
+		gi.requestedRole = playerFor.getRequestedRole();
+		gi.role = playerFor.getRole();
+		gi.options = this.options;
+		//The client needs to know who's a fugitive and who's a hunter, so send the fugitives (by process of elimination, non-fugitives are hunters if we get their location).
+		gi.fugitives = Object.values(this.players).filter((p) => {return p.getRole() === roles.FUGITIVE}).map((v) => {return v.getPublicId()});
+		gi.publicID = playerFor.getPublicId(); //Client needs to know their public ID.
+		return gi;
+	}
+
 	assignRoles(){
 		//Assigns everyone a role, chosen based on their preference.
 				
@@ -310,22 +323,7 @@ class Game {
 		try {
 			//Log the fact that we just got a websocket message.
 			this.lastWSMsg = Date.now();
-			//DONE
-			if (msg.data === "GAMEINFO"){
-				//Client is expecting JSON of gameinfo.
-				var gi = {};
-				gi.players = Object.keys(this.players).length; //Doesn't appear to be a better way of doing this.
-				gi.host = (person.isHost());
-				gi.requestedRole = person.getRequestedRole();
-				gi.role = person.getRole();
-				gi.options = this.options;
-				//The client needs to know who's a fugitive and who's a hunter, so send the fugitives (by process of elimination, non-fugitives are hunters if we get their location).
-				gi.fugitives = Object.values(this.players).filter((p) => {return p.getRole() === roles.FUGITIVE}).map((v) => {return v.getPublicId()});
-				gi.publicID = this.players[sess.playerID].getPublicId(); //Client needs to know their public ID.
-				sess.send("INFO " + JSON.stringify(gi));
-				return;
-			}
-			else if (msg.data.startsWith("OPT")){
+			if (msg.data.startsWith("OPT")){
 				if (!person.isHost()){
 					return; //Only the host may change stuff.
 				}
