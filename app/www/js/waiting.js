@@ -63,8 +63,12 @@ function showGameStatus(giObj){
 	}
 
 	//Go through every option in the option JSON and, if it exists, set the value of the field. In addition, set readonly on them if we're not host (also validated serverside).
-	options = giObj.options;
-	for (var key in giObj.options){
+	showOptions(giObj.options);
+	
+}
+
+function showOptions(options){
+	for (var key in options){
 		var elem = document.getElementById(key);
 		if (elem === null){
 			continue;
@@ -73,11 +77,11 @@ function showGameStatus(giObj){
 			continue; //Don't edit the element the user has focussed, that's just annoying.
 		}
 		else {
-			elem.value = giObj.options[key];
-			elem.disabled = !giObj.host;
+			elem.value = options[key];
+			elem.disabled = !host;
 		}
 	}
-	border = new Border(giObj.options.border);
+	border = new Border(options.border);
 	//Set the border explicitly.
 	if (!Border.areSame(border, oldBorder)){
 		//Render the border.
@@ -93,7 +97,6 @@ function showGameStatus(giObj){
 		}*/
 		oldBorder = border;
 	}
-	
 }
 
 function updateOptions(opt, israw){
@@ -105,7 +108,7 @@ function updateOptions(opt, israw){
 	//Send a JSON of purely what's changed.
 	var justChange = {};
 	justChange[opt] = newVal;
-	gameSocket.send(`OPT ${JSON.stringify(justChange)}`);
+	gameSocket.emit('OPTION', justChange);
 }
 
 gameSocket.addEventListener('message', (m) => {
@@ -121,6 +124,11 @@ gameSocket.addEventListener('message', (m) => {
 
 gameSocket.emit('INFO', (opts) => {
 	showGameStatus(opts);
+});
+
+gameSocket.on('UPDATED', (newOpts) => {
+	console.debug(newOpts);
+	showOptions(newOpts);
 });
 
 $('#lockroleselection')[0].onclick = () => {
@@ -230,7 +238,7 @@ function sendPolyUpdate(points){
 		border: points
 	};
 	//Send an OPT message to actually update it.
-	gameSocket.send(`OPT ${JSON.stringify(newBorderObj)}`);
+	gameSocket.emit('OPTION', newBorderObj);
 
 	//Also update lastPoly
 	lastPoly = new Border(newBorderObj.border);
@@ -244,7 +252,7 @@ function circleBorderChange(centre, rad){
 		}
 	};
 	//Send an OPT message to actually update it.
-	gameSocket.send(`OPT ${JSON.stringify(newBorderObj)}`);
+	gameSocket.emit('OPTION', newBorderObj);
 
 	//Now, update 'lastCircle' to be this.
 	lastCircle = new Border(newBorderObj.border);
