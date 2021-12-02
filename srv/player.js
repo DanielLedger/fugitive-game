@@ -87,7 +87,11 @@ class Player {
         //Game info route.
         this.ws.on('INFO', (callback) => {
             callback(game.getGameInfo(player));
-        })
+        });
+
+        //Join the room given by the game code (we'll need this later)
+        this.ws.join(game.code);
+
     }
 
 }
