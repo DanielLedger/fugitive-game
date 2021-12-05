@@ -111,13 +111,11 @@ function setupWS() {
 	gameSocket.addEventListener('message', (m) => {
 		lastPing = Date.now();
 		var raw = m.data;
-		if (raw === 'OK'){}
-		else if (raw.startsWith('COMPING')){
+		if (raw.startsWith('COMPING')){
 			var pingInfo = JSON.parse(raw.split(' ')[1]);
 			showPing(pingInfo, raw.split(' ')[2]);
 		}
-		else if (raw === 'ping'){
-		}
+
 		else {
 			//The protocol is now officially: 'user:lat,lng,acc'
 			var splitDat = raw.split(":");

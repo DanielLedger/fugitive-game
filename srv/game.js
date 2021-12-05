@@ -354,11 +354,7 @@ class Game {
 		try {
 			//Log the fact that we just got a websocket message.
 			this.lastWSMsg = Date.now();
-			if (msg.data === 'OUT'){
-				//Player was caught.
-				this.playerOut(sess.playerID);
-			}
-			else if (msg.data.startsWith("COMPING")){
+			if (msg.data.startsWith("COMPING")){
 				//A hunter communication ping.
 				if (person.getRole() !== roles.HUNTER){
 					//Only hunters may use communication pings.
