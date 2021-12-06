@@ -84,15 +84,6 @@ class Game {
 			this.players[playerID].setSocket(newSession);
 			newSession.playerID = playerID; //This may or may not work.
 			var currentGame = this; //Required due to scope problems.
-			//Set up the new session with a handler.
-			var ws = newSession;
-			newSession.onmessage = (msg) => {
-				currentGame.handleWSMessage(ws, msg, currentGame);
-			};
-			//Also set it up with a close handler.
-			newSession.onclose = () => {
-				currentGame.closeSession(ws); //This is why we need a 'currentGame' reference: 'this' refers to the websocket.
-			};
 			//If host is undefined, this player is now the host.
 			if (this.host === undefined) {
 				this.host = playerID;
@@ -109,12 +100,6 @@ class Game {
 	
 	playerOut(id) {
 		//Mark a player as out of the game. This turns them into a spectator immediately. If there are no fugitives left, the game ends in a hunter victory (TODO).
-		//First though, send a mock location of 'null,null,null' to get the location marker removed from the map (possibly leaving behind a ghostly final marker).
-		var msg = this.players[id].getPublicId() + ":null,null,null";
-		for (var session of Object.keys(this.players)){
-			var ws = this.players[session].getSocket();
-			ws.send(msg);
-		}
 		//Now, they become a spectator. Their live location feed is no longer required.
 		this.setPlayerRole(this.players[id], roles.SPECTATOR);
 		console.log(this.roleCounts);
