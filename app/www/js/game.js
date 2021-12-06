@@ -112,6 +112,23 @@ function setupWS() {
 		showPing(target, from);
 	});
 
+	gameSocket.on('disconnect', (reason) => {
+		console.warn(`Disconnct: ${reason}`);
+		//Warn the user our connection died.
+		var alertBox = $('#alerts')[0];
+		alertBox.innerHTML = "";
+		displayAlert(alertBox, 'warning', "Lost connection to server. Reconnecting...");
+	});
+
+	gameSocket.on('connect', () => {
+		var alertBox = $('#alerts')[0];
+		alertBox.innerHTML = "";
+		displayAlert(alertBox, 'success', "Connected.");
+		//"set" the map's zoom to the same to trigger a reload.
+		map.setZoom(map.getZoom() - 1);
+		map.setZoom(map.getZoom() + 1);
+	});
+
 	gameSocket.emit('INFO', (opts) => {
 		showFromInfo(opts);
 	});

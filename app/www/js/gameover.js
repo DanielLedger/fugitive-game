@@ -7,17 +7,22 @@ function setupWS() {
 		onLocationObtained(who, lat, lon, acc);
 	});
 	
-	/*
-	//Set up another message for when we regain connection.
-	gameSocket.onopen = () => {
+	gameSocket.on('disconnect', (reason) => {
+		console.warn(`Disconnct: ${reason}`);
+		//Warn the user our connection died.
+		var alertBox = $('#alerts')[0];
+		alertBox.innerHTML = "";
+		displayAlert(alertBox, 'warning', "Lost connection to server. Reconnecting...");
+	});
+
+	gameSocket.on('connect', () => {
 		var alertBox = $('#alerts')[0];
 		alertBox.innerHTML = "";
 		displayAlert(alertBox, 'success', "Connected.");
-		lastPing = Date.now(); //Connecting counts as a ping.
 		//"set" the map's zoom to the same to trigger a reload.
 		map.setZoom(map.getZoom() - 1);
 		map.setZoom(map.getZoom() + 1);
-	};*/
+	});
 }
 
 function setupMap() {
