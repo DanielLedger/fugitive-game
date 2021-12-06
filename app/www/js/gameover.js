@@ -1,20 +1,6 @@
 var map;
 
-var attemptingReconnect = false;
-
-var lastPing = Date.now();
-
-var fugitives = {};
-
 var playerLocations = {}; //A dict of player public IDs -> {location, accuracy, marker, accuracyCircle}
-
-var timeLeft = 0;
-var hsTime = 0; //How much of a headstart we have to sit through.
-
-var border;
-var borderLine;
-
-var infoRequester;
 
 function setupWS() {
 	gameSocket.on('LOC', (lat, lon, acc, who) => {
