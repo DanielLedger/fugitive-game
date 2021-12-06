@@ -286,7 +286,7 @@ class Game {
 		//For each player, send if their 'shouldSendTo' returns true.
 		var pl = this.players[uuid];
 		//Quick check to ensure the player is still within the borders
-		if (!isInBorder([lat, lon], acc, this.options.border)){
+		if (pl.getRole() !== roles.POSTGAME && !isInBorder([lat, lon], acc, this.options.border)){
 			this.playerOut(uuid);
 			pl.getSocket().emit('OUT');
 			return;
