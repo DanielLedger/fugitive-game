@@ -66,6 +66,26 @@ class Player {
         return this.requestedRole;
     }
 
+    shouldSendLocation(to){
+        //Spectators get live location
+        if (to.getRole() === roles.SPECTATOR || to.getRole() === roles.POSTGAME){
+            return true;
+        }
+        //Should we send our location to this person or not?
+        //For now, just ignore and simply use timings.
+        var time = Date.now()
+        var lastSent = this.lastLocationBroadcast ?? 0
+        var delta = time - lastSent
+        var gap;
+        if (this.getRole() === roles.HUNTER){
+            gap = this.game.options.hunterLocDelay
+        }
+        else if (this.getRole() === roles.FUGITIVE){
+            gap = this.game.options.fugitiveLocDelay
+        }
+        return delta >= gap
+    }
+
     addListenersToSocket(){
         var game = this.game;
         var player = this;
@@ -116,6 +136,11 @@ class Player {
         this.ws.on('OUT', (callback) => {
             game.playerOut(this.getPrivateId());
             callback();
+        });
+
+        //Player location update (not normally sent)
+        this.ws.on('LOC', (lat, lng, acc) => {
+            game.onLocation(lat, lng, acc, player.getPrivateId());
         });
 
         //Join the room given by the game code (we'll need this later)

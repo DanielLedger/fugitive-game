@@ -105,11 +105,6 @@ class Game {
 		sess.playerID = undefined;
 	}
 	
-	postLocation(uuid, str, game){
-		//Acts like this string was sent in by this person (when it was sent in via a POST request)
-		game.handleWSMessage({playerID: uuid}, {data: str}, game); //The advantages of dynamic typing.
-	}
-	
 	playerOut(id) {
 		//Mark a player as out of the game. This turns them into a spectator immediately. If there are no fugitives left, the game ends in a hunter victory (TODO).
 		//First though, send a mock location of 'null,null,null' to get the location marker removed from the map (possibly leaving behind a ghostly final marker).
@@ -345,6 +340,23 @@ class Game {
 				this.endGame();
 			}
 		}, 1000);
+	}
+
+	onLocation(lat, lon, acc, uuid){
+		//For each player, send if their 'shouldSendTo' returns true.
+		var pl = this.players[uuid];
+		for (var player of Object.values(this.players)){
+			if (player.getPrivateId() === uuid){
+				continue; //Don't send to ourselves.
+			}
+			else if (!pl.shouldSendLocation(player)){
+				continue; //Don't send to any of these people.
+			}
+			else {
+				//Send to this player.
+				player.getSocket().emit('LOC', lat, lon, acc, pl.getPublicId());
+			}
+		}
 	}
 
 	//The big method which powers a lot of the core functionailty of the game: this method controls the handling of the incoming websocket messages.

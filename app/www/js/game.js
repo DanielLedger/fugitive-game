@@ -106,6 +106,10 @@ function setupWS() {
 	gameSocket.emit('INFO', (opts) => {
 		showFromInfo(opts);
 	});
+
+	gameSocket.on('LOC', (lat, lon, acc, who) => {
+		onLocationObtained(who, lat, lon, acc);
+	});
 	return; //Can't use the stuff below anyway.
 	//Set the gameSocket to render players on the map.
 	gameSocket.addEventListener('message', (m) => {
@@ -114,19 +118,6 @@ function setupWS() {
 		if (raw.startsWith('COMPING')){
 			var pingInfo = JSON.parse(raw.split(' ')[1]);
 			showPing(pingInfo, raw.split(' ')[2]);
-		}
-
-		else {
-			//The protocol is now officially: 'user:lat,lng,acc'
-			var splitDat = raw.split(":");
-			var user = splitDat[0];
-			var infoSplit = splitDat[1].split(",");
-			if (splitDat[1] === 'null,null,null'){
-				onLocationObtained(user); //Undefined, so location itself doesn't change, just the look of the marker.
-			}
-			else {
-				onLocationObtained(user, Number(infoSplit[0]), Number(infoSplit[1]), Number(infoSplit[2]));
-			}
 		}
 	});
 	
@@ -175,7 +166,7 @@ function setupMap() {
 			onLocationObtained('self', l.latitude, l.longitude, l.accuracy);
 			if (cordova.platformId === 'browser'){
 				//We're not using BackgroundGeolocation, send it through the websocket as normal
-				gameSocket.send(`${l.latitude},${l.longitude},${l.accuracy}`);
+				gameSocket.emit('LOC', l.latitude, l.longitude, l.accuracy);
 			}
 		});
 	}
