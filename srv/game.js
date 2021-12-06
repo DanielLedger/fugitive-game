@@ -285,6 +285,7 @@ class Game {
 	onLocation(lat, lon, acc, uuid){
 		//For each player, send if their 'shouldSendTo' returns true.
 		var pl = this.players[uuid];
+		pl.setLastSeenLoc(lat, lon);
 		//Quick check to ensure the player is still within the borders
 		if (pl.getRole() !== roles.POSTGAME && !isInBorder([lat, lon], acc, this.options.border)){
 			this.playerOut(uuid);

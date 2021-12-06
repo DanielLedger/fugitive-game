@@ -66,6 +66,15 @@ class Player {
         return this.requestedRole;
     }
 
+    setLastSeenLoc(lat, lon){
+        //Will be useful to store this info for implementing dynamic timings.
+        this.lastSeen = [lat, lon];
+    }
+
+    getLastSeenLoc(){
+        return this.lastSeen ?? null;
+    }
+
     shouldSendLocation(to){
         //Spectators get live location
         if (to.getRole() === roles.SPECTATOR || to.getRole() === roles.POSTGAME){
