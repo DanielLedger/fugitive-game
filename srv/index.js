@@ -17,9 +17,6 @@ app.use(express.json());
 //We should be behind a localhost reverse proxy
 app.set('trust proxy', 'loopback');
 
-//Load and setup ExpressWS. This currently won't work with HTTPS.
-require('express-ws')(app);
-
 //Load and setup socket.io
 const { Server } = require('socket.io');
 const { createServer } = require("http");
@@ -129,29 +126,6 @@ app.post("/game/join", (req, resp) => {
 	}
 });
 
-//Websocket route: create a game socket.
-/*
-app.ws('/game', (ws, req) => {
-	//Verify code and UUID, and if so, make this session the current one.
-	var code = req.query.code;
-	var uuid = req.query.uuid;
-	if (games[code] !== undefined && games[code].transferSession(uuid, ws)){
-		//Valid uuid and code, so session has been transferred.
-		ws.send("OK");
-		//Set up ping every 30 seconds so Nginx doesn't murder us
-		ws.pinger = setInterval(() => {
-			ws.send('ping');
-		},30000);
-		ws.on('close', () => {
-			clearInterval(ws.pinger);
-		});
-	}
-	else {
-		ws.send("INVALID");
-		ws.close();
-	}
-})
-*/
 io.on('connection', (sock) => {
 	//Verify the connection.
 	var authInfo = sock.handshake.auth;

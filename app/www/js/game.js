@@ -119,34 +119,6 @@ function setupWS() {
 	gameSocket.on('LOC', (lat, lon, acc, who) => {
 		onLocationObtained(who, lat, lon, acc);
 	});
-	return; //Can't use the stuff below anyway.
-	//Set the gameSocket to render players on the map.
-	gameSocket.addEventListener('message', (m) => {
-		lastPing = Date.now();
-		var raw = m.data;
-		if (raw.startsWith('COMPING')){
-			var pingInfo = JSON.parse(raw.split(' ')[1]);
-			showPing(pingInfo, raw.split(' ')[2]);
-		}
-	});
-	
-	//Set up a message for if we drop connection.
-	gameSocket.onclose = () => {
-		var alertBox = $('#alerts')[0];
-		alertBox.innerHTML = "";
-		displayAlert(alertBox, 'warning', "Connection lost! Attempting to reconnect...");
-	};
-	
-	//Set up another message for when we regain connection.
-	gameSocket.onopen = () => {
-		var alertBox = $('#alerts')[0];
-		alertBox.innerHTML = "";
-		displayAlert(alertBox, 'success', "Connected.");
-		lastPing = Date.now(); //Connecting counts as a ping.
-		//"set" the map's zoom to the same to trigger a reload.
-		map.setZoom(map.getZoom() - 1);
-		map.setZoom(map.getZoom() + 1);
-	};
 }
 
 function setupMap() {
@@ -295,26 +267,6 @@ if (window.sessionStorage.getItem("role") === 'fugitive'){
 				window.sessionStorage.setItem('role', 'spectator');
 				document.location.reload();
 			});
-			/*
-			if (gameSocket.readyState === 1){
-				//Send the message that you're out now.
-				gameSocket.send("OUT");
-				window.setTimeout(() => {
-					window.sessionStorage.setItem('role', 'spectator');
-					document.location.reload();
-				}, 1500);
-			}
-			else {
-				//Send the message once the socket comes back.
-				gameSocket.addEventListener('open', () => {
-					gameSocket.send("OUT");
-					//Set our role to spectator and refresh.
-					window.setTimeout(() => {
-						window.sessionStorage.setItem('role', 'spectator');
-						document.location.reload();
-					}, 1500);
-				});
-			}*/
 		}
 	}
 }
