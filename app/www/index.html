@@ -34,7 +34,6 @@
         <meta name="msapplication-tap-highlight" content="no">
         <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
         <meta name="color-scheme" content="light dark">
-        <link rel="stylesheet" href="css/index.css">
         <!-- jQuery -->
         <script src="js/jquery-3.6.0.min.js"></script>
         <!-- /jQuery -->
@@ -42,14 +41,18 @@
 		<link rel="stylesheet" href="css/bootstrap.min.css">
 		<script src="js/bootstrap.bundle.min.js"></script>
 		<!-- /Bootstrap -->
+        <!-- Google Fonts -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Code+Pro">
+        <!-- /Google Fonts -->
+        <link rel="stylesheet" href="css/index.css">
         <title>Fugitive - Join or start a game</title>
     </head>
     <body>
         <div class="app">
 			<label for="serverip">Server IP</label>
-            <input id="serverip" type="text" class="form-control form-control-lg" placeholder="Server IP" value="https://localhost:8080">
+            <input id="serverip" type="text" class="textbox form-control-lg" placeholder="Server IP" value="https://localhost:8080">
 			<label for="gamecode">Game passcode</label>
-			<input id="gamecode" type="text" class="form-control" placeholder="Game passcode">
+			<input id="gamecode" type="text" class="textbox form-control-lg" placeholder="Game passcode">
 			<button id="coderegen" class="btn btn-dark">Generate code</button><br>
 			<button id="makegame" class="btn btn-lg btn-primary">Start game</button><br>
 			<button id="joingame" class="btn btn-secondary">Join game</button><br>
