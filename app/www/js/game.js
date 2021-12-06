@@ -103,6 +103,11 @@ function setupWS() {
 		document.location = 'gameover.html';
 	});
 
+	gameSocket.on('OUT', () => {
+		window.sessionStorage.setItem('role', 'spectator');
+		document.location.reload();
+	});
+
 	gameSocket.emit('INFO', (opts) => {
 		showFromInfo(opts);
 	});
