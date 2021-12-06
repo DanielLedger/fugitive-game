@@ -306,6 +306,24 @@ class Game {
 		}
 	}
 
+	onCommPing(target, from){
+		//We already know this player is a hunter, so we don't need to recheck.
+		//Simply iterate through and send the ping to all hunters.
+		for (var player of Object.values(this.players)){
+			if (player.getPrivateId() === from.getPrivateId()){
+				continue; //Don't send to ourselves.
+			}
+			else if(player.getRole() !== roles.HUNTER){
+				//Don't send hunter pings to non-hunters.
+				continue;
+			}
+			else {
+				//Send
+				player.getSocket().emit('COMPING', target, from.getPublicId());
+			}
+		}
+	}
+
 	//The big method which powers a lot of the core functionailty of the game: this method controls the handling of the incoming websocket messages.
 	handleWSMessage(sess, msg, game){
 		console.log("WS message from " + sess.playerID + ": " + msg.data);
@@ -327,6 +345,7 @@ class Game {
 					}
 				}
 			}
+			/*
 			else {
 				//This is the location feed, send it to everyone else.
 				var toSendOn = game.players[sess.playerID].getPublicId() + ":" + msg.data;
@@ -377,7 +396,7 @@ class Game {
 							} 
 					}
 				}
-			}
+			}*/
 		}
 		catch (e){
 			console.error("Message caused error: " + e);

@@ -108,6 +108,10 @@ function setupWS() {
 		document.location.reload();
 	});
 
+	gameSocket.on('COMPING', (target, from) => {
+		showPing(target, from);
+	});
+
 	gameSocket.emit('INFO', (opts) => {
 		showFromInfo(opts);
 	});
@@ -189,8 +193,11 @@ function setupMap() {
 }
 
 function sendPing(target){
-	//Target is either a lat-lon pair, a UUID or one of 'Y' or 'N'
-	gameSocket.send(`COMPING ${JSON.stringify(target)}`);
+	gameSocket.emit('COMPING', target, (accepted) => {
+		if (accepted){
+			showPing(target, 'self');
+		}
+	})
 }
 
 //Called when any player's location is obtained.

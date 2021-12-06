@@ -152,6 +152,15 @@ class Player {
             game.onLocation(lat, lng, acc, player.getPrivateId());
         });
 
+        //Hunter communication ping.
+        this.ws.on('COMPING', (target, callback) => {
+            if(player.getRole() === roles.HUNTER){
+                game.onCommPing(target, player);
+                callback(true);
+            }
+            callback(false);
+        })
+
         //Join the room given by the game code (we'll need this later)
         this.ws.join(game.code);
         console.log(this.ws.rooms);
