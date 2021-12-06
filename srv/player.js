@@ -92,7 +92,7 @@ class Player {
         else if (this.getRole() === roles.FUGITIVE){
             gap = this.game.options.fugitiveLocDelay
         }
-        return delta >= gap
+        return delta >= (gap * 1000); //gap is in seconds, delta in ms.
     }
 
     addListenersToSocket(){
