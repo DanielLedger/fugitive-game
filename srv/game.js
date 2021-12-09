@@ -18,7 +18,7 @@ class Game {
 		this.roleCounts = {}; //How many of each role are in the game.
 
 		this.gameOpen = true;
-		this.roleLimits = config.get('RoleLimits');
+
 		this.host = undefined; //Only the host can do important things like setting the boundary or starting the game.
 		this.playing = false; //We need to know if we're playing or not.
 
@@ -33,10 +33,18 @@ class Game {
 
 		//If it's a time, it's in seconds.
 		this.options = {
-			timer: 600,
-			hstimer: 30,
-			hunterLocDelay: 3, 
-			fugitiveLocDelay: 30,
+			timings: {
+				timer: 600,
+				hstimer: 30,
+				hunterLocDelay: 3, 
+				fugitiveLocDelay: 30,
+			},
+			rolecounts: {
+				fugitivelimit: true,
+				fugitive: 1,
+				hunterlimit: false,
+				hunter: 0
+			},
 			border: [
 				[50.919, -1.4151],
 				[50.932, -1.4112],
@@ -193,10 +201,12 @@ class Game {
 		shuf.shuffle(hunterReq);
 		var fugitives = [];
 		var hunters = [];
-		console.log(this.roleLimits)
+
+		var limits = this.options.rolecounts;
+
 		//Put fugitive requesters on the fugitive pile.
 		while (fugitiveReq.length > 0){
-			if (fugitives.length >= this.roleLimits.Fugitive){
+			if (fugitives.length >= (limits.fugitivelimit ? limits.fugitive : undefined)){
 				//Will this work? No clue, hopefully. If the limit is undefined, this will be false.
 				break;
 			}
@@ -205,7 +215,7 @@ class Game {
 		}
 		//Same code for the hunters.
 		while (hunterReq.length > 0){
-			if (hunters.length >= this.roleLimits.Hunter){
+			if (hunters.length >= (limits.hunterlimit ? limits.hunter : undefined)){
 				//Will this work? No clue, hopefully. If the limit is undefined, this will be false.
 				break;
 			}
@@ -218,11 +228,11 @@ class Game {
 		//Shuffle this, just in case.
 		shuf.shuffle(dontCare);
 		for (var person of dontCare){
-			if (!(fugitives.length >= this.roleLimits.Fugitive)){
+			if (!(fugitives.length >= (limits.fugitivelimit ? limits.fugitive : undefined))){
 				//Add this person as a fugitive
 				fugitives.push(person);
 			}
-			else if (!(hunters.length >= this.roleLimits.Hunter)){
+			else if (!(limits.hunterlimit ? limits.hunter : undefined)){
 				//Add this person as a hunter
 				hunters.push(person);
 			}
@@ -248,18 +258,19 @@ class Game {
 		this.state = states.PLAYING;
 		//Set up a repeating task to decrement the timer by one second, every second.
 		this.timerTask = setInterval(() => {
+			var timings = this.options.timings;
 			//Decrement the headstart timer first.
-			if (this.options.hstimer > 0){
-				this.options.hstimer--;
+			if (timings.hstimer > 0){
+				timings.hstimer--;
 			}
 			else {
-				this.options.timer--;
+				timings.timer--;
 			}
 			//To avoid spam, only send updates every 30 seconds or so (this'll probably be the minimum increment for the timer anyway at game start).
-			if ((this.options.timer + this.options.hstimer) % 30 === 0){
-				this.roomBroadcast('TIME', [this.options.timer, this.options.hstimer]);
+			if ((timings.timer + timings.hstimer) % 30 === 0){
+				this.roomBroadcast('TIME', [timings.timer, timings.hstimer]);
 			}
-			if (this.options.timer <= 0){
+			if (timings.timer <= 0){
 				//Time has expired, game ends.
 				clearInterval(this.timerTask);
 				this.endGame();

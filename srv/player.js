@@ -87,10 +87,10 @@ class Player {
         var delta = time - lastSent
         var gap;
         if (this.getRole() === roles.HUNTER){
-            gap = this.game.options.hunterLocDelay
+            gap = this.game.options.timings.hunterLocDelay
         }
         else if (this.getRole() === roles.FUGITIVE){
-            gap = this.game.options.fugitiveLocDelay
+            gap = this.game.options.timings.fugitiveLocDelay
         }
         return delta >= (gap * 1000); //gap is in seconds, delta in ms.
     }

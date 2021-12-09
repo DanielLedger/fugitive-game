@@ -70,8 +70,8 @@ function showFromInfo(gi){
 		$('#pingbuttons')[0].style = "display: none;";
 	}
 	//Set time from this as well.
-	timeLeft = gi.options.timer;
-	hsTime = gi.options.hstimer;
+	timeLeft = gi.options.timings.timer;
+	hsTime = gi.options.timings.hstimer;
 
 	if (hsTime <= 0){
 		$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
