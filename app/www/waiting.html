@@ -78,14 +78,18 @@ relation(127864);
 out;
 -->
 			</div>
-            <label for="timer">Time (seconds):</label>
-			<input id="timer" type=number></input>
-            <label for="hstimer">Fugitive headstart (seconds):</label>
-			<input id="hstimer" type=number></input>
-            <label for="fugitiveLocDelay">Fugitve location delay (seconds):</label>
-			<input id="fugitiveLocDelay" type=number></input>
-            <label for="hunterLocDelay">Hunter location delay (seconds):</label>
-			<input id="hunterLocDelay" type=number></input>
+            <div id='options'>
+                <!--
+                <label for="timer">Time (seconds):</label>
+                <input id="timer" type=number></input>
+                <label for="hstimer">Fugitive headstart (seconds):</label>
+                <input id="hstimer" type=number></input>
+                <label for="fugitiveLocDelay">Fugitve location delay (seconds):</label>
+                <input id="fugitiveLocDelay" type=number></input>
+                <label for="hunterLocDelay">Hunter location delay (seconds):</label>
+                <input id="hunterLocDelay" type=number></input>
+                -->
+            </div>
             <label for="bordersel">Border Type:</label>
             <select id="bordersel">
                 <option value="circle" selected>Circular</option>
@@ -119,6 +123,8 @@ out;
         </div>
         <script src="cordova.js"></script>
 		<script src="js/common.js"></script>
+        <script src="js/cfgmgen.js"></script>
+        <script src="js/configrenderoptions.js"></script>
         <script src="js/waiting.js"></script>
     </body>
 </html>

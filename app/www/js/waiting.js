@@ -1,5 +1,7 @@
 var options = {};
 
+var cfg;
+
 var host = false;
 
 var oldBorder;
@@ -68,6 +70,7 @@ function showGameStatus(giObj){
 }
 
 function showOptions(options){
+	/*
 	for (var key in options){
 		var elem = document.getElementById(key);
 		if (elem === null){
@@ -80,7 +83,10 @@ function showOptions(options){
 			elem.value = options[key];
 			elem.disabled = !host;
 		}
-	}
+	}*/
+	$('#options')[0].innerHTML = ""; //Wipe the element.
+	cfg = new ConfigMenu(options, CONFIG_OPTIONS);
+	cfg.display($('#options')[0]);
 	border = new Border(options.border);
 	//Set the border explicitly.
 	if (!Border.areSame(border, oldBorder)){
@@ -144,6 +150,7 @@ $('#startgame')[0].onclick = () => {
 	gameSocket.emit('STARTGAME');
 };
 
+
 //Set up the selection that changes what you see based on which border type you have enabled.
 $('#bordersel')[0].onchange = () => {
 	var bs = $('#bordersel')[0];
@@ -184,6 +191,7 @@ $('#bordersel')[0].onchange = () => {
 	}
 
 }
+
 
 function addPolyPoint(loc){
 	//Adds a polygon point.
@@ -305,9 +313,9 @@ var dat = JSON.stringify({code: code, ip: srv});
 
 //$('#sharelink')[0].value = `${window.location.protocol}//${window.location.host}#${dat}`; //Can't be bothered to make my own interchange format, so using JSON. 
 
-//Now, add listeners to all the options.
+/*
 for (var id of ['timer', 'hstimer', 'hunterLocDelay', 'fugitiveLocDelay']){
 	document.getElementById(id).oninput = (e) => {
 		updateOptions(e.target.id, false);
 	}
-}
+}*/
