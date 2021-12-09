@@ -8,6 +8,9 @@ class ConfigMenu extends EventTarget{
         //configuring is the object we're configuring, options are the object options (I'll get back to that)
         this.__conf = configuring;
         this.__opt = options;
+        //JS has no useful method of deep-cloning for some reason, at least not one supported by most browsers
+        this.__oldObj = JSON.parse(JSON.stringify(this.__conf));
+
     }
 
     display (parent){
@@ -245,6 +248,35 @@ class ConfigMenu extends EventTarget{
     //Couple of utility methods:
     getObj(){
         return this.__conf;
+    }
+
+    __oDiff(a, b){
+        //Recursively finds the difference between two objects. Since fields can only be modified, we just return an object.
+        var diff = {}
+        for (var k of Object.keys(a)){
+            if (a[k] === b[k]){
+                continue; //Don't need to worry.
+            }
+            else {
+                if (typeof(a[k]) === 'object'){
+                    var res = this.__oDiff(a[k], b[k])
+                    if (Object.keys(res).length !== 0){
+                        diff[k] = res
+                    }
+                }
+                else {
+                    diff[k] = b[k];
+                }
+            }
+        }
+        return diff;
+    }
+
+    getDiff(){
+        //Gets what has changed since the last time this method was called.
+        var diff = this.__oDiff(this.__oldObj, this.__conf);
+        this.__oldObj = JSON.parse(JSON.stringify(this.__conf));
+        return diff;
     }
 }
 
