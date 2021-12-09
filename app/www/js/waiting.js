@@ -85,7 +85,14 @@ function showOptions(options){
 		}
 	}*/
 	$('#options')[0].innerHTML = ""; //Wipe the element.
+	CONFIG_OPTIONS._goptions.disabled = !host; //If we're not host, we don't need to be able to press the buttons.
 	cfg = new ConfigMenu(options, CONFIG_OPTIONS);
+	cfg.addEventListener('change', () => {
+		//Get the diff.
+		var toSend = cfg.getDiff();
+		//Send it?
+		gameSocket.emit('OPTION', toSend);
+	})
 	cfg.display($('#options')[0]);
 	border = new Border(options.border);
 	//Set the border explicitly.
