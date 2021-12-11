@@ -25,10 +25,9 @@ body {
     -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
     -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
 	user-select: none;    
-	background-color:#E4E4E4;
-    background-image:linear-gradient(to bottom, #A7A7A7 0%, #E4E4E4 51%);
-    font-family: system-ui, -apple-system, -apple-system-font, 'Segoe UI', 'Roboto', sans-serif;
-    font-size:12px;
+	background-color: #0f0f12;
+    font-family: "Source Code Pro", monospace, system-ui, -apple-system, -apple-system-font, 'Segoe UI', 'Roboto', sans-serif;
+    font-size:36px;
     height:100vh;
     margin:0px;
     padding:0px;
@@ -36,6 +35,52 @@ body {
     padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
     text-transform:uppercase;
     width:100%;
+    color: #20ff20;
+    text-shadow: 0 0 8px #00dd00;
+}
+
+.textbox {
+    display: block;
+    width: 100%;
+    font-weight: 600;
+    box-shadow: 0 0 3px #00bb00;
+    border: 1px solid #00dd00;
+    background-color: #000;
+    color: #10dd10;
+    outline: none;
+}
+
+.btn {
+    box-shadow: 0 0 3px #00bb00;
+    border: 1px solid #00dd00;
+    background-color: #000;
+    color: #10dd10;
+    outline: none;
+}
+
+.btn-important {
+    box-shadow: 0 0 4px #00dd00;
+    border: 2px solid #00ff00;
+    font-size: 1.5rem;
+    color: #20ee20;
+    outline: none;
+}
+
+.btn-important:hover {
+    border: 3px solid #00ff00;
+    box-shadow: 0 0 8px #00ff00;
+}
+
+.btn:hover {
+    border: 2px solid #00ff00;
+    box-shadow: 0 0 7px #00ee00;
+    color: #20ff20;
+}
+
+.textbox:focus {
+    border: 2px solid #00ff00;
+    box-shadow: 0 0 7px #00ee00;
+    color: #20ff20;
 }
 
 /* Portrait layout (default) */
@@ -99,13 +144,6 @@ h1 {
 .blink {
     animation:fade 3000ms infinite;
     -webkit-animation:fade 3000ms infinite;
-}
-
-
-@media screen and (prefers-color-scheme: dark) {
-    body {
-        background-image:linear-gradient(to bottom, #585858 0%, #1B1B1B 51%);
-    }
 }
 
 #alerts {

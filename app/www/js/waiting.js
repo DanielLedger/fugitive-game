@@ -1,5 +1,7 @@
 var options = {};
 
+var cfg;
+
 var host = false;
 
 var oldBorder;
@@ -26,8 +28,7 @@ map.on('move', () => {
 	}
 });
 
-function showGameStatus(json){
-	var giObj = JSON.parse(json);
+function showGameStatus(giObj){
 	host = giObj.host;
 	//TODO: Have a nice looking bar here
 	document.getElementById("wsping").innerHTML = `<span class='h4'>Websocket last ping: </span><span class='h5'>${Date.now()}</span>`;
@@ -64,8 +65,13 @@ function showGameStatus(json){
 	}
 
 	//Go through every option in the option JSON and, if it exists, set the value of the field. In addition, set readonly on them if we're not host (also validated serverside).
-	options = giObj.options;
-	for (var key in giObj.options){
+	showOptions(giObj.options);
+	
+}
+
+function showOptions(options){
+	/*
+	for (var key in options){
 		var elem = document.getElementById(key);
 		if (elem === null){
 			continue;
@@ -74,11 +80,21 @@ function showGameStatus(json){
 			continue; //Don't edit the element the user has focussed, that's just annoying.
 		}
 		else {
-			elem.value = giObj.options[key];
-			elem.disabled = !giObj.host;
+			elem.value = options[key];
+			elem.disabled = !host;
 		}
-	}
-	border = new Border(giObj.options.border);
+	}*/
+	$('#options')[0].innerHTML = ""; //Wipe the element.
+	CONFIG_OPTIONS._goptions.disabled = !host; //If we're not host, we don't need to be able to press the buttons.
+	cfg = new ConfigMenu(options, CONFIG_OPTIONS);
+	cfg.addEventListener('change', () => {
+		//Get the diff.
+		var toSend = cfg.getDiff();
+		//Send it?
+		gameSocket.emit('OPTION', toSend);
+	})
+	cfg.display($('#options')[0]);
+	border = new Border(options.border);
 	//Set the border explicitly.
 	if (!Border.areSame(border, oldBorder)){
 		//Render the border.
@@ -94,7 +110,6 @@ function showGameStatus(json){
 		}*/
 		oldBorder = border;
 	}
-	
 }
 
 function updateOptions(opt, israw){
@@ -106,35 +121,42 @@ function updateOptions(opt, israw){
 	//Send a JSON of purely what's changed.
 	var justChange = {};
 	justChange[opt] = newVal;
-	gameSocket.send(`OPT ${JSON.stringify(justChange)}`);
+	gameSocket.emit('OPTION', justChange);
 }
 
-gameSocket.addEventListener('message', (m) => {
-	if (m.data.startsWith('INFO')){
-		var json = m.data.split(' ')[1];
-		showGameStatus(json);
-	}
-	else if (m.data === "START"){
-		//We're starting. Good luck!
-		document.location = "game.html";
-	}
+gameSocket.emit('INFO', (opts) => {
+	showGameStatus(opts);
 });
 
-window.setInterval(() => {
-	gameSocket.send("GAMEINFO");
-}, 2000);
+gameSocket.on('REFETCH', () => {
+	//Something changed, so reget the player info (not just options)
+	//TODO: Just send the info directly (which is surprisngly annoying at the moment)
+	gameSocket.emit('INFO', (opts) => {
+		showGameStatus(opts);
+	});
+});
+
+gameSocket.on('UPDATED', (newOpts) => {
+	console.debug(newOpts);
+	showOptions(newOpts);
+});
+
+gameSocket.on('START', () => {
+	document.location = 'game.html';
+});
 
 $('#lockroleselection')[0].onclick = () => {
 	//Disable the button (so it can't be clicked again
 	$('#lockroleselection')[0].disabled = true;
 	//Send the assign roles message.
-	gameSocket.send("ROLE_ASSIGN");
+	gameSocket.emit("ROLE_ASSIGN");
 };
 
 $('#startgame')[0].onclick = () => {
 	//Send the assign roles message.
-	gameSocket.send("START");
+	gameSocket.emit('STARTGAME');
 };
+
 
 //Set up the selection that changes what you see based on which border type you have enabled.
 $('#bordersel')[0].onchange = () => {
@@ -176,6 +198,7 @@ $('#bordersel')[0].onchange = () => {
 	}
 
 }
+
 
 function addPolyPoint(loc){
 	//Adds a polygon point.
@@ -231,7 +254,7 @@ function sendPolyUpdate(points){
 		border: points
 	};
 	//Send an OPT message to actually update it.
-	gameSocket.send(`OPT ${JSON.stringify(newBorderObj)}`);
+	gameSocket.emit('OPTION', newBorderObj);
 
 	//Also update lastPoly
 	lastPoly = new Border(newBorderObj.border);
@@ -245,7 +268,7 @@ function circleBorderChange(centre, rad){
 		}
 	};
 	//Send an OPT message to actually update it.
-	gameSocket.send(`OPT ${JSON.stringify(newBorderObj)}`);
+	gameSocket.emit('OPTION', newBorderObj);
 
 	//Now, update 'lastCircle' to be this.
 	lastCircle = new Border(newBorderObj.border);
@@ -297,9 +320,9 @@ var dat = JSON.stringify({code: code, ip: srv});
 
 //$('#sharelink')[0].value = `${window.location.protocol}//${window.location.host}#${dat}`; //Can't be bothered to make my own interchange format, so using JSON. 
 
-//Now, add listeners to all the options.
+/*
 for (var id of ['timer', 'hstimer', 'hunterLocDelay', 'fugitiveLocDelay']){
 	document.getElementById(id).oninput = (e) => {
 		updateOptions(e.target.id, false);
 	}
-}
+}*/

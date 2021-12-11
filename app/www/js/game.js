@@ -60,85 +60,82 @@ function showPing(target, from){
 	}
 }
 
+function showFromInfo(gi){
+	gi.fugitives.map((f) => {fugitives[f] = true}); //Hashset
+	if (fugitives[gi.publicID]){
+		//We're a fugitive too, add 'self' to the set.
+		delete fugitives[gi.publicID];
+		fugitives['self'] = true;
+		//Hide the ping buttons.
+		$('#pingbuttons')[0].style = "display: none;";
+	}
+	//Set time from this as well.
+	timeLeft = gi.options.timings.timer;
+	hsTime = gi.options.timings.hstimer;
+
+	if (hsTime <= 0){
+		$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
+	}
+	else {
+		$('#blanker')[0].style="display: block;"; //Show blanker. TODO: Show headstart timer + don't do this for spectators.
+	}
+	//Set the border
+	border = new Border(gi.options.border);
+	borderLine = border.render(borderLine, map, window.sessionStorage.getItem("role") === 'spectator'); //Only snap to the border if the player is a spectator.
+	//Stores who we are
+	us = gi.publicID;
+}
+
 function setupWS() {
-	//Set the gameSocket to render players on the map.
-	gameSocket.addEventListener('message', (m) => {
-		lastPing = Date.now();
-		var raw = m.data;
-		if (raw === 'OK'){}
-		else if (raw.startsWith('INFO')){
-			//Stop the gameinfo requester.
-			clearInterval(infoRequester);
-			var gi = JSON.parse(raw.split(' ')[1]);
-			gi.fugitives.map((f) => {fugitives[f] = true}); //Hashset
-			if (fugitives[gi.publicID]){
-				//We're a fugitive too, add 'self' to the set.
-				delete fugitives[gi.publicID];
-				fugitives['self'] = true;
-				//Hide the ping buttons.
-				$('#pingbuttons')[0].style = "display: none;";
-			}
-			//Set time from this as well.
-			timeLeft = gi.options.timer;
-			hsTime = gi.options.hstimer;
-			//Set the border
-			border = new Border(gi.options.border);
-			borderLine = border.render(borderLine, map, window.sessionStorage.getItem("role") === 'spectator'); //Only snap to the border if the player is a spectator.
-			//Stores who we are
-			us = gi.publicID;
-		}
-		else if (raw.startsWith('COMPING')){
-			var pingInfo = JSON.parse(raw.split(' ')[1]);
-			showPing(pingInfo, raw.split(' ')[2]);
-		}
-		else if (raw === 'ping'){
-		}
-		else if (raw.startsWith('TIME')){
-			var dat = raw.split(" ");
-			timeLeft = Number(dat[1]);
-			hsTime = Number(dat[2]);
-			if (hsTime <= 0){
-				$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
-			}
-			else {
-				$('#blanker')[0].style="display: block;"; //Show blanker. TODO: Show headstart timer + don't do this for spectators.
-			}
-		}
-		else if (raw.startsWith('OVER')){
-			//Go to the gameover page.
-			document.location = 'gameover.html';
+
+	gameSocket.on('TIME', (timers) => {
+		timeLeft = timers[0];
+		hsTime = timers[1];
+		if (hsTime <= 0){
+			$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
 		}
 		else {
-			//The protocol is now officially: 'user:lat,lng,acc'
-			var splitDat = raw.split(":");
-			var user = splitDat[0];
-			var infoSplit = splitDat[1].split(",");
-			if (splitDat[1] === 'null,null,null'){
-				onLocationObtained(user); //Undefined, so location itself doesn't change, just the look of the marker.
-			}
-			else {
-				onLocationObtained(user, Number(infoSplit[0]), Number(infoSplit[1]), Number(infoSplit[2]));
-			}
+			$('#blanker')[0].style="display: block;"; //Show blanker. TODO: Show headstart timer + don't do this for spectators.
 		}
+	})
+
+	gameSocket.on('OVER', () => {
+		document.location = 'gameover.html';
 	});
-	
-	//Set up a message for if we drop connection.
-	gameSocket.onclose = () => {
+
+	gameSocket.on('OUT', () => {
+		window.sessionStorage.setItem('role', 'spectator');
+		document.location.reload();
+	});
+
+	gameSocket.on('COMPING', (target, from) => {
+		showPing(target, from);
+	});
+
+	gameSocket.on('disconnect', (reason) => {
+		console.warn(`Disconnct: ${reason}`);
+		//Warn the user our connection died.
 		var alertBox = $('#alerts')[0];
 		alertBox.innerHTML = "";
-		displayAlert(alertBox, 'warning', "Connection lost! Attempting to reconnect...");
-	};
-	
-	//Set up another message for when we regain connection.
-	gameSocket.onopen = () => {
+		displayAlert(alertBox, 'warning', "Lost connection to server. Reconnecting...");
+	});
+
+	gameSocket.on('connect', () => {
 		var alertBox = $('#alerts')[0];
 		alertBox.innerHTML = "";
 		displayAlert(alertBox, 'success', "Connected.");
-		lastPing = Date.now(); //Connecting counts as a ping.
 		//"set" the map's zoom to the same to trigger a reload.
 		map.setZoom(map.getZoom() - 1);
 		map.setZoom(map.getZoom() + 1);
-	};
+	});
+
+	gameSocket.emit('INFO', (opts) => {
+		showFromInfo(opts);
+	});
+
+	gameSocket.on('LOC', (lat, lon, acc, who) => {
+		onLocationObtained(who, lat, lon, acc);
+	});
 }
 
 function setupMap() {
@@ -150,13 +147,6 @@ function setupMap() {
     	tileSize: 512,
 		zoomOffset: -1
 	}).addTo(map);
-	//Request gameinfo
-	window.setTimeout(() => {
-		infoRequester = window.setInterval(() => {
-			gameSocket.send('GAMEINFO');
-			console.debug('Sent gameinfo request.');
-		}, 3000);
-	}, 1000)
 	if (window.sessionStorage.getItem("role") !== 'spectator'){ //Don't watch spectator location.
 		//Temporary, just to try and get the damn thing to work.
 		if (cordova.platformId !== 'browser'){
@@ -174,7 +164,7 @@ function setupMap() {
 			onLocationObtained('self', l.latitude, l.longitude, l.accuracy);
 			if (cordova.platformId === 'browser'){
 				//We're not using BackgroundGeolocation, send it through the websocket as normal
-				gameSocket.send(`${l.latitude},${l.longitude},${l.accuracy}`);
+				gameSocket.emit('LOC', l.latitude, l.longitude, l.accuracy);
 			}
 		});
 	}
@@ -192,8 +182,11 @@ function setupMap() {
 }
 
 function sendPing(target){
-	//Target is either a lat-lon pair, a UUID or one of 'Y' or 'N'
-	gameSocket.send(`COMPING ${JSON.stringify(target)}`);
+	gameSocket.emit('COMPING', target, (accepted) => {
+		if (accepted){
+			showPing(target, 'self');
+		}
+	})
 }
 
 //Called when any player's location is obtained.
@@ -286,25 +279,11 @@ if (window.sessionStorage.getItem("role") === 'fugitive'){
 			//Player is out.
 			//Cancel background location task.
 			getGeolocationService().stop();
-			if (gameSocket.readyState === 1){
-				//Send the message that you're out now.
-				gameSocket.send("OUT");
-				window.setTimeout(() => {
-					window.sessionStorage.setItem('role', 'spectator');
-					document.location.reload();
-				}, 1500);
-			}
-			else {
-				//Send the message once the socket comes back.
-				gameSocket.addEventListener('open', () => {
-					gameSocket.send("OUT");
-					//Set our role to spectator and refresh.
-					window.setTimeout(() => {
-						window.sessionStorage.setItem('role', 'spectator');
-						document.location.reload();
-					}, 1500);
-				});
-			}
+
+			gameSocket.emit('OUT', () => {
+				window.sessionStorage.setItem('role', 'spectator');
+				document.location.reload();
+			});
 		}
 	}
 }

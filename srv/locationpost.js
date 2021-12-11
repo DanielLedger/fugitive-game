@@ -7,8 +7,7 @@ function init(app, games, uuidMap){
 		if (!game.playing){
 			resp.sendStatus(423);
 		}
-		var str = `${params.lat},${params.lon},${params.accuracy}`
-		game.postLocation(params.uuid, str, game);
+		game.onLocation(params.lat, params.lon, params.accuracy, params.uuid);
 		resp.sendStatus(204); //No content, but that worked.
 	});
 }

@@ -17,8 +17,20 @@ app.use(express.json());
 //We should be behind a localhost reverse proxy
 app.set('trust proxy', 'loopback');
 
-//Load and setup ExpressWS. This currently won't work with HTTPS.
-require('express-ws')(app);
+//Load and setup socket.io
+const { Server } = require('socket.io');
+const { createServer } = require("http");
+
+var httpSrv = createServer(app);
+
+const io = new Server(httpSrv, {
+	cors: {
+		origin: true,
+		credentials: true,
+		methods: ["GET", "POST"]
+	},
+	allowEIO4: true
+});
 
 //Load game class.
 const Game = require('./game').Game;
@@ -78,7 +90,7 @@ app.post("/game/start", (req, resp) => {
 	}
 	else {
 		//Create a game with this code, and reply with the user's access UUID.
-		var game = new Game(config, code, removeGame);
+		var game = new Game(config, code, removeGame, io);
 		var playerUUID = game.initSession();
 		if (playerUUID === null) { //Really shouldn't happen here, but putting this just in case.
 			resp.sendStatus(423);
@@ -114,25 +126,18 @@ app.post("/game/join", (req, resp) => {
 	}
 });
 
-//Websocket route: create a game socket.
-app.ws('/game', (ws, req) => {
-	//Verify code and UUID, and if so, make this session the current one.
-	var code = req.query.code;
-	var uuid = req.query.uuid;
-	if (games[code] !== undefined && games[code].transferSession(uuid, ws)){
-		//Valid uuid and code, so session has been transferred.
-		ws.send("OK");
-		//Set up ping every 30 seconds so Nginx doesn't murder us
-		ws.pinger = setInterval(() => {
-			ws.send('ping');
-		},30000);
-		ws.on('close', () => {
-			clearInterval(ws.pinger);
-		});
+io.on('connection', (sock) => {
+	//Verify the connection.
+	var authInfo = sock.handshake.auth;
+	//TODO: Possible (but unlikely) timing attack here, that might let you deduce valid game codes, which you could then join as normal.
+	if (games[authInfo.game] !== undefined && games[authInfo.game].transferSession(authInfo.player, sock)){
+		//OK, do nothing except log the connection.
+		console.log(`Socket connection from ${sock.handshake.address} for ID ${authInfo.game}:${authInfo.player} OK.`);
 	}
 	else {
-		ws.send("INVALID");
-		ws.close();
+		//Reject the connection.
+		sock.disconnect(true); //Bye-bye
+		console.warn(`Socket connection from ${sock.handshake.address} for ID ${authInfo.game}:${authInfo.player} REJECTED.`);
 	}
 })
 
@@ -153,20 +158,5 @@ setInterval(() => {
 	}
 }, 3000); //TODO: Massively increase delay here (but I'm impatient).
 
-if (!config.get('Server.SSL.Enabled')){
-	app.listen(port, () => {
-		console.log("Application started on port " + port + ".");
-	});	
-}
-else {
-	//Set up SSL (since SSL must be provided one way or another, there will be no insecure port).
-	const https = require('https');
-	const fs = require('fs');
-	var key = fs.readFileSync(config.get('Server.SSL.Key'));
-	var cert = fs.readFileSync(config.get('Server.SSL.Cert'));
-	
-	var srv = https.createServer({key: key, cert: cert, ciphers: "DEFAULT:!SSLv2:!RC4:!EXPORT:!LOW:!MEDIUM:!SHA1"}, app);
-	srv.listen(port, () => {
-		console.log("HTTPS application started on port " + port + ".");
-	});	
-}
+//Nobody used the https and it was broken anyway, so ignore.
+httpSrv.listen(port);

@@ -17,16 +17,24 @@ function getWS(){
 		document.location = "index.html";
 	}
 	
-	//Try and make a websocket connection.
-	var wsIP = serverIP.replace(/https?/, "wss"); //Replace http or https with ws (because it's a wesocket).
-	gameSocket = new ReconnectingWebSocket(`${wsIP}/game?code=${code}&uuid=${uuid}`);
-	gameSocket.addEventListener('message', (e) => {
-		console.debug("Got WS message: " + e.data);
-		if (e.data === "INVALID"){
-			//Something is wrong
+	//Try and make a socket.io connection.
+	gameSocket = io(serverIP, {
+		auth: {
+			game: code,
+			player: uuid
+		},
+		autoConnect: false
+	});
+
+	gameSocket.on('disconnect', (reason) => {
+		console.warn(`Disconnct: ${reason}`);
+		if (reason === "io server disconnect"){
+			//We got server disconnected, don't reconnect and redirect to index.
 			document.location = "index.html";
 		}
 	});
+
+	gameSocket.connect();
 }
 
 getWS();

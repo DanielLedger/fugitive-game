@@ -1,58 +1,28 @@
 var map;
 
-var attemptingReconnect = false;
-
-var lastPing = Date.now();
-
-var fugitives = {};
-
 var playerLocations = {}; //A dict of player public IDs -> {location, accuracy, marker, accuracyCircle}
 
-var timeLeft = 0;
-var hsTime = 0; //How much of a headstart we have to sit through.
-
-var border;
-var borderLine;
-
-var infoRequester;
-
 function setupWS() {
-	//Set the gameSocket to render players on the map.
-	gameSocket.addEventListener('message', (m) => {
-		lastPing = Date.now();
-		var raw = m.data;
-		if (raw === 'OK'){}
-		else {
-			//The protocol is now officially: 'user:lat,lng,acc'
-			var splitDat = raw.split(":");
-			var user = splitDat[0];
-			var infoSplit = splitDat[1].split(",");
-			if (splitDat[1] === 'null,null,null'){
-				onLocationObtained(user); //Undefined, so location itself doesn't change, just the look of the marker.
-			}
-			else {
-				onLocationObtained(user, Number(infoSplit[0]), Number(infoSplit[1]), Number(infoSplit[2]));
-			}
-		}
+	gameSocket.on('LOC', (lat, lon, acc, who) => {
+		onLocationObtained(who, lat, lon, acc);
 	});
 	
-	//Set up a message for if we drop connection.
-	gameSocket.onclose = () => {
+	gameSocket.on('disconnect', (reason) => {
+		console.warn(`Disconnct: ${reason}`);
+		//Warn the user our connection died.
 		var alertBox = $('#alerts')[0];
 		alertBox.innerHTML = "";
-		displayAlert(alertBox, 'warning', "Connection lost! Attempting to reconnect...");
-	};
-	
-	//Set up another message for when we regain connection.
-	gameSocket.onopen = () => {
+		displayAlert(alertBox, 'warning', "Lost connection to server. Reconnecting...");
+	});
+
+	gameSocket.on('connect', () => {
 		var alertBox = $('#alerts')[0];
 		alertBox.innerHTML = "";
 		displayAlert(alertBox, 'success', "Connected.");
-		lastPing = Date.now(); //Connecting counts as a ping.
 		//"set" the map's zoom to the same to trigger a reload.
 		map.setZoom(map.getZoom() - 1);
 		map.setZoom(map.getZoom() + 1);
-	};
+	});
 }
 
 function setupMap() {
@@ -64,13 +34,6 @@ function setupMap() {
     	tileSize: 512,
 		zoomOffset: -1
 	}).addTo(map);
-	//Request gameinfo
-	window.setTimeout(() => {
-		infoRequester = window.setInterval(() => {
-			gameSocket.send('GAMEINFO');
-			console.debug('Sent gameinfo request.');
-		}, 3000);
-	}, 1000)
     //Temporary, just to try and get the damn thing to work.
     if (cordova.platformId !== 'browser'){
         BackgroundGeolocation.configure({

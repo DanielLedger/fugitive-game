@@ -1,11 +1,13 @@
 {
   "name": "me.DanL.FugitiveApp",
   "displayName": "FugitiveApp",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A sample Apache Cordova application that responds to the deviceready event.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "update-cfgmgen": "wget -O www/js/cfgmgen.js https://raw.githubusercontent.com/DanielLedger/ConfigMenuGenerator/master/cfgmgen.js",
+    "update": "npm run update-cfgmgen && npm install"
   },
   "keywords": [
     "ecosystem:cordova"
