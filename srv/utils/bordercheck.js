@@ -27,7 +27,7 @@ function isInBorder(centre, radius, border){
             //For each number
             var p1 = border[i];
             var p2 = border[(i+1) % border.length];
-            if (this.doesLineIntersect(p1, p2, centre[1], centre[0])){
+            if (doesLineIntersect(p1, p2, centre[1], centre[0])){
                 crosses++;
             }
         }
