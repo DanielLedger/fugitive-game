@@ -50,6 +50,33 @@ body {
     outline: none;
 }
 
+.btn {
+    box-shadow: 0 0 3px #00bb00;
+    border: 1px solid #00dd00;
+    background-color: #000;
+    color: #10dd10;
+    outline: none;
+}
+
+.btn-important {
+    box-shadow: 0 0 4px #00dd00;
+    border: 2px solid #00ff00;
+    font-size: 1.5rem;
+    color: #20ee20;
+    outline: none;
+}
+
+.btn-important:hover {
+    border: 3px solid #00ff00;
+    box-shadow: 0 0 8px #00ff00;
+}
+
+.btn:hover {
+    border: 2px solid #00ff00;
+    box-shadow: 0 0 7px #00ee00;
+    color: #20ff20;
+}
+
 .textbox:focus {
     border: 2px solid #00ff00;
     box-shadow: 0 0 7px #00ee00;
