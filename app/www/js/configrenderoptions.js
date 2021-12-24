@@ -39,5 +39,26 @@ var CONFIG_OPTIONS = {
     },
     rolecounts_hunter_options: {
         displayName: "Max hunters"
+    },
+    escapes_goptions: {
+        displayName: "Escape"
+    },
+    escapes_escapeWindow_options: {
+        displayName: "Escape window",
+        min: 30,
+        max: 7200,
+        step: 30
+    },
+    escapes_revealedFugitive_options: {
+        displayName: "Fugitive advance escape reveal",
+        min: 0,
+        max: 7200,
+        step: 30
+    },
+    escapes_revealedHunter_options: {
+        displayName: "Hunter advance escape reveal",
+        min: 0,
+        max: 7200,
+        step: 30
     }
 };

@@ -8,7 +8,7 @@ const { Player } = require('./player');
 const { HelicopterEscape } = require('./utils/extractpointchoice/helicopter');
 
 const EVAC_OPTS = {
-	'helicopter': new HelicopterEscape()
+	Helicopter: new HelicopterEscape()
 };
 
 class Game {
@@ -51,7 +51,10 @@ class Game {
 				hunter: 0
 			},
 			escapes: {
-				helicopter: true
+				Helicopter: true,
+				escapeWindow: 300,
+				revealedFugitive: 300,
+				revealedHunter: 0
 			},
 			border: [
 				[50.919, -1.4151],
@@ -155,13 +158,28 @@ class Game {
 		}
 	}
 
-	updateOptions(changed){
-		for (var key of Object.keys(changed)){
-			if (this.options[key] !== undefined && typeof this.options[key] === typeof changed[key]){
+	__safeMerge(o1, o2){
+		//Merges o2 into o1, but only updates a key in o1 if it already exists (it won't add new keys)
+		for (var key of Object.keys(o2)){
+			if (key === 'border'){
+				//This exemption is required.
+				o1[key] = o2[key];
+			}
+			else if (o1[key] !== undefined && typeof o1[key] === typeof o2[key]){
 				//Don't allow additional options to be set, unless they exist already and are the correct type.
-				this.options[key] = changed[key];
+				if (typeof o1[key] === 'object'){
+					//Recursively merge
+					this.__safeMerge(o1[key], o2[key]);
+				}
+				else {
+					o1[key] = o2[key];
+				}
 			}
 		}
+	}
+
+	updateOptions(changed){
+		this.__safeMerge(this.options, changed);
 	}
 
 	setPlayerRole(player, role){
