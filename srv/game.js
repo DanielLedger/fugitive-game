@@ -5,6 +5,11 @@ const shuf = require('./utils/shuffle');
 const { isInBorder } = require('./utils/bordercheck');
 const { states, roles } = require('./utils/enums');
 const { Player } = require('./player');
+const { HelicopterEscape } = require('./utils/extractpointchoice/helicopter');
+
+const EVAC_OPTS = {
+	'helicopter': new HelicopterEscape()
+};
 
 class Game {
 	
@@ -44,6 +49,9 @@ class Game {
 				fugitive: 1,
 				hunterlimit: false,
 				hunter: 0
+			},
+			escapes: {
+				helicopter: true
 			},
 			border: [
 				[50.919, -1.4151],

@@ -55,4 +55,20 @@ function doesLineIntersect(llMin, llMax, lonTest, latitudeBase){
     }
 }
 
+function getBBox(border){
+    //Gets the smallest rectangle which fully contains the border. Returns a list [south,west,north,east] (for OSM compatibility)
+    if (border.centre !== undefined){
+        //Circular border, use the radius to calculate the border.
+        //Once again, I forgot that the radius is in metres but the co-ordinates are lat-lon. 
+        var cent = border.centre;
+        var rad = border.radius;
+        return [cent[0] - rad, cent[1] - rad, cent[0] + rad, cent[1] + rad];
+    }
+    else {
+        //Reduce over our points list. Thanks haskell for this programming style.
+        return border.reduce((running, point) => [Math.min(running[0], point[0]), Math.min(running[1], point[1]), Math.max(running[2], point[0]), Math.max(running[3], point[1])], [999999, 999999, -999999, -999999]);
+    }
+}
+
 module.exports.isInBorder = isInBorder;
+module.exports.getBBox = getBBox;
