@@ -1,7 +1,5 @@
 const { PointProvider } = require('./pointprovider');
 
-const { isInBorder, getBBox } = require('../bordercheck');
-
 const { shuffle } = require('../shuffle');
 const { cachedQuery } = require('./getpoint');
 
