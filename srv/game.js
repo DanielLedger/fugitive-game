@@ -11,6 +11,8 @@ const EVAC_OPTS = {
 	Helicopter: new HelicopterEscape()
 };
 
+const EVAC_MAX_TRIES = 5;
+
 class Game {
 	
 	constructor(config, code, rmg, ioRef){
@@ -36,6 +38,8 @@ class Game {
 		//When we got our last websocket message.
 		this.lastWSMsg = Date.now();
 
+		this.evacPoint = undefined;
+
 		//If it's a time, it's in seconds.
 		this.options = {
 			timings: {
@@ -53,6 +57,7 @@ class Game {
 			escapes: {
 				Helicopter: true,
 				escapeWindow: 300,
+				escapeRadius: 10,
 				revealedFugitive: 300,
 				revealedHunter: 0
 			},
@@ -278,10 +283,40 @@ class Game {
 		this.gameOpen = false;
 	}
 
+	async chooseEvac(){
+		//Choose a random evac point for this game.
+		var methods = Object.keys(EVAC_OPTS).filter((eType) => this.options.escapes[eType]);
+		console.log(methods);
+		if (methods.length === 0){
+			//Can't get a point.
+			return null;
+		}
+		for (var i = 0; i < EVAC_MAX_TRIES; i++){
+			var method = methods[Math.floor(Math.random() * methods.length)];
+			var resp = await EVAC_OPTS[method].getEscape(this.options.border);
+			if (resp !== null){
+				//Worked.
+				return resp;
+			}
+		}
+		return null; //Gave up.
+	}
+
+	async getEvacPoint(){
+		if (this.evacPoint === undefined){
+			//Set and return the promise.
+			this.evacPoint = this.chooseEvac();
+		}
+		return this.evacPoint; //If the promise resolved ages ago, the value can just be fetched.
+	}
+
 	startGame(){
 		this.playing = true; //We're now officially starting.
 		this.roomBroadcast('START');
 		this.state = states.PLAYING;
+		//Generate the evac point.
+		console.log("Generating evac point...");
+		this.getEvacPoint().then((p) => console.log("Done generating evac point.")); //We just ignore the long-running element of this.
 		//Set up a repeating task to decrement the timer by one second, every second.
 		this.timerTask = setInterval(() => {
 			var timings = this.options.timings;
@@ -295,6 +330,23 @@ class Game {
 			//To avoid spam, only send updates every 30 seconds or so (this'll probably be the minimum increment for the timer anyway at game start).
 			if ((timings.timer + timings.hstimer) % 30 === 0){
 				this.roomBroadcast('TIME', [timings.timer, timings.hstimer]);
+			}
+			if (timings.timer <= this.options.escapes.revealedFugitive && timings.timer % 30 === 0){
+				//Send the ping to all fugitives, telling them where the escape is.
+				console.log(this.getEvacPoint());
+				this.getEvacPoint().then((pt) => {
+					Object.values(this.players).filter((p) => p.getRole() === roles.FUGITIVE).forEach((pl) => {
+						pl.getSocket().emit('EVAC', pt, this.options.escapes.escapeRadius);
+					})
+				});
+			}
+			if (timings.timer <= this.options.escapes.revealedHunter && timings.timer % 30 === 0){
+				//Send the ping to all fugitives, telling them where the escape is.
+				this.getEvacPoint().then((pt) => {
+					Object.values(this.players).filter((p) => p.getRole() === roles.HUNTER).forEach((pl) => {
+						pl.getSocket().emit('EVAC', pt);
+					});
+				});
 			}
 			if (timings.timer <= 0){
 				//Time has expired, game ends.

@@ -49,6 +49,12 @@ var CONFIG_OPTIONS = {
         max: 7200,
         step: 30
     },
+    escapes_escapeRadius_options: {
+        displayName: "Escape radius",
+        min: 10,
+        max: 100,
+        step: 1
+    },
     escapes_revealedFugitive_options: {
         displayName: "Fugitive advance escape reveal",
         min: 0,

@@ -16,6 +16,9 @@ var hsTime = 0; //How much of a headstart we have to sit through.
 var border;
 var borderLine;
 
+var escapeRad;
+var escapeMarker;
+
 var infoRequester;
 
 function calculateTimeRep(seconds){
@@ -135,6 +138,18 @@ function setupWS() {
 
 	gameSocket.on('LOC', (lat, lon, acc, who) => {
 		onLocationObtained(who, lat, lon, acc);
+	});
+
+	gameSocket.on('EVAC', (pt, rad) => {
+		if (escapeMarker !== undefined){
+			//Ignore, we already have it marked.
+			return;
+		}
+		//Show our player where the evacuation point is.
+		var escLat = pt.geometry.coordinates[1];
+		var escLon = pt.geometry.coordinates[0];
+		escapeMarker = L.marker([escLat, escLon]).addTo(map);
+		escapeRad = L.circle([escLat, escLon], {radius: rad, opacity: 0.4, color: '#00ff00'}).addTo(map);
 	});
 }
 
