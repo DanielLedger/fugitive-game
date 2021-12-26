@@ -344,11 +344,11 @@ class Game {
 				//Send the ping to all fugitives, telling them where the escape is.
 				this.getEvacPoint().then((pt) => {
 					Object.values(this.players).filter((p) => p.getRole() === roles.HUNTER).forEach((pl) => {
-						pl.getSocket().emit('EVAC', pt);
+						pl.getSocket().emit('EVAC', pt, this.options.escapes.escapeRadius);
 					});
 				});
 			}
-			if (timings.timer <= 0){
+			if (timings.timer <= -this.options.escapes.escapeWindow){
 				//Time has expired, game ends.
 				clearInterval(this.timerTask);
 				this.endGame();
