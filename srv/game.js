@@ -310,6 +310,17 @@ class Game {
 		return this.evacPoint; //If the promise resolved ages ago, the value can just be fetched.
 	}
 
+	async hasEscaped(lat, lon){
+		if (this.options.timings.timer > 0){
+			//Escape not open.
+			return false;
+		}
+		var point = await this.getEvacPoint();
+		var escOrdsReverse = point.geometry.coordinates; //For reasons I'm not sure of, these are reversed.
+		var escBorder = {centre: [escOrdsReverse[1], escOrdsReverse[0]], radius: this.options.escapes.escapeRadius};
+		return isInBorder([lat, lon], 0, escBorder);
+	}
+
 	startGame(){
 		this.playing = true; //We're now officially starting.
 		this.roomBroadcast('START');
@@ -341,7 +352,7 @@ class Game {
 				});
 			}
 			if (timings.timer <= this.options.escapes.revealedHunter && timings.timer % 30 === 0){
-				//Send the ping to all fugitives, telling them where the escape is.
+				//Send the ping to all hunters, telling them where the escape is.
 				this.getEvacPoint().then((pt) => {
 					Object.values(this.players).filter((p) => p.getRole() === roles.HUNTER).forEach((pl) => {
 						pl.getSocket().emit('EVAC', pt, this.options.escapes.escapeRadius);
@@ -362,9 +373,23 @@ class Game {
 		pl.setLastSeenLoc(lat, lon);
 		//Quick check to ensure the player is still within the borders
 		if (pl.getRole() !== roles.POSTGAME && !isInBorder([lat, lon], acc, this.options.border)){
+			//Mark this player as having failed.
+			pl.setHasWon(false, "Went outside border.");
 			this.playerOut(uuid);
 			pl.getSocket().emit('OUT');
 			return;
+		}
+		if (pl.getRole() === roles.FUGITIVE){
+			this.hasEscaped(lat, lon).then((e) => {
+				if (e){
+					console.log(`${pl.getPrivateId()} has escaped.`);
+					//Player has escaped.
+					pl.setHasWon(true, "Escaped.");
+					//I guess they're technically out?
+					this.playerOut(pl.getPrivateId());
+					pl.getSocket().emit('OUT');
+				}
+			});
 		}
 		for (var player of Object.values(this.players)){
 			if (player.getPrivateId() === uuid){
