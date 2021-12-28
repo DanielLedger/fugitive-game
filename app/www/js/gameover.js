@@ -50,7 +50,7 @@ function setupMap() {
         onLocationObtained('self', l.latitude, l.longitude, l.accuracy);
         if (cordova.platformId === 'browser'){
             //We're not using BackgroundGeolocation, send it through the websocket as normal
-            gameSocket.send(`${l.latitude},${l.longitude},${l.accuracy}`);
+            gameSocket.emit('LOC', l.latitude, l.longitude, l.accuracy);
         }
     });
 	setupWS();
