@@ -371,8 +371,8 @@ class Game {
 		//For each player, send if their 'shouldSendTo' returns true.
 		var pl = this.players[uuid];
 		pl.setLastSeenLoc(lat, lon);
-		//Quick check to ensure the player is still within the borders
-		if (pl.getRole() !== roles.POSTGAME && !isInBorder([lat, lon], acc, this.options.border)){
+		//Quick check to ensure the player is still within the borders. Don't enforce if accuracy is too stupidly low however.
+		if (pl.getRole() !== roles.POSTGAME && acc < 100 && !isInBorder([lat, lon], acc, this.options.border)){
 			//Mark this player as having failed.
 			pl.setHasWon(false, "Went outside border.");
 			this.playerOut(uuid);
