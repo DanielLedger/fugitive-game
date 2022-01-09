@@ -15,9 +15,8 @@
   "author": "Apache Cordova Team",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@mauron85/cordova-plugin-background-geolocation": "^3.1.0",
     "cordova-android": "^9.1.0",
-    "cordova-background-geolocation-plugin": "^1.1.0",
+    "cordova-background-geolocation-plugin": "^2.0.1",
     "cordova-browser": "^6.0.0",
     "cordova-plugin-android-permissions": "^1.1.2",
     "cordova-plugin-geolocation": "^4.1.0",
@@ -32,20 +31,19 @@
       "cordova-plugin-geolocation": {
         "GPS_REQUIRED": "true"
       },
+      "cordova-plugin-android-permissions": {},
+      "cordova-plugin-qrcodejs": {},
+      "cordova-plugin-qrscanner": {},
+      "cordova-plugin-vibration": {},
       "cordova-background-geolocation-plugin": {
         "GOOGLE_PLAY_SERVICES_VERSION": "11+",
-        "ANDROID_SUPPORT_LIBRARY_VERSION": "26+",
         "ICON": "@mipmap/ic_launcher",
         "SMALL_ICON": "@mipmap/ic_launcher",
         "ACCOUNT_NAME": "@string/app_name",
         "ACCOUNT_LABEL": "@string/app_name",
         "ACCOUNT_TYPE": "$PACKAGE_NAME.account",
         "CONTENT_AUTHORITY": "$PACKAGE_NAME"
-      },
-      "cordova-plugin-android-permissions": {},
-      "cordova-plugin-qrcodejs": {},
-      "cordova-plugin-qrscanner": {},
-      "cordova-plugin-vibration": {}
+      }
     },
     "platforms": [
       "browser",
