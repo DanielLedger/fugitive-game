@@ -14,6 +14,9 @@ class Player {
         if (socket !== null){
             this.addListenersToSocket();
         }
+
+        this.win = false;
+        this.winReason = null;
     }
 
     getPublicId(){
@@ -95,6 +98,16 @@ class Player {
         return delta >= (gap * 1000); //gap is in seconds, delta in ms.
     }
 
+    setHasWon(winner, reason){
+        //Sets if this player has won the game or not.
+        this.win = winner;
+        this.winReason = reason;
+    }
+
+    alreadyWon(){
+        return this.win;
+    }
+
     addListenersToSocket(){
         var game = this.game;
         var player = this;
@@ -143,6 +156,8 @@ class Player {
 
         //Player is out.
         this.ws.on('OUT', (callback) => {
+            //Muffin
+            this.setHasWon(false, "Got caught");
             game.playerOut(this.getPrivateId());
             callback();
         });
@@ -154,11 +169,15 @@ class Player {
 
         //Hunter communication ping.
         this.ws.on('COMPING', (target, callback) => {
-            if(player.getRole() === roles.HUNTER){
+            if (player.getRole() === roles.HUNTER){
                 game.onCommPing(target, player);
                 callback(true);
             }
             callback(false);
+        })
+
+        this.ws.on('HAS_WON', (callback) => {
+            callback(this.win, this.winReason);
         })
 
         //Join the room given by the game code (we'll need this later)

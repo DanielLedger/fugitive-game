@@ -28,6 +28,7 @@ async function osmQueryPromise(query, opt){
 }
 
 async function cachedQuery(query){
+    console.debug(`Running OSM overpass query ${query}`);
     if (areaQueryCache[query] === undefined){
         //We need to get the response.
         var resp = await osmQueryPromise(query, options);
@@ -36,7 +37,7 @@ async function cachedQuery(query){
     return areaQueryCache[query];
 }
 
-cachedQuery('[out:json][timeout:25];(node["amenity"="drinking_water"](50.8871,-1.4867,50.9580,-1.2834););out body;>;out skel qt;').then(console.log, console.log);
+//cachedQuery('[out:json][timeout:25];(node["amenity"="drinking_water"](50.8871,-1.4867,50.9580,-1.2834););out body;>;out skel qt;').then(console.log, console.log);
 //Test query
 /*
 [out:json][timeout:25];
@@ -49,3 +50,5 @@ cachedQuery('[out:json][timeout:25];(node["amenity"="drinking_water"](50.8871,-1
 out body;
 >;
 out skel qt;*/
+
+module.exports.cachedQuery = cachedQuery;
