@@ -168,7 +168,7 @@ function setupMap() {
 	L.tileLayer(serverIP + "/tile?x={x}&y={y}&z={z}", {
 		//Standard settings for mapbox (which we're using for the forseeable future).
 		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-    	maxZoom: 18,
+    	maxZoom: 20,
     	tileSize: 512,
 		zoomOffset: -1
 	}).addTo(map);
