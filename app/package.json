@@ -7,7 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "update-cfgmgen": "wget -O www/js/cfgmgen.js https://raw.githubusercontent.com/DanielLedger/ConfigMenuGenerator/master/cfgmgen.js",
-    "update": "npm run update-cfgmgen && npm install",
+    "update": "npm run update-cfgmgen && npm install && npm run patch-blp",
     "patch-blp": "cd ./platforms/android/app/src/main/java/com/marianhello/bgloc/provider; sed 's/locationManager.getBestProvider(criteria, true)/\"gps\"/g' RawLocationProvider.java > RawLocationProvider2.java; mv RawLocationProvider2.java RawLocationProvider.java"
   },
   "keywords": [
@@ -16,33 +16,20 @@
   "author": "Apache Cordova Team",
   "license": "Apache-2.0",
   "devDependencies": {
-    "cordova-android": "^9.1.0",
+    "cordova-android": "^10.1.1",
     "cordova-browser": "^6.0.0",
     "cordova-plugin-android-permissions": "^1.1.2",
-    "cordova-plugin-background-geolocation": "^1.0.6",
-    "cordova-plugin-dialogs": "^2.0.2",
-    "cordova-plugin-geolocation": "^4.1.0",
     "cordova-plugin-whitelist": "^1.3.4"
   },
   "cordova": {
     "plugins": {
       "cordova-plugin-whitelist": {},
-      "cordova-background-geolocation-plugin": {
-        "GOOGLE_PLAY_SERVICES_VERSION": "11+",
-        "ANDROID_SUPPORT_LIBRARY_VERSION": "26+",
-        "ICON": "@mipmap/ic_launcher",
-        "SMALL_ICON": "@mipmap/ic_launcher",
-        "ACCOUNT_NAME": "@string/app_name",
-        "ACCOUNT_LABEL": "@string/app_name",
-        "ACCOUNT_TYPE": "$PACKAGE_NAME.account",
-        "CONTENT_AUTHORITY": "$PACKAGE_NAME"
-      },
-      "cordova-plugin-android-permissions": {},
-      "cordova-plugin-background-geolocation": {}
+      "cordova-background-geolocation-plugin": {},
+      "cordova-plugin-android-permissions": {}
     },
     "platforms": [
-      "android",
-      "browser"
+      "browser",
+      "android"
     ]
   },
   "dependencies": {
