@@ -23,6 +23,17 @@ function setupWS() {
 		map.setZoom(map.getZoom() - 1);
 		map.setZoom(map.getZoom() + 1);
 	});
+
+	//Ask the server why we're here (socket.io will wait until we've connected to send this)
+	gameSocket.emit('HAS_WON', (winner, reason) => {
+		if (winner){
+			$('#haswon')[0].innerText = 'You won!';
+		}
+		else {
+			$('#haswon')[0].innerText = 'You lost!';
+		}
+		$('#reason')[0].innerText = reason;
+	});
 }
 
 function setupMap() {
@@ -50,7 +61,7 @@ function setupMap() {
         onLocationObtained('self', l.latitude, l.longitude, l.accuracy);
         if (cordova.platformId === 'browser'){
             //We're not using BackgroundGeolocation, send it through the websocket as normal
-            gameSocket.send(`${l.latitude},${l.longitude},${l.accuracy}`);
+            gameSocket.emit('LOC', l.latitude, l.longitude, l.accuracy);
         }
     });
 	setupWS();

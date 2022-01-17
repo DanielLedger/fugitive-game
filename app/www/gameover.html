@@ -45,16 +45,26 @@
 		<link rel="stylesheet" href="css/leaflet.css">
 		<script src="js/leaflet.js"></script>
 		<!-- /Leaflet -->
-        <link rel="stylesheet" href="css/game.css">
         <link rel="stylesheet" href="css/index.css">
+        <link rel="stylesheet" href="css/game.css">
         <script src="js/socket.io.js"></script>
 		<script src="js/checkserver.js"></script>
 		<script src="js/location.js"></script>
         <title>Fugitive - Game over</title>
+        <style>
+            #map {
+                left: 2.5%;
+                top: 40%;
+                width: 95%;
+                height: 55vh; /*Can't be a percentage because otherwise it decides 90% of screen height is 0 and breaks on mobile*/
+            }
+        </style>
     </head>
     <body>
         <div class="app">
-			<h1>Game over xD</h1>
+			<h1>Game over</h1>
+            <h2 id="haswon">-Waiting-</h2>
+            <h2 id="reason">-Waiting-</h2>
             <button class="btn btn-danger" style="display: block; position: relative; z-index: 100" id="restart">Play Again</button>
         </div>
         <div id="map"></div>

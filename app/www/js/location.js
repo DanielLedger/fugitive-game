@@ -2,12 +2,14 @@ const Geolocation = {};
 
 function getGeolocationService(){
 	//Gets the geolocation service which will either use BackgroundGeolocation (if available) or navigator.geolocation
+	console.log("Getting geolocation service...")
 	if (cordova.platformId !== 'browser') { //I'm very, very unlikely to support Electron.
+		console.log("Getting Background Geolocation service.")
 		//We have the ability to use background geolocation.
 		Geolocation.watch = (timeDelay, callback) => {
 			//Check we can actually use location.
 			var permissions = cordova.plugins.permissions;
-			var permsRequired = [permissions.ACCESS_FINE_LOCATION];
+			var permsRequired = [permissions.ACCESS_FINE_LOCATION, permissions.ACCESS_COARSE_LOCATION, permissions.ACCESS_BACKGROUND_LOCATION];
 			permissions.requestPermissions(permsRequired, () => {
 					//Setup the configuration.
 				BackgroundGeolocation.configure({
@@ -29,11 +31,11 @@ function getGeolocationService(){
 	    			console.log('[INFO] BackgroundGeolocation authorization status: ' + status);
 	    			if (status !== BackgroundGeolocation.AUTHORIZED) {
 	     			// we need to set delay or otherwise alert may not be shown
-	      			setTimeout(function() {
-	        			var showSettings = confirm('App requires location tracking permission. Would you like to open app settings?');
-	        			if (showSettings) {
-	          				return BackgroundGeolocation.showAppSettings();
-	        			}
+						setTimeout(function() {
+							var showSettings = confirm('App requires location tracking permission. Would you like to open app settings?');
+							if (showSettings) {
+								return BackgroundGeolocation.showAppSettings();
+							}
 	      				}, 1000);
 	    			}
 	  			});
@@ -52,7 +54,9 @@ function getGeolocationService(){
 					BackgroundGeolocation.stop();
 				};
 			},
-			() => {});
+			() => {
+				console.error("Location permission grant failed.");
+			});
 		}
 	}
 	else if (window.navigator !== undefined){

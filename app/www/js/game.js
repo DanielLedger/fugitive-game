@@ -10,11 +10,19 @@ var us;
 
 var playerLocations = {}; //A dict of player public IDs -> {location, accuracy, marker, accuracyCircle}
 
-var timeLeft = 0;
+
 var hsTime = 0; //How much of a headstart we have to sit through.
+var escapeReveal = 0; //Time until the escape is revealed.
+var escapeOpen = 0; //Time until the escape opens.
+var escapeClose = 0; //Time until the escape closes.
+
+var timer = 0;
 
 var border;
 var borderLine;
+
+var escapeRad;
+var escapeMarker;
 
 var infoRequester;
 
@@ -70,8 +78,13 @@ function showFromInfo(gi){
 		$('#pingbuttons')[0].style = "display: none;";
 	}
 	//Set time from this as well.
-	timeLeft = gi.options.timings.timer;
+	escapeOpen = gi.options.timings.timer;
 	hsTime = gi.options.timings.hstimer;
+	escapeClose = -gi.options.escapes.escapeWindow;
+	escapeReveal = fugitives['self'] ? gi.options.escapes.revealedFugitive : gi.options.escapes.revealedHunter;
+
+	//The single timer which we decrement throughout the course of the game.
+	timer = escapeOpen + hsTime;
 
 	if (hsTime <= 0){
 		$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
@@ -89,9 +102,9 @@ function showFromInfo(gi){
 function setupWS() {
 
 	gameSocket.on('TIME', (timers) => {
-		timeLeft = timers[0];
-		hsTime = timers[1];
-		if (hsTime <= 0){
+		timer = timers[0] + timers[1];
+		//hsTime = timers[1];
+		if (timer <= escapeOpen){
 			$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
 		}
 		else {
@@ -136,6 +149,18 @@ function setupWS() {
 	gameSocket.on('LOC', (lat, lon, acc, who) => {
 		onLocationObtained(who, lat, lon, acc);
 	});
+
+	gameSocket.on('EVAC', (pt, rad) => {
+		if (escapeMarker !== undefined){
+			//Ignore, we already have it marked.
+			return;
+		}
+		//Show our player where the evacuation point is.
+		var escLat = pt.geometry.coordinates[1];
+		var escLon = pt.geometry.coordinates[0];
+		escapeMarker = L.marker([escLat, escLon]).addTo(map);
+		escapeRad = L.circle([escLat, escLon], {radius: rad, opacity: 0.4, color: '#00ff00'}).addTo(map);
+	});
 }
 
 function setupMap() {
@@ -143,7 +168,7 @@ function setupMap() {
 	L.tileLayer(serverIP + "/tile?x={x}&y={y}&z={z}", {
 		//Standard settings for mapbox (which we're using for the forseeable future).
 		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-    	maxZoom: 18,
+    	maxZoom: 20,
     	tileSize: 512,
 		zoomOffset: -1
 	}).addTo(map);
@@ -250,26 +275,27 @@ window.setTimeout(setupMap, 200); //Set a small timeout to allow everything to l
 
 //Set a timer decrementer.
 window.setInterval(() => {
-	//If we're at t<=0, do nothing
-	if (timeLeft <= 0){
+	timer--; //Decrement the timer
+	//Escape just closed, do nothing.
+	if (timer <= escapeClose){
 		return;
 	}
-	if (hsTime > 0){
-		//Decrement headstart timer first.
-		hsTime--;
-		if (hsTime <= 0){
-			$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
-		}
-		else {
-			$('#blanker')[0].style="display: block;"; //Show blanker. TODO: Show headstart timer + don't do this for spectators.
-			$('#headstarttimer')[0].innerText = `Headstart: ${calculateTimeRep(hsTime)}`
-		}
+	//Headstart blanker
+	if (timer <= escapeOpen + hsTime){
+		$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
 	}
-	else{
-		timeLeft--; //Decrement timer as normal.
+	else {
+		$('#blanker')[0].style="display: block;"; //Show blanker. TODO: Show headstart timer + don't do this for spectators.
+		$('#headstarttimer')[0].innerText = `Headstart: ${calculateTimeRep(hsTime)}`
 	}
-	//Now, make a nice stringrep of the time.
-	$('#timer')[0].innerText = `Time left: ${calculateTimeRep(timeLeft)}`;
+	//Calculate the time until the three big events. If less than zero, cap at zero.
+	var timeUntilReveal = Math.max(0, timer - escapeReveal);
+	var timeUntilOpen = Math.max(0, timer);
+	var timeUntilClose = Math.max(0, timer - escapeClose);
+	//Now, make a nice stringrep of the timers.
+	$('#untilreveal')[0].innerText = `Escape revealed in: ${calculateTimeRep(timeUntilReveal)}`;
+	$('#untilopen')[0].innerText = `Escape opens in: ${calculateTimeRep(timeUntilOpen)}`;
+	$('#untilclose')[0].innerText = `Escape closes in: ${calculateTimeRep(timeUntilClose)}`;
 }, 1000);
 
 //Bind the button that reacts when the player is out, if they're a fugitive. This WON'T BE ENFORCED SERVERSIDE, since hunters can go out by other means (specifically, leaving the bounds).

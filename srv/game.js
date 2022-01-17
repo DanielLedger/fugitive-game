@@ -5,6 +5,13 @@ const shuf = require('./utils/shuffle');
 const { isInBorder } = require('./utils/bordercheck');
 const { states, roles } = require('./utils/enums');
 const { Player } = require('./player');
+const { HelicopterEscape } = require('./utils/extractpointchoice/helicopter');
+
+const EVAC_OPTS = {
+	Helicopter: new HelicopterEscape()
+};
+
+const EVAC_MAX_TRIES = 5;
 
 class Game {
 	
@@ -31,6 +38,8 @@ class Game {
 		//When we got our last websocket message.
 		this.lastWSMsg = Date.now();
 
+		this.evacPoint = undefined;
+
 		//If it's a time, it's in seconds.
 		this.options = {
 			timings: {
@@ -44,6 +53,13 @@ class Game {
 				fugitive: 1,
 				hunterlimit: false,
 				hunter: 0
+			},
+			escapes: {
+				Helicopter: true,
+				escapeWindow: 300,
+				escapeRadius: 10,
+				revealedFugitive: 300,
+				revealedHunter: 0
 			},
 			border: [
 				[50.919, -1.4151],
@@ -147,13 +163,28 @@ class Game {
 		}
 	}
 
-	updateOptions(changed){
-		for (var key of Object.keys(changed)){
-			if (this.options[key] !== undefined && typeof this.options[key] === typeof changed[key]){
+	__safeMerge(o1, o2){
+		//Merges o2 into o1, but only updates a key in o1 if it already exists (it won't add new keys)
+		for (var key of Object.keys(o2)){
+			if (key === 'border'){
+				//This exemption is required.
+				o1[key] = o2[key];
+			}
+			else if (o1[key] !== undefined && typeof o1[key] === typeof o2[key]){
 				//Don't allow additional options to be set, unless they exist already and are the correct type.
-				this.options[key] = changed[key];
+				if (typeof o1[key] === 'object'){
+					//Recursively merge
+					this.__safeMerge(o1[key], o2[key]);
+				}
+				else {
+					o1[key] = o2[key];
+				}
 			}
 		}
+	}
+
+	updateOptions(changed){
+		this.__safeMerge(this.options, changed);
 	}
 
 	setPlayerRole(player, role){
@@ -252,10 +283,51 @@ class Game {
 		this.gameOpen = false;
 	}
 
+	async chooseEvac(){
+		//Choose a random evac point for this game.
+		var methods = Object.keys(EVAC_OPTS).filter((eType) => this.options.escapes[eType]);
+		console.log(methods);
+		if (methods.length === 0){
+			//Can't get a point.
+			return null;
+		}
+		for (var i = 0; i < EVAC_MAX_TRIES; i++){
+			var method = methods[Math.floor(Math.random() * methods.length)];
+			var resp = await EVAC_OPTS[method].getEscape(this.options.border);
+			if (resp !== null){
+				//Worked.
+				return resp;
+			}
+		}
+		return null; //Gave up.
+	}
+
+	async getEvacPoint(){
+		if (this.evacPoint === undefined){
+			//Set and return the promise.
+			this.evacPoint = this.chooseEvac();
+		}
+		return this.evacPoint; //If the promise resolved ages ago, the value can just be fetched.
+	}
+
+	async hasEscaped(lat, lon){
+		if (this.options.timings.timer > 0){
+			//Escape not open.
+			return false;
+		}
+		var point = await this.getEvacPoint();
+		var escOrdsReverse = point.geometry.coordinates; //For reasons I'm not sure of, these are reversed.
+		var escBorder = {centre: [escOrdsReverse[1], escOrdsReverse[0]], radius: this.options.escapes.escapeRadius};
+		return isInBorder([lat, lon], 0, escBorder);
+	}
+
 	startGame(){
 		this.playing = true; //We're now officially starting.
 		this.roomBroadcast('START');
 		this.state = states.PLAYING;
+		//Generate the evac point.
+		console.log("Generating evac point...");
+		this.getEvacPoint().then((p) => console.log("Done generating evac point.")); //We just ignore the long-running element of this.
 		//Set up a repeating task to decrement the timer by one second, every second.
 		this.timerTask = setInterval(() => {
 			var timings = this.options.timings;
@@ -270,7 +342,24 @@ class Game {
 			if ((timings.timer + timings.hstimer) % 30 === 0){
 				this.roomBroadcast('TIME', [timings.timer, timings.hstimer]);
 			}
-			if (timings.timer <= 0){
+			if (timings.timer <= this.options.escapes.revealedFugitive && timings.timer % 30 === 0){
+				//Send the ping to all fugitives, telling them where the escape is.
+				console.log(this.getEvacPoint());
+				this.getEvacPoint().then((pt) => {
+					Object.values(this.players).filter((p) => p.getRole() === roles.FUGITIVE).forEach((pl) => {
+						pl.getSocket().emit('EVAC', pt, this.options.escapes.escapeRadius);
+					})
+				});
+			}
+			if (timings.timer <= this.options.escapes.revealedHunter && timings.timer % 30 === 0){
+				//Send the ping to all hunters, telling them where the escape is.
+				this.getEvacPoint().then((pt) => {
+					Object.values(this.players).filter((p) => p.getRole() === roles.HUNTER).forEach((pl) => {
+						pl.getSocket().emit('EVAC', pt, this.options.escapes.escapeRadius);
+					});
+				});
+			}
+			if (timings.timer <= -this.options.escapes.escapeWindow){
 				//Time has expired, game ends.
 				clearInterval(this.timerTask);
 				this.endGame();
@@ -282,11 +371,25 @@ class Game {
 		//For each player, send if their 'shouldSendTo' returns true.
 		var pl = this.players[uuid];
 		pl.setLastSeenLoc(lat, lon);
-		//Quick check to ensure the player is still within the borders
-		if (pl.getRole() !== roles.POSTGAME && !isInBorder([lat, lon], acc, this.options.border)){
+		//Quick check to ensure the player is still within the borders. Don't enforce if accuracy is too stupidly low however.
+		if (pl.getRole() !== roles.POSTGAME && acc < 100 && !isInBorder([lat, lon], acc, this.options.border)){
+			//Mark this player as having failed.
+			pl.setHasWon(false, "Went outside border.");
 			this.playerOut(uuid);
 			pl.getSocket().emit('OUT');
 			return;
+		}
+		if (pl.getRole() === roles.FUGITIVE){
+			this.hasEscaped(lat, lon).then((e) => {
+				if (e){
+					console.log(`${pl.getPrivateId()} has escaped.`);
+					//Player has escaped.
+					pl.setHasWon(true, "Escaped.");
+					//I guess they're technically out?
+					this.playerOut(pl.getPrivateId());
+					pl.getSocket().emit('OUT');
+				}
+			});
 		}
 		for (var player of Object.values(this.players)){
 			if (player.getPrivateId() === uuid){
