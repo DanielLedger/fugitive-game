@@ -28,7 +28,7 @@ script, you'll need to generate your own keys for the `certs` directory (the ope
 ### App
 
 1) Clone the repository into a chosen directory. If you are not running the server from this computer you can delete the `srv` directory.
-2) In the `app` directory, run `npm install cordova && npm install` to install cordova (which is needed to build the app) and all listed dependancies. Note that npm will complain about security issues, however there's not much you can do (`npm audit fix --force` just installs v10, which has issues that are 'fixed' by installing v9, which tries to 'fix' it by installing v10 and so on).
+2) In the `app` directory, run `npm install cordova && npm run update` to install cordova (which is needed to build the app) and all listed dependancies. Note that npm will complain about security issues, however there's not much you can do (`npm audit fix --force` just installs v10, which has issues that are 'fixed' by installing v9, which tries to 'fix' it by installing v10 and so on).
 3) Make sure you have an accessible version of the android SDK. This is quite involved and beyond the scope of this quickly typed miniguide, see https://cordova.apache.org/docs/en/10.x/guide/platforms/android/
 for more detail.
 4) Run `cordova platform add android`.
