@@ -11,7 +11,7 @@ function getGeolocationService(){
 			permissions.requestPermissions(permsRequired, () => {
 					//Setup the configuration.
 				BackgroundGeolocation.configure({
-					locationProvider: BackgroundGeolocation.DISTANCE_FILTER_PROVIDER,
+					locationProvider: BackgroundGeolocation.RAW_PROVIDER,
 	    			desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
 	    			stationaryRadius: 5,
 	    			distanceFilter: 5,
