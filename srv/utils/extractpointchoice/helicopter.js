@@ -1,6 +1,6 @@
 const { PointProvider } = require('./pointprovider');
 
-const { shuffle } = require('../shuffle');
+
 const { cachedQuery } = require('./getpoint');
 
 class HelicopterEscape extends PointProvider{
