@@ -5,10 +5,13 @@ const shuf = require('./utils/shuffle');
 const { isInBorder } = require('./utils/bordercheck');
 const { states, roles } = require('./utils/enums');
 const { Player } = require('./player');
+
 const { HelicopterEscape } = require('./utils/extractpointchoice/helicopter');
+const { RoadEscape } = require('./utils/extractpointchoice/road');
 
 const EVAC_OPTS = {
-	Helicopter: new HelicopterEscape()
+	Helicopter: new HelicopterEscape(),
+	Road: new RoadEscape()
 };
 
 const EVAC_MAX_TRIES = 5;
@@ -56,6 +59,7 @@ class Game {
 			},
 			escapes: {
 				Helicopter: true,
+				Road: true,
 				escapeWindow: 300,
 				escapeRadius: 10,
 				revealedFugitive: 300,
