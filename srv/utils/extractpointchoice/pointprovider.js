@@ -1,3 +1,5 @@
+const { cachedQuery } = require('./getpoint');
+
 class PointProvider {
     async getEscape(border){
         return new Promise((resolve, reject) => {

@@ -1,8 +1,6 @@
 const { PointProvider } = require('./pointprovider');
 
 
-const { cachedQuery } = require('./getpoint');
-
 class HelicopterEscape extends PointProvider{
     async getEscape(border){
         var results = [];

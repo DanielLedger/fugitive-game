@@ -1,6 +1,6 @@
 const { PointProvider } = require('./pointprovider');
 
-const { cachedQuery } = require('./getpoint');
+
 
 class RoadEscape extends PointProvider{
     async getEscape(border){
