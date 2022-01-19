@@ -14,8 +14,6 @@ const EVAC_OPTS = {
 	Road: new RoadEscape()
 };
 
-const EVAC_MAX_TRIES = 5;
-
 class Game {
 	
 	constructor(config, code, rmg, ioRef){
@@ -295,8 +293,8 @@ class Game {
 			//Can't get a point.
 			return null;
 		}
-		for (var i = 0; i < EVAC_MAX_TRIES; i++){
-			var method = methods[Math.floor(Math.random() * methods.length)];
+		shuf.shuffle(methods);
+		for (var method of methods){
 			var resp = await EVAC_OPTS[method].getEscape(this.options.border);
 			if (resp !== null){
 				//Worked.
