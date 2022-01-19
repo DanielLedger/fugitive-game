@@ -158,7 +158,12 @@ function setupWS() {
 		//Show our player where the evacuation point is.
 		var escLat = pt.geometry.coordinates[1];
 		var escLon = pt.geometry.coordinates[0];
-		escapeMarker = L.marker([escLat, escLon]).addTo(map);
+		escapeMarker = L.marker([escLat, escLon], {
+			icon: L.icon({
+				iconSize: 32,
+				iconUrl: 'img/escape.png'
+			})
+		}).addTo(map);
 		escapeRad = L.circle([escLat, escLon], {radius: rad, opacity: 0.4, color: '#00ff00'}).addTo(map);
 	});
 }
