@@ -34,12 +34,12 @@ Usual filters of private property or completely inaccessible / dangerous apply h
 */
 
 /*STEP 0: Global filters*/
-[out:json][timeout:60][bbox:{{bbox}}];
+[out:json][timeout:60];
 
 /*STEP 0.5: Border-based filtering*/
 /* First, make a set of all nodes within our border. We can filter this later. */
 
-nwr -> .possible;
+{{PREP}}
 
 /*STEP 1: Choosing POIs.*/
 /*For the vehicle escape, we can use anything distinct, and by anything I mean *anything*. However, we should pick a reasonable subset so we don't essentially revert to just picking a random point.*/
