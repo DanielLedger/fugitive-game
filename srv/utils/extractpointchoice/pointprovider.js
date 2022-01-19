@@ -5,6 +5,11 @@ class PointProvider {
         });
     }
 
+    async getResultsInBorder(query, border){
+        var points = await cachedQuery(this.prepareQuery(query, border));
+        return points;
+    }
+
     prepareQuery(query, border){
         var repl;
         if (border.centre !== undefined){

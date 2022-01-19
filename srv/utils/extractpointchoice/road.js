@@ -16,11 +16,6 @@ class RoadEscape extends PointProvider{
             return results[Math.floor(Math.random() * results.length)];
         }
     }
-
-    async getResultsInBorder(query, border){
-        var points = await cachedQuery(this.prepareQuery(query, border));
-        return points;
-    }
 }
 
 module.exports.RoadEscape = RoadEscape;

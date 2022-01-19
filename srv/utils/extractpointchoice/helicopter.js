@@ -28,10 +28,6 @@ class HelicopterEscape extends PointProvider{
         }
     }
 
-    async getResultsInBorder(query, border){
-        var points = await cachedQuery(this.prepareQuery(query, border));
-        return points;
-    }
 }
 
 module.exports.HelicopterEscape = HelicopterEscape;
