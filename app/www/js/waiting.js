@@ -302,27 +302,19 @@ map.on('click', (e) => circleBorderChange([e.latlng.lat, e.latlng.lng], lastCirc
 L.tileLayer(serverIP + "/tile?x={x}&y={y}&z={z}", {
 	//Standard settings for mapbox (which we're using for the forseeable future).
 	attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-	maxZoom: 14,
+	maxZoom: 17,
 	tileSize: 512,
 	zoomOffset: -1
 }).addTo(map);
 
 map.locate({setView: true}); //Show where the player currently is.
 
-$('#sharelink')[0].onclick = () => {
-	navigator.clipboard.writeText($('#sharelink')[0].value).then(() => alert('Share link copied!'));
-};
-
-var code = window.sessionStorage.getItem('GameCode');
-var srv = window.sessionStorage.getItem('GameIP');
-
-var dat = JSON.stringify({code: code, ip: srv});
-
-//$('#sharelink')[0].value = `${window.location.protocol}//${window.location.host}#${dat}`; //Can't be bothered to make my own interchange format, so using JSON. 
-
-/*
-for (var id of ['timer', 'hstimer', 'hunterLocDelay', 'fugitiveLocDelay']){
-	document.getElementById(id).oninput = (e) => {
-		updateOptions(e.target.id, false);
-	}
-}*/
+map.on('locationfound', (e) => {
+	var where = e.latlng;
+	var icon = L.icon({
+		iconUrl: 'img/running_hunter.png',
+		iconSize: [32, 32]
+	});
+	L.marker(e.latlng, {icon: icon}).addTo(map);
+	L.circle(e.latlng, {radius: e.accuracy, opacity: 0.2, color: '#0000ff'}).addTo(map);
+})
