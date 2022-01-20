@@ -7,8 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "update-cfgmgen": "wget -O www/js/cfgmgen.js https://raw.githubusercontent.com/DanielLedger/ConfigMenuGenerator/master/cfgmgen.js",
-    "update": "npm run update-cfgmgen && npm install && npm run patch-blp",
-    "patch-blp": "cd ./platforms/android/app/src/main/java/com/marianhello/bgloc/provider; sed 's/locationManager.getBestProvider(criteria, true)/\"gps\"/g' RawLocationProvider.java > RawLocationProvider2.java; mv RawLocationProvider2.java RawLocationProvider.java"
+    "update": "npm run update-cfgmgen && npm install"
   },
   "keywords": [
     "ecosystem:cordova"
@@ -17,6 +16,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "cordova-android": "^10.1.1",
+    "cordova-background-geolocation-plugin": "^2.0.2",
     "cordova-browser": "^6.0.0",
     "cordova-plugin-android-permissions": "^1.1.2",
     "cordova-plugin-whitelist": "^1.3.4"
@@ -24,7 +24,6 @@
   "cordova": {
     "plugins": {
       "cordova-plugin-whitelist": {},
-      "cordova-background-geolocation-plugin": {},
       "cordova-plugin-android-permissions": {}
     },
     "platforms": [
@@ -33,7 +32,6 @@
     ]
   },
   "dependencies": {
-    "cordova-background-geolocation-plugin": "^2.0.1",
     "jquery": "^3.6.0"
   }
 }
