@@ -63,11 +63,7 @@ class Game {
 				revealedFugitive: 300,
 				revealedHunter: 0
 			},
-			border: [
-				[50.919, -1.4151],
-				[50.932, -1.4112],
-				[50.928, -1.4026]
-			]
+			border: []
 		};
 		this.lastSentLoc = {}; //When everyone's location was last broadcast.
 	}
