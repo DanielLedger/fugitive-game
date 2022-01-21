@@ -18,6 +18,8 @@ var mapCrosshair;
 
 var map = L.map('bordermap');
 
+var moved = false;
+
 map.on('move', () => {
 	if (mapCrosshair === undefined){
 		mapCrosshair = L.marker(map.getCenter());
@@ -185,7 +187,7 @@ $('#bordersel')[0].onchange = () => {
 			//Now, send an OPT packet to the server with our new border.
 			circleBorderChange(lastCircle.getCentre(), lastCircle.getRadius());
 			//Update our view now so we don't get any strange desyncs.
-			borderHighlight = lastCircle.render(borderHighlight, map, true);
+			borderHighlight = lastCircle.render(borderHighlight, map, false);
 			break;
 		case 'polygon':
 			//As with circle, create a default border if we don't have one.
@@ -193,7 +195,7 @@ $('#bordersel')[0].onchange = () => {
 				lastPoly = new Border([]);
 			}
 			sendPolyUpdate(lastPoly.getPoints());
-			borderHighlight = lastPoly.render(borderHighlight, map, true);
+			borderHighlight = lastPoly.render(borderHighlight, map, false);
 
 	}
 
@@ -202,9 +204,16 @@ $('#bordersel')[0].onchange = () => {
 
 function addPolyPoint(loc){
 	//Adds a polygon point.
-	var pointIndex = lastPoly.getPoints().length;
-	lastPoly.getPoints().push(loc);
-	sendPolyUpdate(lastPoly.getPoints());
+	var points;
+	if (lastPoly === undefined){
+		points = [];
+	}
+	else {
+		points = lastPoly.getPoints();
+	}
+	pointIndex = points.length;
+	points.push(loc);
+	sendPolyUpdate(points);
 	//Now, actually update the HTML
 	//Firstly, re-enable the button to remove a point.
 	$('#polypoint-rem')[0].disabled = false;
@@ -307,9 +316,13 @@ L.tileLayer(serverIP + "/tile?x={x}&y={y}&z={z}", {
 	zoomOffset: -1
 }).addTo(map);
 
-map.locate({setView: true}); //Show where the player currently is.
+map.locate({watch: true}); //Show where the player currently is.
 
 map.on('locationfound', (e) => {
+	if (!moved){
+		moved = true; //Only do this once, else it'll get annoying.
+		map.setView(e.latlng, 15);
+	}
 	var where = e.latlng;
 	var icon = L.icon({
 		iconUrl: 'img/running_hunter.png',

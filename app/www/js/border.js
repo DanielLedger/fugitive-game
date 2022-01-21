@@ -113,6 +113,10 @@ class Border {
             storeInLayer.addTo(map);
         }
         else {
+            //Verify the data.
+            if (this.info === []){
+                return null; //Can't draw anything.
+            }
             //Draw a polygon
             storeInLayer = L.polygon(this.info, {fill: false, color: '#ff0000', opacity: 1});
             storeInLayer.addTo(map);
