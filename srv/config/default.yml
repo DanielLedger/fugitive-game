@@ -1,14 +1,7 @@
 Server:
   Port: 3000
-  SSL:
-    Enabled: false #SSL currently broken, use nginx or similar if required.
-    Key: "sslkey.key"
-    Cert: "sslcert.crt" 
   
 Maptiles:
   URL: "TILE-SERVER-URL-HERE"
   CacheKey: "TILESET-NAME-HERE" #The cache key should be changed every time you change the style.
   
-RoleLimits:
-  Fugitive: 1
-  #Hunter: 2
