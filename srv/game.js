@@ -372,6 +372,10 @@ class Game {
 		//Quick check to ensure the player is still within the borders. Don't enforce if accuracy is too stupidly low however.
 		if (pl.getRole() !== roles.POSTGAME && acc < 100 && !isInBorder([lat, lon], acc, this.options.border)){
 			//Mark this player as having failed.
+			//Some debug logging.
+			console.debug(`Player ${uuid} went outside border!`);
+			console.debug(`Player location: lat=${lat}, lon=${lon}, acc=${acc}`);
+			console.debug(`Border: ${JSON.stringify(this.options.border)}`);
 			pl.setHasWon(false, "Went outside border.");
 			this.playerOut(uuid);
 			pl.getSocket().emit('OUT');

@@ -23,7 +23,7 @@ function isInBorder(centre, radius, border){
         //If we cross the polygon an odd number of times in total, we're inside it. Else, we're outside.
         //I think playing near the north pole will break this, so don't do that.
         var crosses = 0;
-        for (var i in border){
+        for (var i = 0; i < border.length; i++){
             //For each number
             var p1 = border[i];
             var p2 = border[(i+1) % border.length];
@@ -31,7 +31,7 @@ function isInBorder(centre, radius, border){
                 crosses++;
             }
         }
-        return crosses & 1 == 1;
+        return crosses;
     }
 }
 
