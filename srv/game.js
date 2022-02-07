@@ -1,6 +1,8 @@
 const idGen = require('./utils/idgen');
 const shuf = require('./utils/shuffle');
 
+const EventEmitter = require('events');
+
 
 const { isInBorder } = require('./utils/bordercheck');
 const { states, roles } = require('./utils/enums');
@@ -14,7 +16,7 @@ const EVAC_OPTS = {
 	Road: new RoadEscape()
 };
 
-class Game {
+class Game extends EventEmitter{
 	
 	constructor(config, code, rmg, ioRef){
 		this.removeGame = rmg;
@@ -123,6 +125,7 @@ class Game {
 	playerOut(id) {
 		//Mark a player as out of the game. This turns them into a spectator immediately. If there are no fugitives left, the game ends in a hunter victory (TODO).
 		//Now, they become a spectator. Their live location feed is no longer required.
+		this.emit("out", this.players[id]);
 		this.setPlayerRole(this.players[id], roles.SPECTATOR);
 		console.log(this.roleCounts);
 		var fugitivesLeft = this.roleCounts[roles.FUGITIVE] || 0;
@@ -136,6 +139,7 @@ class Game {
 	endGame(){
 		//Ends the game and enters post-game (which shows navigation maps on the end screen so people can actually meet up again without just having to call each other and yell).
 		console.log(`Game with code ${this.code} has ended.`);
+		this.emit("end");
 		this.roomBroadcast('OVER');
 		for (var session of Object.keys(this.players)){
 			//Set everyone's role to a special post-game role
@@ -323,19 +327,32 @@ class Game {
 		this.playing = true; //We're now officially starting.
 		this.roomBroadcast('START');
 		this.state = states.PLAYING;
+		//Call the event
+		this.emit("start");
 		//Generate the evac point.
 		console.log("Generating evac point...");
 		this.getEvacPoint().then((p) => console.log("Done generating evac point.")); //We just ignore the long-running element of this.
 		//Set up a repeating task to decrement the timer by one second, every second.
 		this.timerTask = setInterval(() => {
 			var timings = this.options.timings;
+			this.emit("tick");
 			//Decrement the headstart timer first.
 			if (timings.hstimer > 0){
 				timings.hstimer--;
 			}
+			else if (timings.hstimer === 0){
+				timings.hstimer--; //Set to -1 so we only call this once.
+				this.emit("headstartOver");
+			}
 			else {
 				timings.timer--;
 			}
+
+			//Escape open event
+			if (timings.timer === this.options.escapes.escapeWindow){
+				this.emit("escapeOpen");
+			}
+
 			//To avoid spam, only send updates every 30 seconds or so (this'll probably be the minimum increment for the timer anyway at game start).
 			if ((timings.timer + timings.hstimer) % 30 === 0){
 				this.roomBroadcast('TIME', [timings.timer, timings.hstimer]);
@@ -344,6 +361,7 @@ class Game {
 				//Send the ping to all fugitives, telling them where the escape is.
 				console.log(this.getEvacPoint());
 				this.getEvacPoint().then((pt) => {
+					this.emit("escapeReveal", roles.FUGITIVE);
 					Object.values(this.players).filter((p) => p.getRole() === roles.FUGITIVE).forEach((pl) => {
 						pl.getSocket().emit('EVAC', pt, this.options.escapes.escapeRadius);
 					})
@@ -352,6 +370,7 @@ class Game {
 			if (timings.timer <= this.options.escapes.revealedHunter && timings.timer % 30 === 0){
 				//Send the ping to all hunters, telling them where the escape is.
 				this.getEvacPoint().then((pt) => {
+					this.emit("escapeReveal", roles.HUNTER);
 					Object.values(this.players).filter((p) => p.getRole() === roles.HUNTER).forEach((pl) => {
 						pl.getSocket().emit('EVAC', pt, this.options.escapes.escapeRadius);
 					});
@@ -359,6 +378,7 @@ class Game {
 			}
 			if (timings.timer <= -this.options.escapes.escapeWindow){
 				//Time has expired, game ends.
+				this.emit("escapeClosed");
 				clearInterval(this.timerTask);
 				this.endGame();
 			}
@@ -368,6 +388,7 @@ class Game {
 	onLocation(lat, lon, acc, uuid){
 		//For each player, send if their 'shouldSendTo' returns true.
 		var pl = this.players[uuid];
+		this.emit("locChange", pl.getLastSeenLoc(), [lat, lon]);
 		pl.setLastSeenLoc(lat, lon);
 		//Quick check to ensure the player is still within the borders. Don't enforce if accuracy is too stupidly low however.
 		if (pl.getRole() !== roles.POSTGAME && acc < 100 && !isInBorder([lat, lon], acc, this.options.border)){
@@ -384,6 +405,7 @@ class Game {
 		if (pl.getRole() === roles.FUGITIVE){
 			this.hasEscaped(lat, lon).then((e) => {
 				if (e){
+					this.emit("playerEscape", pl);
 					console.log(`${pl.getPrivateId()} has escaped.`);
 					//Player has escaped.
 					pl.setHasWon(true, "Escaped.");
