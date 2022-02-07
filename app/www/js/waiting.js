@@ -20,6 +20,9 @@ var map = L.map('bordermap');
 
 var moved = false;
 
+var currentLocationMarker;
+var currentLocationAccuracy;
+
 map.on('move', () => {
 	if (mapCrosshair === undefined){
 		mapCrosshair = L.marker(map.getCenter());
@@ -328,6 +331,12 @@ map.on('locationfound', (e) => {
 		iconUrl: 'img/running_hunter.png',
 		iconSize: [32, 32]
 	});
-	L.marker(e.latlng, {icon: icon}).addTo(map);
-	L.circle(e.latlng, {radius: e.accuracy, opacity: 0.2, color: '#0000ff'}).addTo(map);
+	if (currentLocationMarker === undefined){
+		currentLocationMarker = L.marker(e.latlng, {icon: icon}).addTo(map);
+		currentLocationAccuracy = L.circle(e.latlng, {radius: e.accuracy, opacity: 0.2, color: '#0000ff'}).addTo(map);
+	}
+	else {
+		currentLocationMarker.setLatLng(e.latlng);
+		currentLocationAccuracy.setLatLng(e.latlng);
+	}
 })
