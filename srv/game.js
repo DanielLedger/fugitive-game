@@ -1,4 +1,3 @@
-const idGen = require('./utils/idgen');
 const shuf = require('./utils/shuffle');
 
 const EventEmitter = require('events');
