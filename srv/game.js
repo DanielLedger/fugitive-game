@@ -124,7 +124,10 @@ class Game extends CancellableEventEmitter{
 	playerOut(id) {
 		//Mark a player as out of the game. This turns them into a spectator immediately. If there are no fugitives left, the game ends in a hunter victory (TODO).
 		//Now, they become a spectator. Their live location feed is no longer required.
-		this.emit("out", this.players[id]);
+		if (!this.emit("out", this.players[id])){
+			//Saved by the bell (well, by the gamemode)
+			return;
+		}
 		this.setPlayerRole(this.players[id], roles.SPECTATOR);
 		console.log(this.roleCounts);
 		var fugitivesLeft = this.roleCounts[roles.FUGITIVE] || 0;
@@ -334,7 +337,10 @@ class Game extends CancellableEventEmitter{
 		//Set up a repeating task to decrement the timer by one second, every second.
 		this.timerTask = setInterval(() => {
 			var timings = this.options.timings;
-			this.emit("tick");
+			if (!this.emit("tick")){
+				//Cancelled the timer.
+				return;
+			}
 			//Decrement the headstart timer first.
 			if (timings.hstimer > 0){
 				timings.hstimer--;
@@ -349,6 +355,7 @@ class Game extends CancellableEventEmitter{
 
 			//Escape open event
 			if (timings.timer === this.options.escapes.escapeWindow){
+				//Doesn't currently control anything if cancelled.
 				this.emit("escapeOpen");
 			}
 
@@ -360,23 +367,26 @@ class Game extends CancellableEventEmitter{
 				//Send the ping to all fugitives, telling them where the escape is.
 				console.log(this.getEvacPoint());
 				this.getEvacPoint().then((pt) => {
-					this.emit("escapeReveal", roles.FUGITIVE);
-					Object.values(this.players).filter((p) => p.getRole() === roles.FUGITIVE).forEach((pl) => {
-						pl.getSocket().emit('EVAC', pt, this.options.escapes.escapeRadius);
-					})
+					if (this.emit("escapeReveal", roles.FUGITIVE)){
+						Object.values(this.players).filter((p) => p.getRole() === roles.FUGITIVE).forEach((pl) => {
+							pl.getSocket().emit('EVAC', pt, this.options.escapes.escapeRadius);
+						})
+					}
 				});
 			}
 			if (timings.timer <= this.options.escapes.revealedHunter && timings.timer % 30 === 0){
 				//Send the ping to all hunters, telling them where the escape is.
 				this.getEvacPoint().then((pt) => {
-					this.emit("escapeReveal", roles.HUNTER);
-					Object.values(this.players).filter((p) => p.getRole() === roles.HUNTER).forEach((pl) => {
-						pl.getSocket().emit('EVAC', pt, this.options.escapes.escapeRadius);
-					});
+					if (this.emit("escapeReveal", roles.HUNTER)){
+						Object.values(this.players).filter((p) => p.getRole() === roles.HUNTER).forEach((pl) => {
+							pl.getSocket().emit('EVAC', pt, this.options.escapes.escapeRadius);
+						});
+					}
 				});
 			}
 			if (timings.timer <= -this.options.escapes.escapeWindow){
 				//Time has expired, game ends.
+				//Also doesn't control anything if cancelled.
 				this.emit("escapeClosed");
 				clearInterval(this.timerTask);
 				this.endGame();
@@ -404,13 +414,14 @@ class Game extends CancellableEventEmitter{
 		if (pl.getRole() === roles.FUGITIVE){
 			this.hasEscaped(lat, lon).then((e) => {
 				if (e){
-					this.emit("playerEscape", pl);
-					console.log(`${pl.getPrivateId()} has escaped.`);
-					//Player has escaped.
-					pl.setHasWon(true, "Escaped.");
-					//I guess they're technically out?
-					this.playerOut(pl.getPrivateId());
-					pl.getSocket().emit('OUT');
+					if (this.emit("playerEscape", pl)){ //While this could be done with operator short-circuiting, this is more flexible.
+						console.log(`${pl.getPrivateId()} has escaped.`);
+						//Player has escaped.
+						pl.setHasWon(true, "Escaped.");
+						//I guess they're technically out?
+						this.playerOut(pl.getPrivateId());
+						pl.getSocket().emit('OUT');
+					}
 				}
 			});
 		}
