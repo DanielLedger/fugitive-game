@@ -1,6 +1,6 @@
 const shuf = require('./utils/shuffle');
 
-const EventEmitter = require('events');
+const CancellableEventEmitter = require('./utils/cancellableevents');
 
 
 const { isInBorder } = require('./utils/bordercheck');
@@ -15,7 +15,7 @@ const EVAC_OPTS = {
 	Road: new RoadEscape()
 };
 
-class Game extends EventEmitter{
+class Game extends CancellableEventEmitter{
 	
 	constructor(config, code, rmg, ioRef){
 		this.removeGame = rmg;
