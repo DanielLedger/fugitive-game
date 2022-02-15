@@ -37,9 +37,6 @@ class Game extends CancellableEventEmitter{
 		//Our state is important, since it tells the server terminator whether we should exist or not.
 		this.state = states.LOBBY;
 
-		//When we got our last websocket message.
-		this.lastWSMsg = Date.now();
-
 		this.evacPoint = undefined;
 
 		//If it's a time, it's in seconds.
@@ -66,9 +63,12 @@ class Game extends CancellableEventEmitter{
 			},
 			border: []
 		};
-		this.lastSentLoc = {}; //When everyone's location was last broadcast.
+
+		//Can you escape yet?
+		this.escapeOpen = false;
+
 	}
-	
+
 	roomBroadcast(event, ...args){
 		this.io.to(this.code).emit(event, ...args);
 	}
@@ -315,7 +315,7 @@ class Game extends CancellableEventEmitter{
 	}
 
 	async hasEscaped(lat, lon){
-		if (this.options.timings.timer > 0){
+		if (this.escapeOpen){
 			//Escape not open.
 			return false;
 		}
@@ -355,8 +355,9 @@ class Game extends CancellableEventEmitter{
 
 			//Escape open event
 			if (timings.timer === this.options.escapes.escapeWindow){
-				//Doesn't currently control anything if cancelled.
-				this.emit("escapeOpen");
+				if (this.emit("escapeOpen")){
+					this.escapeOpen = true;
+				}
 			}
 
 			//To avoid spam, only send updates every 30 seconds or so (this'll probably be the minimum increment for the timer anyway at game start).
@@ -386,7 +387,7 @@ class Game extends CancellableEventEmitter{
 			}
 			if (timings.timer <= -this.options.escapes.escapeWindow){
 				//Time has expired, game ends.
-				//Also doesn't control anything if cancelled.
+				//Cannot be cancelled
 				this.emit("escapeClosed");
 				clearInterval(this.timerTask);
 				this.endGame();
