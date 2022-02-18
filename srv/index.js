@@ -60,10 +60,10 @@ function testRatelimit(ip){
 	}
 }
 
-function removeGame(code, ...uuids){
+function removeGame(code, ...playing){
 	delete games[code];
-	for (var uuid of uuids){
-		delete uuids[code];
+	for (var uuid of playing){
+		delete uuids[uuid];
 	}
 }
 
