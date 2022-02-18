@@ -74,9 +74,10 @@ function onLocationObtained(who, lat, lng, accuracy){
 		iconUrl: 'img/running_hunter.png',
 		iconSize: [32, 32]
 	});
+	var data;
 	if (playerLocations[who] !== undefined){
 		//Just move the already existing data.
-		var data = playerLocations[who];
+		data = playerLocations[who];
 		if (lat === undefined){
 			//Final 'move', so just show a semi-transparent marker with no accuracy circle.
 			data.circle.remove();
@@ -96,7 +97,7 @@ function onLocationObtained(who, lat, lng, accuracy){
 	}
 	else {
 		//Need to create the data from scratch.
-		var data = {};
+		data = {};
 		data.marker = L.marker([lat, lng], {icon: icon}).addTo(map);
 		//Fairly alarming colours, but those can be changed. Marker will also change.
 		data.circle = L.circle([lat, lng], {radius: accuracy, opacity: 0.2, color: '#0000ff'}).addTo(map);

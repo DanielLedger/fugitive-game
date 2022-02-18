@@ -49,7 +49,7 @@ class Border {
                     }
                 }
                 //Return true if the number of crossings is odd.
-                return crosses & 1 == 1;
+                return (crosses & 1) == 1;
             }
         }
     }

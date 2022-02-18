@@ -103,7 +103,6 @@ function setupWS() {
 
 	gameSocket.on('TIME', (timers) => {
 		timer = timers[0] + timers[1];
-		//hsTime = timers[1];
 		if (timer <= escapeOpen){
 			$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
 		}
@@ -226,9 +225,10 @@ function onLocationObtained(who, lat, lng, accuracy){
 		iconUrl: this.fugitives[who] ? 'img/running_fugitive.png' : 'img/running_hunter.png',
 		iconSize: [32, 32]
 	});
+	var data;
 	if (playerLocations[who] !== undefined){
 		//Just move the already existing data.
-		var data = playerLocations[who];
+		data = playerLocations[who];
 		if (lat === undefined){
 			//Final 'move', so just show a semi-transparent marker with no accuracy circle.
 			data.circle.remove();
@@ -248,7 +248,7 @@ function onLocationObtained(who, lat, lng, accuracy){
 	}
 	else {
 		//Need to create the data from scratch.
-		var data = {};
+		data = {};
 		data.marker = L.marker([lat, lng], {icon: icon}).addTo(map);
 		//If we're a hunter, make it possible to ping this marker.
 		if (window.sessionStorage.getItem("role") === 'hunter'){

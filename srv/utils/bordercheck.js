@@ -31,7 +31,7 @@ function isInBorder(centre, radius, border){
                 crosses++;
             }
         }
-        return crosses & 1 == 1;
+        return (crosses & 1) == 1;
     }
 }
 

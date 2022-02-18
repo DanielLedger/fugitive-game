@@ -2,14 +2,11 @@ const { cachedQuery } = require('./getpoint');
 
 class PointProvider {
     async getEscape(border){
-        return new Promise((resolve, reject) => {
-            reject('No "getEscape" method was provided!');
-        });
+        return Promise.reject('No "getEscape" method was provided!');
     }
 
     async getResultsInBorder(query, border){
-        var points = await cachedQuery(this.prepareQuery(query, border));
-        return points;
+        return cachedQuery(this.prepareQuery(query, border));
     }
 
     prepareQuery(query, border){

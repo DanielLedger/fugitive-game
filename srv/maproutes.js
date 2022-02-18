@@ -20,16 +20,17 @@ function init(config, app){
 	
 	async function getMapboxTile(x, y, z){
 		//Gets a mapbox tile from mapbox (unsurprisingly). Annoyingly, this needs to be done by hand, since there's no obvious way to use the API.
-		sendto = tileserver_url.replace('{x}', x).replace('{y}', y).replace('{z}', z);
+		var sendto = tileserver_url.replace('{x}', x).replace('{y}', y).replace('{z}', z);
 		console.debug(sendto);
-		resp = await got.get(sendto);
+		var resp = await got.get(sendto);
 		console.debug(resp.statusCode);
 		return resp.rawBody;
 	}
 	
 	async function cacheTile(fpath, data){
+		var f;
 		try{
-			var f = await fs.promises.open(fpath, "w");
+			f = await fs.promises.open(fpath, "w");
 			f.write(data);
 		}
 		finally{

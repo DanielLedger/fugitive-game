@@ -74,24 +74,10 @@ function showGameStatus(giObj){
 	
 }
 
-function showOptions(options){
-	/*
-	for (var key in options){
-		var elem = document.getElementById(key);
-		if (elem === null){
-			continue;
-		}
-		else if (elem === document.activeElement){
-			continue; //Don't edit the element the user has focussed, that's just annoying.
-		}
-		else {
-			elem.value = options[key];
-			elem.disabled = !host;
-		}
-	}*/
+function showOptions(gameOpts){
 	$('#options')[0].innerHTML = ""; //Wipe the element.
 	CONFIG_OPTIONS._goptions.disabled = !host; //If we're not host, we don't need to be able to press the buttons.
-	cfg = new ConfigMenu(options, CONFIG_OPTIONS);
+	cfg = new ConfigMenu(gameOpts, CONFIG_OPTIONS);
 	cfg.addEventListener('change', () => {
 		//Get the diff.
 		var toSend = cfg.getDiff();
@@ -99,7 +85,7 @@ function showOptions(options){
 		gameSocket.emit('OPTION', toSend);
 	})
 	cfg.display($('#options')[0]);
-	border = new Border(options.border);
+	border = new Border(gameOpts.border);
 	//Set the border explicitly.
 	if (!Border.areSame(border, oldBorder)){
 		//Render the border.
@@ -107,12 +93,6 @@ function showOptions(options){
 		if (border.isCircle() && lastCircle === undefined){
 			lastCircle = border;
 		}
-		/*//Update border radius (like how the others are changed). TODO: Accept polygonal borders without dying.
-		var bRadCtrl = $('#borderrad')[0];
-		if (bRadCtrl !== document.activeElement){ //Let the user edit the thing in peace.
-			bRadCtrl.value = giObj.options.border.radius;
-			bRadCtrl.disabled = !giObj.host;
-		}*/
 		oldBorder = border;
 	}
 }
@@ -214,7 +194,7 @@ function addPolyPoint(loc){
 	else {
 		points = lastPoly.getPoints();
 	}
-	pointIndex = points.length;
+	var pointIndex = points.length;
 	points.push(loc);
 	sendPolyUpdate(points);
 	//Now, actually update the HTML
@@ -326,7 +306,6 @@ map.on('locationfound', (e) => {
 		moved = true; //Only do this once, else it'll get annoying.
 		map.setView(e.latlng, 15);
 	}
-	var where = e.latlng;
 	var icon = L.icon({
 		iconUrl: 'img/running_hunter.png',
 		iconSize: [32, 32]

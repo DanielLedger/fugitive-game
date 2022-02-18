@@ -4,7 +4,7 @@ const { roles, r_roles } = require('./utils/enums');
 
 class Player {
     constructor (socket, name, game, host = false){
-        name = name.replace(/<|;|>|'|"/g, ''); //Stops XSS (escaping angle brackets for direct and quotes for parameter injection) and weirdness with semicolons.
+        name = name.replace(/[<;>'"]/g, ''); //Stops XSS (escaping angle brackets for direct and quotes for parameter injection) and weirdness with semicolons.
         this.playerName = name;
         this.authId = idGen.getRandId();
         this.publicId = name + ";" + idGen.getRandId(); //Allows us to send names as well without *too* much modification. There will be plenty of modification later though.

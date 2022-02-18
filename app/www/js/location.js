@@ -69,7 +69,7 @@ function getGeolocationService(){
 				expectedObj.longitude = ll.coords.longitude;
 				expectedObj.accuracy = ll.coords.accuracy;
 				cb(expectedObj);
-			}, () => {}, {
+			}, () => {}, { //Empty arrow is required here I think? (TODO: better error handling)
 				//Turns out delay isn't directly used, so we're using it like this.
 				enableHighAccuracy: true,
 				maximumAge: delay

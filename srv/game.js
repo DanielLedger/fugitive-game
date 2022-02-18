@@ -18,6 +18,9 @@ const EVAC_OPTS = {
 class Game extends CancellableEventEmitter{
 	
 	constructor(config, code, rmg, ioRef){
+
+		super();
+
 		this.removeGame = rmg;
 
 		this.io = ioRef;
@@ -74,14 +77,6 @@ class Game extends CancellableEventEmitter{
 	}
 
 	isDead(){
-		/*
-		if (this.state === states.PLAYING){
-			//Don't kill live games, since people are running around who knows where and possibly not getting great signal.
-			return false;
-		}
-		//Else, if the last message was more than x seconds ago, it's probaly eligible for deletion.
-		return this.lastWSMsg + (1000*60) < Date.now(); //For the actual server, this'll be something like 6-12 hours.
-		*/
 		return false;
 	}
 
@@ -106,7 +101,6 @@ class Game extends CancellableEventEmitter{
 			//Player's current session is now the new one.
 			this.players[playerID].setSocket(newSession);
 			newSession.playerID = playerID; //This may or may not work.
-			var currentGame = this; //Required due to scope problems.
 			//If host is undefined, this player is now the host.
 			if (this.host === undefined) {
 				this.host = playerID;
@@ -240,6 +234,8 @@ class Game extends CancellableEventEmitter{
 		var limits = this.options.rolecounts;
 
 		//Put fugitive requesters on the fugitive pile.
+
+
 		while (fugitiveReq.length > 0){
 			if (fugitives.length >= (limits.fugitivelimit ? limits.fugitive : undefined)){
 				//Will this work? No clue, hopefully. If the limit is undefined, this will be false.
@@ -254,8 +250,8 @@ class Game extends CancellableEventEmitter{
 				//Will this work? No clue, hopefully. If the limit is undefined, this will be false.
 				break;
 			}
-			var f = hunterReq.pop();
-			hunters.push(f);
+			var h = hunterReq.pop();
+			hunters.push(h);
 		}
 		//Merge the two other lists into the "don't care" pile, which is technically wrong (they expressed an opinion) but works.
 		dontCare.push(...fugitiveReq);
