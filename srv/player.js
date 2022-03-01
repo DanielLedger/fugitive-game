@@ -1,6 +1,6 @@
 const idGen = require('./utils/idgen');
 
-const { roles, r_roles } = require('./utils/enums');
+const { roles, r_roles, out_reasons } = require('./utils/enums');
 
 class Player {
     constructor (socket, name, game, host = false){
@@ -157,8 +157,7 @@ class Player {
         //Player is out.
         this.ws.on('OUT', (callback) => {
             //Muffin
-            this.setHasWon(false, "Got caught");
-            game.playerOut(this.getPrivateId());
+            game.playerOut(this.getPrivateId(), out_reasons.CAUGHT);
             callback();
         });
 

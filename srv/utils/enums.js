@@ -18,8 +18,17 @@ const r_roles = {
 	'postgame': roles.POSTGAME
 }
 
+const out_reasons = {
+	CAUGHT: "Got caught!",
+	BORDER: "Went outside playable area!",
+	TIME: "Out of time!",
+	NO_LEFT: "All fugitives escaped, or out.",
+	ESCAPE: "Escaped."
+}
+
 module.exports = {
     states: states,
     roles: roles,
-	r_roles: r_roles
+	r_roles: r_roles,
+	out_reasons: out_reasons
 };

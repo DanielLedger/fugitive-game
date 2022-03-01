@@ -4,7 +4,7 @@ const CancellableEventEmitter = require('./utils/cancellableevents');
 
 
 const { isInBorder } = require('./utils/bordercheck');
-const { states, roles } = require('./utils/enums');
+const { states, roles, out_reasons } = require('./utils/enums');
 const { Player } = require('./player');
 
 const { HelicopterEscape } = require('./utils/extractpointchoice/helicopter');
@@ -115,12 +115,20 @@ class Game extends CancellableEventEmitter{
 		sess.playerID = undefined;
 	}
 	
-	playerOut(id) {
+	playerOut(id, reason) {
 		//Mark a player as out of the game. This turns them into a spectator immediately. If there are no fugitives left, the game ends in a hunter victory (TODO).
 		//Now, they become a spectator. Their live location feed is no longer required.
-		if (!this.emit("out", this.players[id])){
+		if (!this.emit("out", this.players[id], reason)){
 			//Saved by the bell (well, by the gamemode)
 			return;
+		}
+		if (reason == out_reasons.ESCAPE || reason == out_reasons.NO_LEFT){
+			//These are both winning reasons to be 'out'
+			this.players[id].setHasWon(true, reason);
+		}
+		else {
+			//Lost
+			this.players[id].setHasWon(false, reason);
 		}
 		this.setPlayerRole(this.players[id], roles.SPECTATOR);
 		console.log(this.roleCounts);
@@ -403,8 +411,7 @@ class Game extends CancellableEventEmitter{
 			console.debug(`Player ${uuid} went outside border!`);
 			console.debug(`Player location: lat=${lat}, lon=${lon}, acc=${acc}`);
 			console.debug(`Border: ${JSON.stringify(this.options.border)}`);
-			pl.setHasWon(false, "Went outside border.");
-			this.playerOut(uuid);
+			this.playerOut(uuid, out_reasons.BORDER);
 			pl.getSocket().emit('OUT');
 			return;
 		}
@@ -414,9 +421,8 @@ class Game extends CancellableEventEmitter{
 					if (this.emit("playerEscape", pl)){ //While this could be done with operator short-circuiting, this is more flexible.
 						console.log(`${pl.getPrivateId()} has escaped.`);
 						//Player has escaped.
-						pl.setHasWon(true, "Escaped.");
 						//I guess they're technically out?
-						this.playerOut(pl.getPrivateId());
+						this.playerOut(pl.getPrivateId(), out_reasons.ESCAPE);
 						pl.getSocket().emit('OUT');
 					}
 				}
@@ -456,4 +462,6 @@ class Game extends CancellableEventEmitter{
 
 }
 
-module.exports.Game = Game;
+module.exports = {
+	Game: Game
+};
