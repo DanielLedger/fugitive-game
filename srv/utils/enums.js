@@ -22,7 +22,8 @@ const out_reasons = {
 	CAUGHT: "Got caught!",
 	BORDER: "Went outside playable area!",
 	TIME: "Out of time!",
-	NO_LEFT: "All fugitives escaped, or out.",
+	ALL_CAUGHT: "All fugitives were caught successfully.",
+	ALL_HUNTERS_GONE: "There is nobody left to pursue you.",
 	ESCAPE: "Escaped."
 }
 

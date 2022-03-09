@@ -10,6 +10,8 @@ const { Player } = require('./player');
 const { HelicopterEscape } = require('./utils/extractpointchoice/helicopter');
 const { RoadEscape } = require('./utils/extractpointchoice/road');
 
+const { Classic } = require('./modes/classic');
+
 const EVAC_OPTS = {
 	Helicopter: new HelicopterEscape(),
 	Road: new RoadEscape()
@@ -115,29 +117,14 @@ class Game extends CancellableEventEmitter{
 		sess.playerID = undefined;
 	}
 	
-	playerOut(id, reason) {
+	playerOut(pl, reason) {
 		//Mark a player as out of the game. This turns them into a spectator immediately. If there are no fugitives left, the game ends in a hunter victory (TODO).
 		//Now, they become a spectator. Their live location feed is no longer required.
-		if (!this.emit("out", this.players[id], reason)){
+		if (!this.emit("out", pl, reason)){
 			//Saved by the bell (well, by the gamemode)
 			return;
 		}
-		if (reason == out_reasons.ESCAPE || reason == out_reasons.NO_LEFT){
-			//These are both winning reasons to be 'out'
-			this.players[id].setHasWon(true, reason);
-		}
-		else {
-			//Lost
-			this.players[id].setHasWon(false, reason);
-		}
-		this.setPlayerRole(this.players[id], roles.SPECTATOR);
-		console.log(this.roleCounts);
-		var fugitivesLeft = this.roleCounts[roles.FUGITIVE] || 0;
-		var huntersLeft = this.roleCounts[roles.HUNTER] || 0;
-		if (fugitivesLeft === 0 || huntersLeft === 0){
-			//If all of one role are gone, then it's game over.
-			this.endGame();
-		}
+		pl.getSocket().emit('OUT');
 	}
 
 	endGame(){
@@ -418,13 +405,7 @@ class Game extends CancellableEventEmitter{
 		if (pl.getRole() === roles.FUGITIVE){
 			this.hasEscaped(lat, lon).then((e) => {
 				if (e){
-					if (this.emit("playerEscape", pl)){ //While this could be done with operator short-circuiting, this is more flexible.
-						console.log(`${pl.getPrivateId()} has escaped.`);
-						//Player has escaped.
-						//I guess they're technically out?
-						this.playerOut(pl.getPrivateId(), out_reasons.ESCAPE);
-						pl.getSocket().emit('OUT');
-					}
+					this.emit("playerEscape", pl);
 				}
 			});
 		}
