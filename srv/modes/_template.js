@@ -1,6 +1,6 @@
 //Contains sensible defaults for each event. Not everything is handled here, but some things are.
 
-const { states, roles, out_reasons } = require('./utils/enums');
+const { states, roles, out_reasons } = require('../utils/enums');
 
 class GameMode {
 
@@ -75,7 +75,7 @@ class GameMode {
         this.__escapes += 1;
         //Player has escaped.
         //I guess they're technically out?
-        this.getGame().playerOut(pl.getPrivateId(), out_reasons.ESCAPE);
+        this.getGame().playerOut(pl, out_reasons.ESCAPE);
     }
 
     onTick(){/*No sensible default*/}
@@ -103,17 +103,17 @@ class GameMode {
     bindEvents(){
         var game = this.getGame();
         console.info(`Binding events for mode ${this.getName()}.`);
-        game.addEventListener('start', this.onStart);
-        game.addEventListener('end', this.onEnd);
-        game.addEventListener('headstartOver', this.onHeadstartOver);
-        game.addEventListener('escapeReveal', this.onEscapeReveal);
-        game.addEventListener('escapeOpen', this.onEscapeOpen);
-        game.addEventListener('escapeClose', this.onEscapeClose);
-        game.addEventListener('playerEscape', this.onPlayerEscape);
-        game.addEventListener('tick', this.onTick);
-        game.addEventListener('abilityUsed', this.onAbility);
-        game.addEventListener('locChnge', this.onLocChange);
-        game.addEventListener('out', this.onOut);
+        game.addListener('start', this.onStart);
+        game.addListener('end', this.onEnd);
+        game.addListener('headstartOver', this.onHeadstartOver);
+        game.addListener('escapeReveal', this.onEscapeReveal);
+        game.addListener('escapeOpen', this.onEscapeOpen);
+        game.addListener('escapeClose', this.onEscapeClose);
+        game.addListener('playerEscape', this.onPlayerEscape);
+        game.addListener('tick', this.onTick);
+        game.addListener('abilityUsed', this.onAbility);
+        game.addListener('locChnge', this.onLocChange);
+        game.addListener('out', this.onOut);
     }
 }
 

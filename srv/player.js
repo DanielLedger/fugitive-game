@@ -157,7 +157,7 @@ class Player {
         //Player is out.
         this.ws.on('OUT', (callback) => {
             //Muffin
-            game.playerOut(this.getPrivateId(), out_reasons.CAUGHT);
+            game.playerOut(this, out_reasons.CAUGHT);
             callback();
         });
 

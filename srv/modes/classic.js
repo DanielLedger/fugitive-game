@@ -6,3 +6,5 @@ class Classic extends GameMode {
     }
     //The defaults in _template.js will provide the classic game.
 }
+
+module.exports.Classic = Classic;

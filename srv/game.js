@@ -1,6 +1,6 @@
 const shuf = require('./utils/shuffle');
 
-const CancellableEventEmitter = require('./utils/cancellableevents');
+const { CancellableEventEmitter } = require('./utils/cancellableevents');
 
 
 const { isInBorder } = require('./utils/bordercheck');
@@ -75,7 +75,7 @@ class Game extends CancellableEventEmitter{
 		this.escapeOpen = false;
 
 		//Initialise the class that controls our gamemode.
-		this.mode = PLAYING_MODE(this);
+		this.mode = new PLAYING_MODE(this);
 		this.mode.bindEvents();
 
 	}
@@ -404,7 +404,7 @@ class Game extends CancellableEventEmitter{
 			console.debug(`Player ${uuid} went outside border!`);
 			console.debug(`Player location: lat=${lat}, lon=${lon}, acc=${acc}`);
 			console.debug(`Border: ${JSON.stringify(this.options.border)}`);
-			this.playerOut(uuid, out_reasons.BORDER);
+			this.playerOut(pl, out_reasons.BORDER);
 			pl.getSocket().emit('OUT');
 			return;
 		}
