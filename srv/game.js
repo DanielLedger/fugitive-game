@@ -17,6 +17,8 @@ const EVAC_OPTS = {
 	Road: new RoadEscape()
 };
 
+const PLAYING_MODE = Classic; //TODO: Make this selectable by some method.
+
 class Game extends CancellableEventEmitter{
 	
 	constructor(config, code, rmg, ioRef){
@@ -71,6 +73,10 @@ class Game extends CancellableEventEmitter{
 
 		//Can you escape yet?
 		this.escapeOpen = false;
+
+		//Initialise the class that controls our gamemode.
+		this.mode = PLAYING_MODE(this);
+		this.mode.bindEvents();
 
 	}
 
