@@ -28,7 +28,7 @@ class GameMode {
         console.log(this.getGame().roleCounts);
 		var fugitivesLeft = this.getGame().roleCounts[roles.FUGITIVE] || 0;
 		var huntersLeft = this.getGame().roleCounts[roles.HUNTER] || 0;
-		return (fugitivesLeft === 0 || huntersLeft === 0);
+		return (fugitivesLeft > 0 && huntersLeft > 0);
     }
 
     onStart(){/*No sensible default*/}
@@ -41,8 +41,9 @@ class GameMode {
         this.__gameEnding = true;
         if ((this.getGame().roleCounts[roles.HUNTER] || 0) === 0){
             //No hunters left, I guess the fugitives win by default?
+            console.log("All hunters out: remaining fugitives win by default.");
             for (var leftFugitive of (Object.values(this.getGame().players).filter((p) => {return p.getRole() === roles.FUGITIVE}))){
-                this.getGame().playerOut(leftFugitive, out_reasons.ALL_HUNTERS_GONE);
+                leftFugitive.setHasWon(true, out_reasons.ALL_HUNTERS_GONE);
             }
         }
         else {
@@ -50,12 +51,12 @@ class GameMode {
             var hunterOutMsg = (this.__escapes == 0) ? out_reasons.ALL_CAUGHT : `${this.__escapes} of your targets escaped.`;
             //Every fugitive left now has run out of time and therefore loses.
             for (var f of (Object.values(this.getGame().players).filter((p) => {return p.getRole() === roles.FUGITIVE}))){
-                this.getGame().playerOut(f, out_reasons.TIME);
+                f.setHasWon(false, out_reasons.TIME);
             }
 
             //Every hunter in the game gets their own special message. Whether or not they win depends on if anyone escaped before the time expired.
             for (var h of (Object.values(this.getGame().players).filter((p) => {return p.getRole() === roles.HUNTER}))){
-                this.getGame().playerOut(h, hunterOutMsg);
+                h.setHasWon((this.__escapes == 0), hunterOutMsg);
             }
         }
     }
@@ -85,6 +86,7 @@ class GameMode {
     onLocChange(pl, oLoc, nLoc){/*No sensible default*/}
 
     onOut(pl, reason){
+        console.log(`${pl.getPrivateId()} is out for the following reason: ${reason}.`);
         if (reason === out_reasons.ESCAPE || reason === out_reasons.ALL_CAUGHT || reason === out_reasons.ALL_HUNTERS_GONE){
 			//These are all winning reasons to be 'out'
 			pl.setHasWon(true, reason);

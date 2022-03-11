@@ -86,6 +86,10 @@ class Game extends CancellableEventEmitter{
 		return this.mode;
 	}
 
+	getState(){
+		return this.state;
+	}
+
 	roomBroadcast(event, ...args){
 		this.io.to(this.code).emit(event, ...args);
 	}

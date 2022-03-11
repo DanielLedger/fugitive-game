@@ -1,6 +1,6 @@
 const idGen = require('./utils/idgen');
 
-const { roles, r_roles, out_reasons } = require('./utils/enums');
+const { states, roles, r_roles, out_reasons } = require('./utils/enums');
 
 class Player {
     constructor (socket, name, game, host = false){
@@ -178,6 +178,13 @@ class Player {
         this.ws.on('HAS_WON', (callback) => {
             callback(this.win, this.winReason);
         })
+
+        this.ws.on('connect', () => {
+            if (game.getState() === states.POST){
+                //Remind the client we've finished.
+                this.ws.send('OVER');
+            }
+        });
 
         //Join the room given by the game code (we'll need this later)
         this.ws.join(game.code);
