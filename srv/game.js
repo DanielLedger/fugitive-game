@@ -78,6 +78,12 @@ class Game extends CancellableEventEmitter{
 		this.mode = new PLAYING_MODE(this);
 		this.mode.bindEvents();
 
+		this.setAnchorObj(this.getMode());
+
+	}
+
+	getMode(){
+		return this.mode;
 	}
 
 	roomBroadcast(event, ...args){
