@@ -1,4 +1,7 @@
+const FUDGE_FACTOR = 0.95; //Apply some leeway to circular borders, making them slightly bigger than they appear to account for inaccuracy
+
 function isInBorder(centre, radius, border){
+    console.log(border);
     if (border.centre !== undefined){
         //Check if the point is in the radius first. Because maths, we need to use the Haversine formula to calculate the distance in metres.
         var earthRad = 6731e3;
@@ -9,13 +12,16 @@ function isInBorder(centre, radius, border){
 
         var a = Math.pow(Math.sin(latRadDelta/2), 2) +
             Math.cos(latRad1) * Math.cos(latRad2) * 
-            Math.pow(Math.sin(lonRadDelta), 2);
+            Math.pow(Math.sin(lonRadDelta/2), 2);
 
         var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 
-        var distFromCentre = earthRad * c;
+        var distFromCentre = earthRad * c * FUDGE_FACTOR;
 
         var maxAllowedDist = border.radius + radius; //If the point is more than this away, the circles cannot touch.
+
+        console.log(`Central distance: ${distFromCentre}, max allowed is ${maxAllowedDist}`);
+
         return distFromCentre <= maxAllowedDist;
     }
     else {
