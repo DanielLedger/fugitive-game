@@ -39,6 +39,43 @@ function calculateTimeRep(seconds){
 	return `${hoursString}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
+function onOutButton(){
+	if (confirm("Are you sure you meant to press this button?")){
+		//Player is out.
+		//Cancel background location task.
+		getGeolocationService().stop();
+
+		gameSocket.emit('OUT', () => {
+			window.sessionStorage.setItem('role', 'spectator');
+			document.location.reload();
+		});
+	}
+}
+
+function configureUI(){
+	//Configures the UI based on the player's set role. Everything that can be hidden starts hidden
+	if (window.sessionStorage.getItem("role") === 'fugitive'){
+		//Show the 'I got caught' button and the jammer ability (TODO)
+		$('#fugitivebuttons')[0].style = "display: block;";
+
+		//Bind the events to the buttons.
+		$('#caught')[0].onclick = onOutButton;
+	}
+	else if (window.sessionStorage.getItem("role") === 'hunter'){
+		//Show the ping menu.
+		$('#pingbuttons')[0].style = "display: block;";
+
+		//Bind events.
+		$('#gotthat')[0].onclick = () => sendPing('Y');
+		$('#repeat')[0].onclick = () => sendPing('N');
+		//Map is more complex: if you click a player's marker, then it'll ping the player, else a location will be pinged.
+		//Markers are not handled here.
+		map.on('click', (e) => {
+			sendPing([e.latlng.lat, e.latlng.lng]);
+		});
+	}
+}
+
 function showPing(target, from){
 	console.debug(`Pinging ${JSON.stringify(target)}.`);
 	//TODO: Sort out how notifications will work.
@@ -74,8 +111,6 @@ function showFromInfo(gi){
 		//We're a fugitive too, add 'self' to the set.
 		delete fugitives[gi.publicID];
 		fugitives['self'] = true;
-		//Hide the ping buttons.
-		$('#pingbuttons')[0].style = "display: none;";
 	}
 	//Set time from this as well.
 	escapeOpen = gi.options.timings.timer;
@@ -197,17 +232,8 @@ function setupMap() {
 			}
 		});
 	}
-	//Set up the ability to ping.
-	if (window.sessionStorage.getItem("role") === 'hunter'){
-		$('#gotthat')[0].onclick = () => sendPing('Y');
-		$('#repeat')[0].onclick = () => sendPing('N');
-		//Map is more complex: if you click a player's marker, then it'll ping the player, else a location will be pinged.
-		map.on('click', (e) => {
-			sendPing([e.latlng.lat, e.latlng.lng]);
-		})
-		//The marker click is handled elsewhere.
-	}
 	setupWS();
+	configureUI();
 }
 
 function sendPing(target){
@@ -303,24 +329,7 @@ window.setInterval(() => {
 	$('#untilclose')[0].innerText = `Escape closes in: ${calculateTimeRep(timeUntilClose)}`;
 }, 1000);
 
-//Bind the button that reacts when the player is out, if they're a fugitive. This WON'T BE ENFORCED SERVERSIDE, since hunters can go out by other means (specifically, leaving the bounds).
-if (window.sessionStorage.getItem("role") === 'fugitive'){
-	$('#caught')[0].onclick = () => {
-		if (confirm("Are you sure you meant to press this button?")){
-			//Player is out.
-			//Cancel background location task.
-			getGeolocationService().stop();
 
-			gameSocket.emit('OUT', () => {
-				window.sessionStorage.setItem('role', 'spectator');
-				document.location.reload();
-			});
-		}
-	}
-}
-else {
-	$('#caught')[0].style = "display: none;";
-}
 
 //When we leave this page, stop location watching.
 window.onbeforeunload = () => {
