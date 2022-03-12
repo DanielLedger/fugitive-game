@@ -402,6 +402,24 @@ class Game extends CancellableEventEmitter{
 		}, 1000);
 	}
 
+	sendFakeLoc(lat, lon, acc, uuid){
+		console.debug(`Fake location for ${uuid}:`);
+		console.debug(`Player location: lat=${lat}, lon=${lon}, acc=${acc}`);
+		var pl = this.players[uuid];
+		for (var player of Object.values(this.players)){
+			if (player.getPrivateId() === uuid){
+				continue; //Don't send to ourselves.
+			}
+			else if (player.getRole() === roles.SPECTATOR || player.getRole === roles.POSTGAME){
+				continue; //Don't send to any of these people.
+			}
+			else {
+				//Send to this player.
+				player.getSocket().emit('LOC', lat, lon, acc, pl.getPublicId());
+			}
+		}
+	}
+
 	onLocation(lat, lon, acc, uuid){
 		//For each player, send if their 'shouldSendTo' returns true.
 		var pl = this.players[uuid];

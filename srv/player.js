@@ -17,6 +17,10 @@ class Player {
 
         this.win = false;
         this.winReason = null;
+
+        this.usedJammer = false;
+        this.jammerTime = 60;
+        this.jammerActive = false;
     }
 
     getPublicId(){
@@ -82,6 +86,10 @@ class Player {
         //Spectators get live location
         if (to.getRole() === roles.SPECTATOR || to.getRole() === roles.POSTGAME){
             return true;
+        }
+
+        if (this.jammerActive){
+            return false; //If our jammer is active, never send our true location (jammer location bypasses this check)
         }
         //Should we send our location to this person or not?
         //For now, just ignore and simply use timings.
@@ -185,6 +193,43 @@ class Player {
                 this.ws.send('OVER');
             }
         });
+
+        this.ws.on('JAMMER', (callback) => {
+            //Jammer lasts for 60s.
+            if (this.usedJammer || this.getRole() !== roles.FUGITIVE){
+                //Do nothing.
+                return;
+            }
+            else {
+                //Create a timer task that manages the jamming.
+                this.jammerActive = true;
+                this.usedJammer = true;
+                this.jamTask = setInterval(() => {
+                    console.log("Running jam task...");
+                    if (this.jammerTime == 0){
+                        //End.
+                        this.jammerActive = false;
+                        clearInterval(this.jamTask);
+                        callback();
+                    }
+                    else {
+                        this.jammerTime--;
+                        console.log("Will jam location.");
+                        //Post fake location updates every 3 seconds with a wild inaccuracy. TODO: Maybe some kind of ramp up/ramp down?
+                        var maxAccuracy = 110; //Needs to be at least 100 metres so we don't get bordered.
+                        var minAccuracy = 300;
+                        //We will pick a random offset (0.008 degrees) from our true location and send that, along with a random accuracy error.
+                        //Note that the accuracy circle may not include the actual location.
+                        var shownAcc = maxAccuracy + (Math.random() * (minAccuracy - maxAccuracy));
+                        var shownLat = this.getLastSeenLoc()[0] + ((Math.random() - 0.5) * 0.016);
+                        var shownLon = this.getLastSeenLoc()[1] + ((Math.random() - 0.5) * 0.016);
+
+                        //Send our location.
+                        game.sendFakeLoc(shownLat, shownLon, shownAcc, this.getPrivateId());
+                    }
+                }, 1000);
+            }
+        })
 
         //Join the room given by the game code (we'll need this later)
         this.ws.join(game.code);

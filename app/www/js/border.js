@@ -104,6 +104,7 @@ class Border {
 
     //storeInLayer isn't written directly, however it is how the function knows if it needs to edit/remove the old indicator.
     render (storeInLayer, map, fitTo){
+        console.log(this);
         if (storeInLayer !== undefined){
             storeInLayer.remove();
         }
@@ -122,7 +123,9 @@ class Border {
             storeInLayer.addTo(map);
         }
         if (fitTo){
-            map.fitBounds(storeInLayer.getBounds()); //Zoom the map to show the border.
+            var bounds = storeInLayer.getBounds();
+            console.log(bounds);
+            map.fitBounds(bounds); //Zoom the map to show the border.
         }
         return storeInLayer;
     }

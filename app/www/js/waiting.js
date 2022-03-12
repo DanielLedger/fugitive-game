@@ -75,6 +75,7 @@ function showGameStatus(giObj){
 }
 
 function showOptions(gameOpts){
+	console.log(gameOpts);
 	$('#options')[0].innerHTML = ""; //Wipe the element.
 	CONFIG_OPTIONS._goptions.disabled = !host; //If we're not host, we don't need to be able to press the buttons.
 	cfg = new ConfigMenu(gameOpts, CONFIG_OPTIONS);

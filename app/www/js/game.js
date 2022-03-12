@@ -18,6 +18,8 @@ var escapeClose = 0; //Time until the escape closes.
 
 var timer = 0;
 
+var jammerLeft = 0;
+
 var border;
 var borderLine;
 
@@ -52,6 +54,26 @@ function onOutButton(){
 	}
 }
 
+function onJammer(){
+	gameSocket.emit('JAMMER', () => {
+		//Callback is sent once the jamming ends (after 60 seconds).
+		$('#jammer')[0].innerText = "Jammer used.";
+	});
+	//Add a timer to the button
+	jammerLeft = 60;
+	window.setInterval(() => {
+		if (jammerLeft == 0 ){
+			//Ended clientside, however we can't say "ended" yet, so just wait at 0s.
+		}
+		else {
+			jammerLeft--;
+			$('#jammer')[0].innerText = `Jamming: ${jammerLeft}s`;
+		}
+	}, 1000);
+	//Immediately disable the button
+	$('#jammer')[0].disabled = true;
+}
+
 function configureUI(){
 	//Configures the UI based on the player's set role. Everything that can be hidden starts hidden
 	if (window.sessionStorage.getItem("role") === 'fugitive'){
@@ -60,6 +82,7 @@ function configureUI(){
 
 		//Bind the events to the buttons.
 		$('#caught')[0].onclick = onOutButton;
+		$('#jammer')[0].onclick = onJammer;
 	}
 	else if (window.sessionStorage.getItem("role") === 'hunter'){
 		//Show the ping menu.
