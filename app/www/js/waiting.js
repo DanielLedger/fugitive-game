@@ -76,16 +76,20 @@ function showGameStatus(giObj){
 
 function showOptions(gameOpts){
 	console.log(gameOpts);
-	$('#options')[0].innerHTML = ""; //Wipe the element.
 	CONFIG_OPTIONS._goptions.disabled = !host; //If we're not host, we don't need to be able to press the buttons.
-	cfg = new ConfigMenu(gameOpts, CONFIG_OPTIONS);
-	cfg.addEventListener('change', () => {
-		//Get the diff.
-		var toSend = cfg.getDiff();
-		//Send it?
-		gameSocket.emit('OPTION', toSend);
-	})
-	cfg.display($('#options')[0]);
+	if (cfg === undefined){
+		cfg = new ConfigMenu(gameOpts, CONFIG_OPTIONS);
+		cfg.addEventListener('change', () => {
+			//Get the diff.
+			var toSend = cfg.getDiff();
+			//Send it?
+			gameSocket.emit('OPTION', toSend);
+		})
+		cfg.display($('#options')[0]);
+	}
+	else {
+		cfg.update(gameOpts);
+	}
 	border = new Border(gameOpts.border);
 	//Set the border explicitly.
 	if (!Border.areSame(border, oldBorder)){
