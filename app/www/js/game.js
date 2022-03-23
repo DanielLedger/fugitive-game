@@ -335,12 +335,12 @@ window.setInterval(() => {
 		return;
 	}
 	//Headstart blanker
-	if (timer <= escapeOpen + hsTime){
+	if (timer <= escapeOpen || window.sessionStorage.getItem("role") === 'fugitive'){
 		$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
 	}
 	else {
 		$('#blanker')[0].style="display: block;"; //Show blanker. TODO: Show headstart timer + don't do this for spectators.
-		$('#headstarttimer')[0].innerText = `Headstart: ${calculateTimeRep(hsTime)}`
+		$('#headstarttimer')[0].innerText = `Headstart: ${calculateTimeRep(timer - escapeOpen)}`
 	}
 	//Calculate the time until the three big events. If less than zero, cap at zero.
 	var timeUntilReveal = Math.max(0, timer - escapeReveal);
