@@ -29,7 +29,7 @@
             * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
                 * Enable inline JS: add 'unsafe-inline' to default-src
         -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' ws: data: gap: https: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src data: http: https: 'self' 'unsafe-inline';">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' ws: data: gap: https: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; media-src *; img-src data: http: https: 'self' 'unsafe-inline';">
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -37,6 +37,9 @@
         <!-- jQuery -->
         <script src="js/jquery-3.6.0.min.js"></script>
         <!-- /jQuery -->
+        <!-- Google Icons -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+        <!-- /Google Icons -->
 		<!-- Bootstrap -->
 		<link rel="stylesheet" href="css/bootstrap.min.css">
 		<script src="js/bootstrap.bundle.min.js"></script>
@@ -45,35 +48,63 @@
 		<link rel="stylesheet" href="css/leaflet.css">
 		<script src="js/leaflet.js"></script>
 		<!-- /Leaflet -->
+        <!-- Us -->
         <link rel="stylesheet" href="css/index.css">
         <link rel="stylesheet" href="css/game.css">
         <script src="js/socket.io.js"></script>
 		<script src="js/checkserver.js"></script>
 		<script src="js/location.js"></script>
         <script src="js/border.js"></script>
+        <!-- /Us -->
         <title>Fugitive - In Game</title>
     </head>
     <body>
-        <h3 id="untilreveal">Escape revealed in: -waiting-</h2>
-        <h3 id="untilopen">Escape opens in: -waiting-</h2>
-        <h3 id="untilclose">Escape closes in: -waiting-</h2>
-        <div id="fugitivebuttons" style="display: none;">
-            <button id="caught" class="btn btn-danger btn-block">I've been caught!</button>
-            <label for="jammer">Distort your location to others for 1 minute.</label><button id="jammer" class="btn btn-danger btn-block">Jammer</button>
+        <header class="navbar navbar-expand-sm topnav" style="padding-top: 0;" id="navheader">
+            <!-- Tabs -->
+            <div class="navbar-nav topnav-btn topnav-selected" id="tab1">
+                <span class="material-symbols-outlined nav-icon">map</span>
+            </div>
+            <div class="navbar-nav topnav-btn" id="tab2">
+                <span class="material-symbols-outlined nav-icon">schedule</span>
+            </div>
+            <div class="navbar-nav topnav-btn" id="tab3">
+                <span class="material-symbols-outlined nav-icon">directions_run</span>
+            </div>
+            <div class="navbar-nav topnav-btn" id="tab4">
+                <span class="material-symbols-outlined nav-icon">bolt</span>
+            </div>
+        </header>
+        <div id="content">
+            <div id="map"> </div>
+            <div id="goals">
+                <h3 id="untilreveal">Escape revealed in: -waiting-</h2>
+                <h3 id="untilopen">Escape opens in: -waiting-</h2>
+                <h3 id="untilclose">Escape closes in: -waiting-</h2>
+            </div>
+            <div id="players">
+                <h3>Nothing here (yet)</h3>
+            </div>
+            <div id="abilities">
+                <div id="fugitivebuttons" style="display: none;">
+                    <button id="caught" class="btn btn-danger btn-block">I've been caught!</button>
+                    <label for="jammer">Distort your location to others for 1 minute.</label><button id="jammer" class="btn btn-danger btn-block">Jammer</button>
+                </div>
+                <div id="pingbuttons" style="display: none;">
+                    <p>Press the map to send a ping, or use these buttons to communicate.</p>
+                    <button id="gotthat" class="btn btn-success btn-block">Got it, will do.</button>
+                    <button id="repeat" class="btn btn-warning btn-block">I didn't catch that.</button>
+                </div>
+            </div>
         </div>
-        <div id="pingbuttons" style="display: none;">
-            <p>Press the map to send a ping, or use these buttons to communicate.</p>
-            <button id="gotthat" class="btn btn-success btn-block">Got it, will do.</button>
-            <button id="repeat" class="btn btn-warning btn-block">I didn't catch that.</button>
-        </div>
-        <div id="map">
-		</div>
+        
 		<div id="alerts"></div>
-        <div id="blanker">
+        <!--<div id="blanker">
             <span id="headstarttimer"></span>
         </div> <!--Shown during headstart time to make it abundantly clear what's going on.-->
         <script src="cordova.js"></script>
 		<script src="js/common.js"></script>
         <script src="js/game.js"></script>
+        <script src="js/nav-select.js"></script>
+        <script src="js/eventsetup/game.js"></script>
     </body>
 </html>

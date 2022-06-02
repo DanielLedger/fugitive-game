@@ -156,3 +156,25 @@ h1 {
 	text-align: left;
 	position: fixed;
 }
+
+.topnav-btn {
+	width: 25%;
+    height: 100%;
+	border-style: solid;
+	border-width: 1px;
+	text-align: center;
+}
+
+.topnav-selected {
+	border-bottom-style: none;
+	padding-bottom: 1px;
+}
+
+.topnav {
+    height: 15%;
+}
+
+.nav-icon {
+    margin: auto;
+    font-size: 2em;
+}
