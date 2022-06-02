@@ -1,13 +1,18 @@
+var doNothing = (window.location.hash === "#nosrv");
+
 var serverIP = window.sessionStorage.getItem('GameIP');
 
 var gameSocket;
 
-if (serverIP === null) {
+if (serverIP === null && !doNothing) {
 	//No connected server, redirect to the main page.
 	document.location = "index.html"
 }
 
 function getWS(){
+	if (doNothing){
+		return;
+	}
 	//Contact the server and try to get a websocket.
 	var code = window.sessionStorage.getItem('GameCode'); //Identifies the game.
 	var uuid = window.sessionStorage.getItem('ID'); //Identifies the us.
