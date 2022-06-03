@@ -1,5 +1,6 @@
+const el = () => {};
 
-async function createSocket(onPing, onNetFail, onRecStart, onRecSuccess, onRecFail){
+async function createSocket(onPing = el, onNetFail = el, onRecStart = el, onRecSuccess = el, onRecFail = el){
 	//Resolve returns the object. Reject returns a JSON of why and if we should redirect out of the game.
 	var toExec = (resolve, reject) => {
 		if (window.location.hash === "#nosrv"){
