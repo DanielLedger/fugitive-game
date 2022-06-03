@@ -76,6 +76,13 @@ async function getSocket() {
 	if (gameSockPromise === null){
 		return Promise.reject("Need to call 'createSocket' first!");
 	}
+	else if (window.location.hash === "#nosrv"){
+		//Return a dummy socket which does nothing useful.
+		return Promise.resolve({
+			emit: () => {},
+			on: () => {}
+		});
+	}
 	else if (gameSocket !== null && gameSocket.connected){
 		//Already connected, just return the socket.
 		return gameSocket;

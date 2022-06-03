@@ -17,11 +17,11 @@ function __deselectAll(tabs){
 }
 
 function __show(e){
-    e.style = "display: block;";
+    e.style.display = "block";
 }
 
 function __hide(e){
-    e.style = "display: none;";
+    e.style.display = "none";
 }
 
 function __hideAll(es){
@@ -37,6 +37,6 @@ function selectTab(toSelect, navbar, contentShow, contentContainer){
     __deselectAll(navbar.getElementsByTagName("div"));
     __selectTab(toSelect)
     //Show/hide the content
-    __hideAll(contentContainer.getElementsByTagName("div"));
+    __hideAll(contentContainer.querySelectorAll("div.tabpane"));
     __show(contentShow);
 }
