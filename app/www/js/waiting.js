@@ -83,7 +83,7 @@ function showOptions(gameOpts){
 			//Get the diff.
 			var toSend = cfg.getDiff();
 			//Send it?
-			gameSocket.emit('OPTION', toSend);
+			getSocket().then((s) => {s.emit('OPTION', toSend);});
 		})
 		cfg.display($('#options')[0]);
 	}
@@ -111,40 +111,19 @@ function updateOptions(opt, israw){
 	//Send a JSON of purely what's changed.
 	var justChange = {};
 	justChange[opt] = newVal;
-	gameSocket.emit('OPTION', justChange);
+	getSocket().then((s) => {s.emit('OPTION', justChange);});
 }
-
-gameSocket.emit('INFO', (opts) => {
-	showGameStatus(opts);
-});
-
-gameSocket.on('REFETCH', () => {
-	//Something changed, so reget the player info (not just options)
-	//TODO: Just send the info directly (which is surprisngly annoying at the moment)
-	gameSocket.emit('INFO', (opts) => {
-		showGameStatus(opts);
-	});
-});
-
-gameSocket.on('UPDATED', (newOpts) => {
-	console.debug(newOpts);
-	showOptions(newOpts);
-});
-
-gameSocket.on('START', () => {
-	document.location = 'game.html';
-});
 
 $('#lockroleselection')[0].onclick = () => {
 	//Disable the button (so it can't be clicked again
 	$('#lockroleselection')[0].disabled = true;
 	//Send the assign roles message.
-	gameSocket.emit("ROLE_ASSIGN");
+	getSocket().then((s) => {s.emit("ROLE_ASSIGN");});
 };
 
 $('#startgame')[0].onclick = () => {
 	//Send the assign roles message.
-	gameSocket.emit('STARTGAME');
+	getSocket().then((s) => {s.emit('STARTGAME');});
 };
 
 
@@ -251,7 +230,7 @@ function sendPolyUpdate(points){
 		border: points
 	};
 	//Send an OPT message to actually update it.
-	gameSocket.emit('OPTION', newBorderObj);
+	getSocket().then((s) => {s.emit('OPTION', newBorderObj);});
 
 	//Also update lastPoly
 	lastPoly = new Border(newBorderObj.border);
@@ -265,7 +244,7 @@ function circleBorderChange(centre, rad){
 		}
 	};
 	//Send an OPT message to actually update it.
-	gameSocket.emit('OPTION', newBorderObj);
+	getSocket().then((s) => {s.emit('OPTION', newBorderObj);});
 
 	//Now, update 'lastCircle' to be this.
 	lastCircle = new Border(newBorderObj.border);
@@ -324,3 +303,10 @@ map.on('locationfound', (e) => {
 		currentLocationAccuracy.setLatLng(e.latlng);
 	}
 })
+
+//Get the initial info
+getSocket().then((s) => {
+	s.emit('INFO', (opts) => {
+		showGameStatus(opts);
+	});
+});

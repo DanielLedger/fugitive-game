@@ -47,17 +47,21 @@ function onOutButton(){
 		//Cancel background location task.
 		getGeolocationService().stop();
 
-		gameSocket.emit('OUT', () => {
-			window.sessionStorage.setItem('role', 'spectator');
-			document.location.reload();
+		getSocket().then((s) => {
+			s.emit('OUT', () => {
+				window.sessionStorage.setItem('role', 'spectator');
+				document.location.reload();
+			});
 		});
 	}
 }
 
 function onJammer(){
-	gameSocket.emit('JAMMER', () => {
-		//Callback is sent once the jamming ends (after 60 seconds).
-		$('#jammer')[0].innerText = "Jammer used.";
+	getSocket().then((s) => {
+		s.emit('JAMMER', () => {
+			//Callback is sent once the jamming ends (after 60 seconds).
+			$('#jammer')[0].innerText = "Jammer used.";
+		});
 	});
 	//Add a timer to the button
 	jammerLeft = 60;
@@ -77,7 +81,7 @@ function onJammer(){
 function configureUI(){
 	//Configures the UI based on the player's set role. Everything that can be hidden starts hidden
 	if (window.sessionStorage.getItem("role") === 'fugitive'){
-		//Show the 'I got caught' button and the jammer ability (TODO)
+		//Show the 'I got caught' button and the jammer ability
 		$('#fugitivebuttons')[0].style = "display: block;";
 
 		//Bind the events to the buttons.
@@ -157,73 +161,7 @@ function showFromInfo(gi){
 	us = gi.publicID;
 }
 
-function setupWS() {
 
-	gameSocket.on('TIME', (timers) => {
-		timer = timers[0] + timers[1];
-		if (timer <= escapeOpen){
-			$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
-		}
-		else {
-			$('#blanker')[0].style="display: block;"; //Show blanker. TODO: Show headstart timer + don't do this for spectators.
-		}
-	})
-
-	gameSocket.on('OVER', () => {
-		document.location = 'gameover.html';
-	});
-
-	gameSocket.on('OUT', () => {
-		window.sessionStorage.setItem('role', 'spectator');
-		document.location.reload();
-	});
-
-	gameSocket.on('COMPING', (target, from) => {
-		showPing(target, from);
-	});
-
-	gameSocket.on('disconnect', (reason) => {
-		console.warn(`Disconnct: ${reason}`);
-		//Warn the user our connection died.
-		var alertBox = $('#alerts')[0];
-		alertBox.innerHTML = "";
-		displayAlert(alertBox, 'warning', "Lost connection to server. Reconnecting...");
-	});
-
-	gameSocket.on('connect', () => {
-		var alertBox = $('#alerts')[0];
-		alertBox.innerHTML = "";
-		displayAlert(alertBox, 'success', "Connected.");
-		//"set" the map's zoom to the same to trigger a reload.
-		map.setZoom(map.getZoom() - 1);
-		map.setZoom(map.getZoom() + 1);
-	});
-
-	gameSocket.emit('INFO', (opts) => {
-		showFromInfo(opts);
-	});
-
-	gameSocket.on('LOC', (lat, lon, acc, who) => {
-		onLocationObtained(who, lat, lon, acc);
-	});
-
-	gameSocket.on('EVAC', (pt, rad) => {
-		if (escapeMarker !== undefined){
-			//Ignore, we already have it marked.
-			return;
-		}
-		//Show our player where the evacuation point is.
-		var escLat = pt.geometry.coordinates[1];
-		var escLon = pt.geometry.coordinates[0];
-		escapeMarker = L.marker([escLat, escLon], {
-			icon: L.icon({
-				iconSize: 32,
-				iconUrl: 'img/escape.png'
-			})
-		}).addTo(map);
-		escapeRad = L.circle([escLat, escLon], {radius: rad, opacity: 0.4, color: '#00ff00'}).addTo(map);
-	});
-}
 
 function setupMap() {
 	map = L.map('map');
@@ -251,7 +189,7 @@ function setupMap() {
 			onLocationObtained('self', l.latitude, l.longitude, l.accuracy);
 			if (cordova.platformId === 'browser'){
 				//We're not using BackgroundGeolocation, send it through the websocket as normal
-				gameSocket.emit('LOC', l.latitude, l.longitude, l.accuracy);
+				getSocket().then((s) => {s.emit('LOC', l.latitude, l.longitude, l.accuracy);});
 			}
 		});
 	}
@@ -259,8 +197,9 @@ function setupMap() {
 	configureUI();
 }
 
-function sendPing(target){
-	gameSocket.emit('COMPING', target, (accepted) => {
+async function sendPing(target){
+	var gs = await getSocket();
+	gs.emit('COMPING', target, (accepted) => {
 		if (accepted){
 			showPing(target, 'self');
 		}

@@ -2,40 +2,6 @@ var map;
 
 var playerLocations = {}; //A dict of player public IDs -> {location, accuracy, marker, accuracyCircle}
 
-function setupWS() {
-	gameSocket.on('LOC', (lat, lon, acc, who) => {
-		onLocationObtained(who, lat, lon, acc);
-	});
-	
-	gameSocket.on('disconnect', (reason) => {
-		console.warn(`Disconnct: ${reason}`);
-		//Warn the user our connection died.
-		var alertBox = $('#alerts')[0];
-		alertBox.innerHTML = "";
-		displayAlert(alertBox, 'warning', "Lost connection to server. Reconnecting...");
-	});
-
-	gameSocket.on('connect', () => {
-		var alertBox = $('#alerts')[0];
-		alertBox.innerHTML = "";
-		displayAlert(alertBox, 'success', "Connected.");
-		//"set" the map's zoom to the same to trigger a reload.
-		map.setZoom(map.getZoom() - 1);
-		map.setZoom(map.getZoom() + 1);
-	});
-
-	//Ask the server why we're here (socket.io will wait until we've connected to send this)
-	gameSocket.emit('HAS_WON', (winner, reason) => {
-		if (winner){
-			$('#haswon')[0].innerText = 'You won!';
-		}
-		else {
-			$('#haswon')[0].innerText = 'You lost!';
-		}
-		$('#reason')[0].innerText = reason;
-	});
-}
-
 function setupMap() {
 	map = L.map('map');
 	L.tileLayer(serverIP + "/tile?x={x}&y={y}&z={z}", {
@@ -61,7 +27,7 @@ function setupMap() {
         onLocationObtained('self', l.latitude, l.longitude, l.accuracy);
         if (cordova.platformId === 'browser'){
             //We're not using BackgroundGeolocation, send it through the websocket as normal
-            gameSocket.emit('LOC', l.latitude, l.longitude, l.accuracy);
+            getSocket().then((s) => {s.emit('LOC', l.latitude, l.longitude, l.accuracy);});
         }
     });
 	setupWS();
