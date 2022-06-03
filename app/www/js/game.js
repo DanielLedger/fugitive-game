@@ -165,7 +165,7 @@ function showFromInfo(gi){
 
 function setupMap() {
 	map = L.map('map');
-	L.tileLayer(serverIP + "/tile?x={x}&y={y}&z={z}", {
+	L.tileLayer(getServerIP() + "/tile?x={x}&y={y}&z={z}", {
 		//Standard settings for mapbox (which we're using for the forseeable future).
 		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
     	maxZoom: 20,
@@ -176,7 +176,7 @@ function setupMap() {
 		//Temporary, just to try and get the damn thing to work.
 		if (cordova.platformId !== 'browser'){
 			BackgroundGeolocation.configure({
-				url: serverIP + "/loc",
+				url: getServerIP() + "/loc",
 				postTemplate: {
 					lat: "@latitude",
 					lon: "@longitude",

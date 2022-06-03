@@ -275,7 +275,7 @@ $('#circlelon')[0].onchange = () => circleBorderChange([Number($('#circlelat')[0
 //Map clicked, update centre.
 map.on('click', (e) => circleBorderChange([e.latlng.lat, e.latlng.lng], lastCircle.getRadius()));
 
-L.tileLayer(serverIP + "/tile?x={x}&y={y}&z={z}", {
+L.tileLayer(getServerIP() + "/tile?x={x}&y={y}&z={z}", {
 	//Standard settings for mapbox (which we're using for the forseeable future).
 	attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
 	maxZoom: 17,

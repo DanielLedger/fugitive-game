@@ -10,7 +10,7 @@ async function createSocket(onPing, onNetFail, onRecStart, onRecSuccess, onRecFa
 		}
 
 		//Get the data from our session storage
-		var serverIP = window.sessionStorage.getItem('GameIP');
+		var serverIP = getServerIP();
 		var code = window.sessionStorage.getItem('GameCode'); //Identifies the game.
 		var uuid = window.sessionStorage.getItem('ID'); //Identifies the us.
 		
@@ -84,6 +84,10 @@ async function getSocket() {
 		return gameSockPromise;
 	}
 	
+}
+
+function getServerIP(){
+	return window.sessionStorage.getItem('GameIP');
 }
 
 var gameSocket;
