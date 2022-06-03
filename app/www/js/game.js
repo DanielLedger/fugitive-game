@@ -148,12 +148,13 @@ function showFromInfo(gi){
 	//The single timer which we decrement throughout the course of the game.
 	timer = escapeOpen + hsTime;
 
+	/*
 	if (hsTime <= 0){
 		$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
 	}
 	else {
 		$('#blanker')[0].style="display: block;"; //Show blanker. TODO: Show headstart timer + don't do this for spectators.
-	}
+	}*/
 	//Set the border
 	border = new Border(gi.options.border);
 	borderLine = border.render(borderLine, map, window.sessionStorage.getItem("role") === 'spectator'); //Only snap to the border if the player is a spectator.
@@ -275,11 +276,11 @@ window.setInterval(() => {
 	}
 	//Headstart blanker
 	if (timer <= escapeOpen || window.sessionStorage.getItem("role") === 'fugitive'){
-		$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
+		//$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
 	}
 	else {
-		$('#blanker')[0].style="display: block;"; //Show blanker. TODO: Show headstart timer + don't do this for spectators.
-		$('#headstarttimer')[0].innerText = `Headstart: ${calculateTimeRep(timer - escapeOpen)}`
+		//$('#blanker')[0].style="display: block;"; //Show blanker. TODO: Show headstart timer + don't do this for spectators.
+		//$('#headstarttimer')[0].innerText = `Headstart: ${calculateTimeRep(timer - escapeOpen)}`
 	}
 	//Calculate the time until the three big events. If less than zero, cap at zero.
 	var timeUntilReveal = Math.max(0, timer - escapeReveal);

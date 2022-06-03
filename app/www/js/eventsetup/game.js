@@ -42,12 +42,12 @@ async function setupWS() {
 
 	gs.on('TIME', (timers) => {
 		timer = timers[0] + timers[1];
-		if (timer <= escapeOpen){
+		/*if (timer <= escapeOpen){
 			$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
 		}
 		else {
 			$('#blanker')[0].style="display: block;"; //Show blanker. TODO: Show headstart timer + don't do this for spectators.
-		}
+		}*/
 	})
 
 	gs.on('OVER', () => {
