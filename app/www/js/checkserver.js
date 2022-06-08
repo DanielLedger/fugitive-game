@@ -12,8 +12,8 @@ async function createSocket(onPing = el, onNetFail = el, onRecStart = el, onRecS
 
 		//Get the data from our session storage
 		var serverIP = getServerIP();
-		var code = window.sessionStorage.getItem('GameCode'); //Identifies the game.
-		var uuid = window.sessionStorage.getItem('ID'); //Identifies the us.
+		var code = getGameCode(); //Identifies the game.
+		var uuid = getUID(); //Identifies the us.
 		
 		if (serverIP === null || code === null || uuid === null){
 			//Not got three bits of required info, reject and request a redirect.
@@ -96,6 +96,14 @@ async function getSocket() {
 
 function getServerIP(){
 	return window.sessionStorage.getItem('GameIP');
+}
+
+function getGameCode(){
+	return window.sessionStorage.getItem('GameCode');
+}
+
+function getUID(){
+	return window.sessionStorage.getItem('ID');
 }
 
 var gameSocket;

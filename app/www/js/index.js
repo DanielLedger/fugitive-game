@@ -45,13 +45,13 @@ function onDeviceReady() {
 		$('#gamecode')[0].value = `${num.substring(0, 3)}-${num.substring(3,6)}-${num.substring(6,9)}`;
 	};
 
-	//If we have a location hash, fill in the info (don't join the game instantly, otherwise we've made an IP grabber).
-	if (window.location.hash !== ""){
-		var dat = window.location.hash.slice(1);
-		dat = JSON.parse(decodeURIComponent(dat));
-		$('#serverip')[0].value = dat.ip;
-		$('#gamecode')[0].value = dat.code;
-	}
+}
+
+function handleOpenURL(uri){
+	console.log("Using URI of " + uri);
+	var parts = uri.replace('fugitive://', '').split('/');
+	$('#serverip')[0].value = parts[0].replaceAll('~', '/');
+	$('#gamecode')[0].value = parts[1];
 }
 
 function preGameStart(callNext) {

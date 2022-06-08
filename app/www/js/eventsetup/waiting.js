@@ -20,5 +20,23 @@ createSocket().then((s) => {
 
 });
 
+//Share link event
+async function shareGame(){
+    var pc = (resolve, reject) => {
+        var uri = `fugitive://${getServerIP().replaceAll('/', '~')}/${getGameCode()}`;
+        if (device.platform === 'browser'){
+            //Copy link to clipboard
+            navigator.clipboard.writeText(uri).then(resolve, reject);
+            return;
+        }
+        
+        var opts = {
+            message: 'Join my game of Fugitive. Good luck!',
+            url: uri
+        };
+        window.plugins.socialsharing.shareWithOptions(opts, resolve, reject);
+    };
+    return new Promise(pc);
+}
 
-
+document.getElementById('share').onclick = shareGame;
