@@ -73,9 +73,6 @@
             <div class="navbar-nav topnav-btn" id="tab4">
                 <span class="material-symbols-outlined nav-icon">bolt</span>
             </div>
-            <!--<div class="navbar-nav topnav-btn" id="tab5">
-                <span class="material-symbols-outlined nav-icon">warning</span>
-            </div>-->
         </header>
         <div id="content">
             <div id="map" class="tabpane"> </div>
@@ -85,7 +82,54 @@
                 <h3 id="untilclose">Escape closes in: -waiting-</h2>
             </div>
             <div id="players" class="tabpane">
-                <h3>Nothing here (yet)</h3>
+                <div id="fugitive-playerlist" class="playerlist container">
+                    <h3>Fugitives</h3>
+                    <div class="playerentry">
+                        <div class="playerentryinfo">
+                            <h4 class="playerentryname">Fugitive #1</h4>
+                            <p class="playerentrydistance">Distance: 69m</p>
+                        </div>
+                        <div class="playerentrysnapto btn"><span class="material-symbols-outlined">my_location</span></div>
+                    </div>
+                    <div class="playerentry">
+                        <div class="playerentryinfo">
+                            <h4 class="playerentryname">Fugitive #1</h4>
+                            <p class="playerentrydistance">Distance: 69m</p>
+                        </div>
+                        <div class="playerentrysnapto btn"><span class="material-symbols-outlined">my_location</span></div>
+                    </div>
+                    <div class="playerentry">
+                        <div class="playerentryinfo">
+                            <h4 class="playerentryname">Fugitive #1</h4>
+                            <p class="playerentrydistance">Distance: 69m</p>
+                        </div>
+                        <div class="playerentrysnapto btn"><span class="material-symbols-outlined">my_location</span></div>
+                    </div>
+                </div>
+                <div id="hunter-playerlist" class="container">
+                    <h3>Hunters</h3>
+                    <div class="playerentry">
+                        <div class="playerentryinfo">
+                            <h4 class="playerentryname">Fugitive #1</h4>
+                            <p class="playerentrydistance">Distance: 69m</p>
+                        </div>
+                        <div class="playerentrysnapto btn"><span class="material-symbols-outlined">my_location</span></div>
+                    </div>
+                    <div class="playerentry">
+                        <div class="playerentryinfo">
+                            <h4 class="playerentryname">Fugitive #1</h4>
+                            <p class="playerentrydistance">Distance: 69m</p>
+                        </div>
+                        <div class="playerentrysnapto btn"><span class="material-symbols-outlined">my_location</span></div>
+                    </div>
+                    <div class="playerentry">
+                        <div class="playerentryinfo">
+                            <h4 class="playerentryname">Fugitive #1</h4>
+                            <p class="playerentrydistance">Distance: 69m</p>
+                        </div>
+                        <div class="playerentrysnapto btn"><span class="material-symbols-outlined">my_location</span></div>
+                    </div>
+                </div>
             </div>
             <div id="abilities" class="tabpane">
                 <div id="fugitivebuttons" style="display: none;">
@@ -101,7 +145,7 @@
         </div>
         
 		<div id="alerts"></div>
-        <!--<div id="blanker">
+        <div id="blanker">
             <span id="headstarttimer"></span>
         </div> <!--Shown during headstart time to make it abundantly clear what's going on.-->
         <script src="cordova.js"></script>

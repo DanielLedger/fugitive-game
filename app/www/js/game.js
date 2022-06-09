@@ -365,6 +365,19 @@ function getNumber(uid){
 	return h;
 }
 
+function hideHSWindow(){
+	document.getElementById('blanker').style.display = 'none';
+}
+
+function showHSWindow(){
+	document.getElementById('blanker').style.display = 'block';
+}
+
+function setHSWindowSecondsLeft(sec){
+	showHSWindow();
+	document.getElementById('headstarttimer').innerText = `Headstart: ${calculateTimeRep(sec)}`;
+}
+
 window.setTimeout(setupMap, 200); //Set a small timeout to allow everything to load.
 
 //Set a timer decrementer.
@@ -376,11 +389,10 @@ window.setInterval(() => {
 	}
 	//Headstart blanker
 	if (timer <= escapeOpen || window.sessionStorage.getItem("role") === 'fugitive'){
-		//$('#blanker')[0].style="display: none;"; //Remove blanker from visibility.
+		hideHSWindow();
 	}
 	else {
-		//$('#blanker')[0].style="display: block;"; //Show blanker. TODO: Show headstart timer + don't do this for spectators.
-		//$('#headstarttimer')[0].innerText = `Headstart: ${calculateTimeRep(timer - escapeOpen)}`
+		setHSWindowSecondsLeft(timer - escapeOpen);
 	}
 	//Calculate the time until the three big events. If less than zero, cap at zero.
 	var timeUntilReveal = Math.max(0, timer - escapeReveal);
