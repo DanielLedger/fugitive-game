@@ -36,3 +36,31 @@ h1,h2 {
 	font-size: xx-large;
 	position: absolute;
 }
+
+.playerlist {
+	overflow-y: scroll;
+}
+
+.playerentry {
+	border-style: solid;
+	border-width: 2px;
+	display: flex;
+	width: inherit;
+}
+
+.playerentryinfo {
+	display: flex;
+	flex-direction: column;
+	width: 80%;
+}
+
+.playerentrydistance {
+	font-size: 0.5rem;
+}
+
+.playerentrysnapto {
+	display: flex;
+	width: 20%;
+	align-items: center;
+	justify-content: center;
+}
