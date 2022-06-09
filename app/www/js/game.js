@@ -217,7 +217,7 @@ function onLocationObtained(who, lat, lng, accuracy){
 	var data;
 	if (playerLocations[who] !== undefined){
 		//Just move the already existing data.
-		data = playerLocations[who];
+		data = playerLocations[who].loc;
 		if (lat === undefined){
 			//Final 'move', so just show a semi-transparent marker with no accuracy circle.
 			data.circle.remove();
@@ -232,7 +232,7 @@ function onLocationObtained(who, lat, lng, accuracy){
 			//Update the actual data.
 			data.ll = [lat, lng];
 			data.acc = accuracy;
-			playerLocations[who] = data; //Set back over the top of the old one.
+			playerLocations[who].loc = data; //Set back over the top of the old one.
 		}
 	}
 	else {
@@ -250,7 +250,8 @@ function onLocationObtained(who, lat, lng, accuracy){
 		//Add raw data
 		data.ll = [lat, lng];
 		data.acc = accuracy;
-		playerLocations[who] = data; //Set this data in our list.
+		playerLocations[who] = {}
+		playerLocations[who].loc = data; //Set this data in our list.
 		if (who === 'self' || window.sessionStorage.getItem("role") === 'spectator'){
 			//This is us or we're a spectator, and we don't currently have a location, so set an initial view.
 			map.setView([lat, lng], 16);
@@ -263,6 +264,105 @@ function onLocationObtained(who, lat, lng, accuracy){
 			navigator.vibrate(500);
 		}
 	}
+	updatePlayerList();
+}
+
+function updatePlayerList(){
+	//Prepare our data
+	var playerInfo = [];
+	var ourLoc = playerLocations['self'].loc.ll;
+	for (var k in playerLocations){
+		var v = playerLocations[k];
+		//Calculate distance
+		var dist = Math.round(map.distance(v.loc.ll, ourLoc));
+		//Calculate the other things we need
+		var isF = this.fugitives[k];
+		var n = getNumber(k);
+		/*
+		1) If k === 'self', the name is 'You'
+		2) If 'isF', then the name is 'Fugitive #x
+		3) Else, the name is 'Hunter #x'
+		*/
+		var dispName = k === 'self' ? 'You' : isF ? `Fugitive #${n}` : `Hunter #${n}`;
+		playerInfo.push({
+			dist: dist,
+			fugitive: isF,
+			listEntry: makeListEntry(dispName, v.loc.ll, dist)
+		});
+	}
+	//Next, sort our list.
+	playerInfo.sort((a, b) => {
+		return a.dist - b.dist;
+	});
+	//Naive method: just remove and recreate all the divs. TODO: Make this more efficient.
+	var fList = document.getElementById('fugitive-playerlist');
+	var hList = document.getElementById('hunter-playerlist')
+	fList.innerHTML = '<h3>Fugitives</h3>';
+	hList.innerHTML = '<h3>Hunters</h3>';
+	for (var i of playerInfo){
+		if (i.fugitive){
+			fList.appendChild(i.listEntry);
+		}
+		else {
+			hList.appendChild(i.listEntry);
+		}
+	}
+	
+}
+
+function makeListEntry(name, ll, dist){
+	var rootEntry = document.createElement('div');
+	rootEntry.classList.add('playerentry');
+
+	//The div containing the name and distance.
+	var textInfo = document.createElement('div');
+	textInfo.classList.add('playerentryinfo');
+
+	//Player's name
+	var playerName = document.createElement('h4');
+	playerName.classList.add('playerentryname');
+	playerName.innerText = name;
+
+	//Player's distance.
+	var playerDist = document.createElement('p');
+	playerDist.classList.add('playerentrydistance');
+	playerDist.innerText = `Distance: ${dist}m`;
+
+	textInfo.appendChild(playerName);
+	textInfo.appendChild(playerDist);
+
+	rootEntry.appendChild(textInfo);
+
+	//The button which snaps the map to this person's location.
+	var snapBtn = document.createElement('div');
+	snapBtn.classList.add('btn', 'playerentrysnapto');
+	//While hard-coding this sort of thing is a bit ugly, it's also fast to write
+	snapBtn.innerHTML = '<span class="material-symbols-outlined">my_location</span>';
+	snapBtn.onclick = () => {
+		mapToLocation(ll);
+	};
+
+	rootEntry.appendChild(snapBtn);
+
+	return rootEntry;
+
+}
+
+function mapToLocation(ll){
+	document.getElementById("tab1").click();
+	map.panTo(ll);
+}
+
+function getNumber(uid){
+	//Creates a number somewhat randomly from a UUID.
+	var h = 0;
+	var m = 1;
+	for (var i = 0; i < uid.length; i++){
+		h += (m * uid.charCodeAt(i));
+		m++;
+		h %= 1000;
+	}
+	return h;
 }
 
 window.setTimeout(setupMap, 200); //Set a small timeout to allow everything to load.
