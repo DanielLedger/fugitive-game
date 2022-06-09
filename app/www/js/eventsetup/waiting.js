@@ -20,10 +20,14 @@ createSocket().then((s) => {
 
 });
 
+function getShareLink(){
+    return `fugitive://${getServerIP().replaceAll('/', '~')}/${getGameCode()}`;
+}
+
 //Share link event
 async function shareGame(){
     var pc = (resolve, reject) => {
-        var uri = `fugitive://${getServerIP().replaceAll('/', '~')}/${getGameCode()}`;
+        var uri = getShareLink();
         if (device.platform === 'browser'){
             //Copy link to clipboard
             navigator.clipboard.writeText(uri).then(resolve, reject);
@@ -38,5 +42,23 @@ async function shareGame(){
     };
     return new Promise(pc);
 }
+
+//Create QR code
+async function createGameQR(){
+    var pc = (resolve, reject) => {
+        var uri = getShareLink();
+        cordova.plugins.qrcodejs.encode('TEXT_TYPE', uri, resolve, reject);
+    };
+    return new Promise(pc);
+}
+
+async function setGameQR(){
+    var qrRaw = await createGameQR();
+    document.getElementById('shareQR').src = qrRaw;
+}
+
+document.addEventListener('deviceready', () => {
+    setGameQR();
+}, false);
 
 document.getElementById('share').onclick = shareGame;
